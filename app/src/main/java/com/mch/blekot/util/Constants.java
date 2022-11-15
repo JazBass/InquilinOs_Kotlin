@@ -1,4 +1,4 @@
-package com.rdajila.tandroidsocketio.util;
+package com.mch.blekot.util;
 
 public final class Constants {
     // Constantes para la conexion SOCKET

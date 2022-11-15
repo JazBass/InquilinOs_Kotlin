@@ -1,7 +1,7 @@
 package com.mch.blekot
 
 import android.util.Log
-import com.squareup.okhttp.*
+import okhttp3.*
 import java.io.IOException
 
 class WeLock(
@@ -45,13 +45,13 @@ class WeLock(
     }
 
     private var tokenCallback: Callback = object : Callback {
-        override fun onFailure(request: Request?, e: IOException?) {
-            Log.i("TokenCallback", "FAIL")
+
+        override fun onFailure(p0: Call, p1: IOException) {
+            TODO("Not yet implemented")
         }
 
-        @Throws(IOException::class)
-        override fun onResponse(response: Response) {
-            mToken = response.body().string().split("\"")[9]
+        override fun onResponse(p0: Call, response: Response) {
+            mToken = response.body()?.string()?.split("\"")?.get(9)
             Log.i("WELOCK", "onResponse: $mToken")
             getHex()
         }
@@ -59,20 +59,22 @@ class WeLock(
 
 
     private var actionCallback: Callback = object : Callback {
-        override fun onFailure(request: Request?, e: IOException?) {
 
+        override fun onFailure(p0: Call, p1: IOException) {
+            Log.i("Action Callback", "FAIL")
         }
 
-        @Throws(IOException::class)
-        override fun onResponse(response: Response) {
-            val res = response.body().string().split("\"")[3]
+        override fun onResponse(p0: Call, response: Response) {
+            val res = response.body()?.string()?.split("\"")?.get(3)
             Log.i("WeLock", "onResponse: $res")
-            ble.startBle(res)
+            if (res != null) {
+                ble.startBle(res)
+            }
         }
     }
 
 
-    fun newJson(appID: String, secret: String): String {
+    private fun newJson(appID: String, secret: String): String {
         return """{appID: "$appID", secret: "$secret"}"""
     }
 
@@ -87,13 +89,15 @@ class WeLock(
             .post(body)
             .build()
         val call: Call = client.newCall(request)
-        call.enqueue(callback)
+        if (callback != null) {
+            call.enqueue(callback)
+        }
     }
 
     @Throws(IOException::class)
     fun postWithToken(path: String, json: String?, callback: Callback?) {
         val body: RequestBody = RequestBody.create(
-            MediaType.parse("application/json"), json?.toByteArray()
+            MediaType.parse("application/json"), json?.toByteArray()!!
         )
         val request: Request = Request.Builder()
             .url(urlWeLock + path)
@@ -101,7 +105,9 @@ class WeLock(
             .post(body)
             .build()
         val call: Call = client.newCall(request)
-        call.enqueue(callback)
+        if (callback != null) {
+            call.enqueue(callback)
+        }
     }
 
 }
