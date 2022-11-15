@@ -3,7 +3,6 @@ package com.mch.blekot
 import android.util.Log
 import com.squareup.okhttp.*
 import java.io.IOException
-import kotlin.math.log
 
 class WeLock(
     private var rndNumber: String,

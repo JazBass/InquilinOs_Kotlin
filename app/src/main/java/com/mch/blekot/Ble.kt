@@ -10,7 +10,7 @@ import java.util.*
 
 class Ble(private val mContext: Context) {
 
-    private lateinit var mCode : String
+    private lateinit var mCode: String
 
     private val TAG = "Main Activity"
 
@@ -140,7 +140,13 @@ class Ble(private val mContext: Context) {
                 val myJason = "{\"rndNumber\":$rndNumber, \"battery\":$devicePower}"
                 Log.i(TAG, "onCharacteristicChanged: $myJason")
                 WeLock("$rndNumber", "$devicePower", "openLock", this@Ble).getToken()
-            } else {
+            } else if (characteristic.value[0].toInt() == 85 &&
+                characteristic.value[1].toInt() == 49
+            ) {
+                if (characteristic.value[2].toInt() == 1)
+                    Log.i(TAG, "RECIBIDO CORRECTAMENTE")
+
+                else Log.i(TAG, "ERROR")
 
             }
             Log.i(TAG, "onCharacteristicChanged: Received")
