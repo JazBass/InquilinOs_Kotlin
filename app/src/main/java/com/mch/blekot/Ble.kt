@@ -8,10 +8,7 @@ import android.util.Log
 import androidx.core.app.ActivityCompat
 import java.util.*
 
-class Ble(
-    private val mContext: Context,
-    private val mainActivity: MainActivity
-) {
+class Ble(private val mContext: Context) {
 
     private lateinit var mCode : String
 
@@ -29,6 +26,8 @@ class Ble(
     /*--------------------------BLE--------------------------*/
 
     fun startBle(code: String) {
+
+        //Tomamos el codigo y lo guardamos en una variable global
         mCode = code
         val btAdapter = BluetoothAdapter.getDefaultAdapter()
         val device = btAdapter.getRemoteDevice("C7:12:48:82:08:2F")
@@ -40,6 +39,8 @@ class Ble(
     }
 
     private val mGattCallback: BluetoothGattCallback = object : BluetoothGattCallback() {
+
+        /*-----------------------1º-----------------------*/
         override fun onConnectionStateChange(gatt: BluetoothGatt, status: Int, newState: Int) {
             super.onConnectionStateChange(gatt, status, newState)
             if (newState == BluetoothProfile.STATE_CONNECTED) {
@@ -54,6 +55,9 @@ class Ble(
                 Log.i(TAG, "onConnectionStateChange: Discover Services")
             }
         }
+
+        /*-----------------------2º-----------------------*/
+        /*Nos suscribimos a las notificaciones y escribimos el descriptor*/
 
         override fun onServicesDiscovered(gatt: BluetoothGatt, status: Int) {
             super.onServicesDiscovered(gatt, status)
@@ -71,6 +75,45 @@ class Ble(
             gatt.writeDescriptor(desc)
         }
 
+        /*-----------------------3º-----------------------*/
+        override fun onDescriptorWrite(
+            gatt: BluetoothGatt,
+            descriptor: BluetoothGattDescriptor,
+            status: Int
+        ) {
+            if (descriptor.characteristic === characteristicNotify) {
+                sendBLE(gatt)
+            } else Log.i(TAG, "onDescriptorWrite: Descriptor is not connected")
+        }
+
+        fun String.decodeHex(): ByteArray {
+            check(length % 2 == 0)
+            return chunked(2)
+                .map { it.toInt(16).toByte() }
+                .toByteArray()
+        }
+
+        /*-----------------------4ª-----------------------*/
+
+        // Aqui escribimos las caracteristicas
+
+        fun sendBLE(gatt: BluetoothGatt) {
+            characteristicWrite = gatt.getService(SERVICE_UUID).getCharacteristic(WRITE_CHARACTER)
+            characteristicWrite!!.value = mCode.decodeHex()
+            characteristicWrite!!.writeType = BluetoothGattCharacteristic.WRITE_TYPE_DEFAULT
+            if (ActivityCompat.checkSelfPermission(
+                    mContext,
+                    Manifest.permission.BLUETOOTH_CONNECT
+                )
+                != PackageManager.PERMISSION_GRANTED
+            ) {
+            }
+            Log.i(TAG, "Sending...")
+            gatt.writeCharacteristic(characteristicWrite)
+        }
+
+        /*-----------------------5º-----------------------*/
+
         override fun onCharacteristicWrite(
             gatt: BluetoothGatt,
             characteristic: BluetoothGattCharacteristic,
@@ -83,6 +126,9 @@ class Ble(
                 }
             } else Log.i(TAG, "ERROR: Write is not ok")
         }
+
+        /*-----------------------6ª-----------------------*/
+        /* Al recibir la respuesta de la manija lanzamos la request http*/
 
         override fun onCharacteristicChanged(
             gatt: BluetoothGatt,
@@ -108,39 +154,6 @@ class Ble(
             gatt.close()
         }
 
-        override fun onDescriptorWrite(
-            gatt: BluetoothGatt,
-            descriptor: BluetoothGattDescriptor,
-            status: Int
-        ) {
-            if (descriptor.characteristic === characteristicNotify) {
-                sendBLE(gatt)
-            } else Log.i(TAG, "onDescriptorWrite: Descriptor is not connected")
-        }
-
-        fun String.decodeHex(): ByteArray {
-            check(length % 2 == 0)
-            return chunked(2)
-                .map { it.toInt(16).toByte() }
-                .toByteArray()
-        }
-
-        /*---------------------write char---------------------*/
-
-        fun sendBLE(gatt: BluetoothGatt) {
-            characteristicWrite = gatt.getService(SERVICE_UUID).getCharacteristic(WRITE_CHARACTER)
-            characteristicWrite!!.value = mCode.decodeHex()
-            characteristicWrite!!.writeType = BluetoothGattCharacteristic.WRITE_TYPE_DEFAULT
-            if (ActivityCompat.checkSelfPermission(
-                    mContext,
-                    Manifest.permission.BLUETOOTH_CONNECT
-                )
-                != PackageManager.PERMISSION_GRANTED
-            ) {
-            }
-            Log.i(TAG, "Sending...")
-            gatt.writeCharacteristic(characteristicWrite)
-        }
     }
 
 }

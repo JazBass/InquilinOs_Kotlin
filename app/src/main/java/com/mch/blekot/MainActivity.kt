@@ -21,7 +21,9 @@ class MainActivity : AppCompatActivity(), BleAux {
         /*---------------------write char---------------------*/
 
     override fun sendBle(code: String) {
-        Ble(applicationContext, this).startBle(code)
+
+        //Instanciamos la clase pasandole el contexto
+        Ble(applicationContext).startBle(code)
     }
 
 }
