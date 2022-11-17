@@ -14,6 +14,7 @@ import com.mch.blekot.MainActivity;
 import com.mch.blekot.util.Constants;
 import com.mch.blekot.util.ProcessDataJson;
 
+import java.util.Objects;
 import java.util.TimerTask;
 
 // Librerias para el sockect IO
@@ -74,10 +75,25 @@ public final class DeviceSocketIO extends Service {
                 // Obtener dataJSON en un HashMap
                 ProcessDataJson pDataJson = new ProcessDataJson();
                 pDataJson.getData(dataJson);
-                //System.out.print(pDataJson);
+                String action = (Objects.requireNonNull(pDataJson.getValue("cmd"))).toString();
                 Ble ble = new Ble(getApplicationContext());
-                ble.startBle("5530");
-                //Ble(applicationContext).startBle(code)
+                switch (action) {
+                    case Constants.ACTION_OPEN_LOCK:
+                        ble.startBle("5530", action, "");
+                        break;
+
+                    case Constants.ACTION_NEW_CODE:
+                        String code = (Objects.requireNonNull(pDataJson.getValue("code"))).toString();
+                        ble.startBle("5530", action, code);
+                        break;
+
+                    case Constants.ACTION_SET_CARD:
+                        String qr = (Objects.requireNonNull(pDataJson.getValue("qr"))).toString();
+                        String type = (Objects.requireNonNull(pDataJson.getValue("type"))).toString();
+                        ble.startBle("5530", action, "");
+                        break;
+                }
+
             } catch (JSONException e) {
                 // TODO Auto-generated catch block
                 e.printStackTrace();

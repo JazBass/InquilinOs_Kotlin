@@ -12,4 +12,8 @@ public final class Constants {
     public final static String ACTION_RUN_SERVICE = "com.rdajila.tandroidsocketio.services.action.RUN_SERVICE";
     public final static String EXTRA_MSG = "com.rdajila.tandroidsocketio.services.extra.MEMORY";
     public final static String EXTRA_COUNTER = "com.rdajila.tandroidsocketio.services.extra.COUNT";
+
+    public final static String ACTION_OPEN_LOCK = "openLock";
+    public final static String ACTION_NEW_CODE = "newCode";
+    public final static String ACTION_SET_CARD = "setCard";
 }

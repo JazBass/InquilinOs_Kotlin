@@ -6,11 +6,14 @@ import android.content.Context
 import android.content.pm.PackageManager
 import android.util.Log
 import androidx.core.app.ActivityCompat
+import com.mch.blekot.util.Constants
 import java.util.*
 
 class Ble(private val mContext: Context) {
 
     private lateinit var mCode: String
+    private lateinit var mAction: String
+    private lateinit var mNewCode: String
 
     private val TAG = "Main Activity"
 
@@ -25,10 +28,15 @@ class Ble(private val mContext: Context) {
 
     /*--------------------------BLE--------------------------*/
 
-    fun startBle(code: String) {
+    fun startBle(code: String, action: String? = "", newCode: String? = null) {
 
         //Tomamos el codigo y lo guardamos en una variable global
         mCode = code
+        if (newCode != null) {
+            mNewCode = newCode
+        }
+        mAction = action!!
+
         val btAdapter = BluetoothAdapter.getDefaultAdapter()
         val device = btAdapter.getRemoteDevice("C7:12:48:82:08:2F")
         if (ActivityCompat.checkSelfPermission(mContext, Manifest.permission.BLUETOOTH_CONNECT) !=
@@ -99,18 +107,31 @@ class Ble(private val mContext: Context) {
 
         fun sendBLE(gatt: BluetoothGatt) {
             characteristicWrite = gatt.getService(SERVICE_UUID).getCharacteristic(WRITE_CHARACTER)
-            characteristicWrite!!.value = mCode.decodeHex()
-            characteristicWrite!!.writeType = BluetoothGattCharacteristic.WRITE_TYPE_DEFAULT
+            val codeHex = mCode.decodeHex()
+            val maxByteArraySize = codeHex.size
+            val plusOne = if ((maxByteArraySize % 20) > 0) 1 else 0
             if (ActivityCompat.checkSelfPermission(
                     mContext,
                     Manifest.permission.BLUETOOTH_CONNECT
-                )
-                != PackageManager.PERMISSION_GRANTED
+                ) != PackageManager.PERMISSION_GRANTED
             ) {
             }
-            Log.i(TAG, "Sending...")
-            gatt.writeCharacteristic(characteristicWrite)
+            for (j in 1..maxByteArraySize / 20 + plusOne) {
+                if (maxByteArraySize - (j * 20) >= 20) {
+                    characteristicWrite!!.value = codeHex.copyOfRange(20 * (j - 1), 20 * j)
+                    Log.i(TAG, "Sending: ${characteristicWrite!!.value.toHexString()}")
+                }else{
+                    characteristicWrite!!.value = codeHex.copyOfRange(20 * (j - 1), maxByteArraySize)
+                    Log.i(TAG, "Sending: ${characteristicWrite!!.value.toHexString()}")
+                }
+                characteristicWrite!!.writeType = BluetoothGattCharacteristic.WRITE_TYPE_DEFAULT
+
+                gatt.writeCharacteristic(characteristicWrite)
+            }
+
         }
+        @ExperimentalUnsignedTypes
+        fun ByteArray.toHexString() = asUByteArray().joinToString("") { it.toString(16).padStart(2, '0') }
 
         /*-----------------------5º-----------------------*/
 
@@ -139,13 +160,25 @@ class Ble(private val mContext: Context) {
                 val devicePower = characteristic.value[3].toUByte().toInt()
                 val myJason = "{\"rndNumber\":$rndNumber, \"battery\":$devicePower}"
                 Log.i(TAG, "onCharacteristicChanged: $myJason")
-                WeLock("$rndNumber", "$devicePower", "openLock", this@Ble).getToken()
+
+                when (mAction) {
+                    Constants.ACTION_OPEN_LOCK ->
+                        WeLock("$rndNumber", "$devicePower", mAction, this@Ble)
+                            .getToken()
+
+                    Constants.ACTION_NEW_CODE ->
+                        WeLock("$rndNumber", "$devicePower", mAction, this@Ble)
+                            .getToken(code = mNewCode)
+
+                    Constants.ACTION_SET_CARD ->
+                        WeLock("$rndNumber", "$devicePower", mAction, this@Ble)
+                            .getToken()
+                }
             } else if (characteristic.value[0].toInt() == 85 &&
                 characteristic.value[1].toInt() == 49
             ) {
                 if (characteristic.value[2].toInt() == 1)
                     Log.i(TAG, "RECIBIDO CORRECTAMENTE")
-
                 else Log.i(TAG, "ERROR")
 
             }

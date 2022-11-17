@@ -7,4 +7,12 @@
     <color name="teal_700">#FF018786</color>
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
+    <color name="orangeMC">#F18420</color>
+    <color name="blueMC">#308ac9</color>
+    <color name="blueMCDark">#0F69a8</color>
+    <color name="orangeBack">#ffd4c9</color>
+    <color name="blueBack">#dbe0fc</color>
+    <color name="greenwp">#DCEDC8</color>
+    <color name="white_brayner">#f0f2f5</color><!--In honor to my first programmer friend.-->
+    <color name="mBlue">#031059</color>
 </resources>

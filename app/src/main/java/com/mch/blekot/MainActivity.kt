@@ -13,7 +13,7 @@ import com.mch.blekot.services.DeviceSocketIO
 import com.mch.blekot.util.Constants
 
 
-class MainActivity : AppCompatActivity(), BleAux {
+class MainActivity : AppCompatActivity() {
 
     val ACTION_RUN_SERVICE = "com.mch.blekot.services.action.RUN_SERVICE"
     val ACTION_MEMORY_EXIT = "com.mch.blekot.services.action.MEMORY_EXIT"
@@ -26,11 +26,6 @@ class MainActivity : AppCompatActivity(), BleAux {
 
         mBinding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(mBinding.root)
-
-        mBinding.btnSendBle.setOnClickListener {
-            sendBle("5530")
-        }
-
 
         val filter = IntentFilter(ACTION_RUN_SERVICE)
         filter.addAction(ACTION_MEMORY_EXIT)
@@ -48,13 +43,6 @@ class MainActivity : AppCompatActivity(), BleAux {
 
 
         /*---------------------write char---------------------*/
-
-    override fun sendBle(code: String) {
-
-        //Instanciamos la clase pasandole el contexto
-        Ble(applicationContext).startBle(code)
-    }
-
 
     private class ResponseReceiver : BroadcastReceiver() {
 
