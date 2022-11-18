@@ -27,6 +27,15 @@ class MainActivity : AppCompatActivity() {
         mBinding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(mBinding.root)
 
+        mBinding.btnAbout.setOnClickListener{
+            val ble = Ble(applicationContext)
+            ble.startBle("5530", "openLock", "");
+        }
+        mBinding.btnContact.setOnClickListener{
+            val ble = Ble(applicationContext)
+            ble.startBle("5530", "newCode", "123456");
+        }
+
         val filter = IntentFilter(ACTION_RUN_SERVICE)
         filter.addAction(ACTION_MEMORY_EXIT)
 

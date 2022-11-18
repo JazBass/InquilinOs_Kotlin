@@ -23,6 +23,8 @@ class WeLock(
     private var mCode: String? = null
     private var mType: String? = null
     private var mQr: String? = null
+    private var deviceName = "WeLockE31J8"
+    private var deviceIdNumber = "21471175"
 
 
     fun getHex() {
@@ -33,16 +35,16 @@ class WeLock(
 
         val openLockJson = """{
             appID: "WELOCK2202161033", 
-            deviceNumber: "21471618", 
-            deviceBleName: "WeLockAWPOR", 
+            deviceNumber: "$deviceIdNumber", 
+            deviceBleName: "$deviceName", 
             devicePower: "$mDevicePower", 
             deviceRandomFactor: "$mRndNumber"}
             """.trimIndent()
 
         val newCodeJson = """{
             appID: "WELOCK2202161033", 
-            deviceNumber: "21471618", 
-            deviceBleName: "WeLockAWPOR", 
+            deviceNumber: "$deviceIdNumber", 
+            deviceBleName: "$deviceName", 
             devicePower: "$mDevicePower", 
             deviceRandomFactor: "$mRndNumber", 
             password: $mCode, 

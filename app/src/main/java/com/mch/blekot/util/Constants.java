@@ -2,7 +2,7 @@ package com.mch.blekot.util;
 
 public final class Constants {
     // Constantes para la conexion SOCKET
-    public final static String ID = "Prueba";
+    public final static String ID = "Prueba1";
     public final static String ACTION_LOG = "Log";
     public final static String ACTION_ADMIN = "admin";
     public final static String MESSAGE = "Conectado";

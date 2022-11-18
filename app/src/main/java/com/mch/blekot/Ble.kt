@@ -7,6 +7,7 @@ import android.content.pm.PackageManager
 import android.util.Log
 import androidx.core.app.ActivityCompat
 import com.mch.blekot.util.Constants
+import java.lang.Thread.sleep
 import java.util.*
 
 class Ble(private val mContext: Context) {
@@ -17,14 +18,20 @@ class Ble(private val mContext: Context) {
 
     private val TAG = "Main Activity"
 
+    //private val MAC_ADRESS = "C7:12:48:82:08:2F"
+    private val MAC_ADRESS = "D6:F5:3B:E4:6D:F5"
     private val SERVICE_UUID = UUID.fromString("6e400001-b5a3-f393-e0a9-e50e24dcca9e")
     private val NOTIFY_CHARACTERISTIC = UUID.fromString("6e400003-b5a3-f393-e0a9-e50e24dcca9e")
     private val WRITE_CHARACTER = UUID.fromString("6e400002-b5a3-f393-e0a9-e50e24dcca9e")
     private val CCCD_UUID = UUID.fromString("00002902-0000-1000-8000-00805f9b34fb")
 
-    var characteristicNotify: BluetoothGattCharacteristic? = null
-    var characteristicWrite: BluetoothGattCharacteristic? = null
-    var myGatt: BluetoothGatt? = null
+    private var characteristicNotify: BluetoothGattCharacteristic? = null
+    private var characteristicWrite: BluetoothGattCharacteristic? = null
+
+    /*para dividir en paquetes*/
+    private val maxPackageSize = 20
+    private lateinit var pack: Array<ByteArray>
+    private var packAmount = 0
 
     /*--------------------------BLE--------------------------*/
 
@@ -38,7 +45,7 @@ class Ble(private val mContext: Context) {
         mAction = action!!
 
         val btAdapter = BluetoothAdapter.getDefaultAdapter()
-        val device = btAdapter.getRemoteDevice("C7:12:48:82:08:2F")
+        val device = btAdapter.getRemoteDevice(MAC_ADRESS)
         if (ActivityCompat.checkSelfPermission(mContext, Manifest.permission.BLUETOOTH_CONNECT) !=
             PackageManager.PERMISSION_GRANTED
         ) {
@@ -59,7 +66,6 @@ class Ble(private val mContext: Context) {
                 ) {
                 }
                 gatt.discoverServices()
-                myGatt = gatt
                 Log.i(TAG, "onConnectionStateChange: Discover Services")
             }
         }
@@ -105,7 +111,8 @@ class Ble(private val mContext: Context) {
 
         // Aqui escribimos las caracteristicas
 
-        fun sendBLE(gatt: BluetoothGatt) {
+        private fun sendBLE(gatt: BluetoothGatt) {
+
             characteristicWrite = gatt.getService(SERVICE_UUID).getCharacteristic(WRITE_CHARACTER)
             val codeHex = mCode.decodeHex()
             val maxByteArraySize = codeHex.size
@@ -116,22 +123,34 @@ class Ble(private val mContext: Context) {
                 ) != PackageManager.PERMISSION_GRANTED
             ) {
             }
-            for (j in 1..maxByteArraySize / 20 + plusOne) {
-                if (maxByteArraySize - (j * 20) >= 20) {
-                    characteristicWrite!!.value = codeHex.copyOfRange(20 * (j - 1), 20 * j)
-                    Log.i(TAG, "Sending: ${characteristicWrite!!.value.toHexString()}")
-                }else{
-                    characteristicWrite!!.value = codeHex.copyOfRange(20 * (j - 1), maxByteArraySize)
-                    Log.i(TAG, "Sending: ${characteristicWrite!!.value.toHexString()}")
+
+            packAmount = maxByteArraySize / maxPackageSize + plusOne
+            pack = emptyArray()
+                for (j in 1..packAmount) {
+                pack += if (maxByteArraySize - ((j - 1) * maxPackageSize) >= maxPackageSize) {
+                    arrayOf(
+                        codeHex.copyOfRange(
+                            maxPackageSize * (j - 1),
+                            maxPackageSize * j
+                        )
+                    )
+                } else {
+                    arrayOf(codeHex.copyOfRange(maxPackageSize * (j - 1), maxByteArraySize))
                 }
-                characteristicWrite!!.writeType = BluetoothGattCharacteristic.WRITE_TYPE_DEFAULT
 
-                gatt.writeCharacteristic(characteristicWrite)
             }
-
+            for (i in 0 until packAmount){
+                characteristicWrite!!.value = pack[i]
+                characteristicWrite!!.writeType = BluetoothGattCharacteristic.WRITE_TYPE_DEFAULT
+                gatt.writeCharacteristic(characteristicWrite)
+                Log.i(TAG, "charWrite: ${characteristicWrite!!.value.toHexString()}")
+                sleep(500)
+            }
         }
+
         @ExperimentalUnsignedTypes
-        fun ByteArray.toHexString() = asUByteArray().joinToString("") { it.toString(16).padStart(2, '0') }
+        fun ByteArray.toHexString() =
+            asUByteArray().joinToString("") { it.toString(16).padStart(2, '0') }
 
         /*-----------------------5º-----------------------*/
 
@@ -140,11 +159,22 @@ class Ble(private val mContext: Context) {
             characteristic: BluetoothGattCharacteristic,
             status: Int
         ) {
+//            if (counter<packAmount) {
+//                if (ActivityCompat.checkSelfPermission(
+//                        mContext,
+//                        Manifest.permission.BLUETOOTH_CONNECT
+//                    ) != PackageManager.PERMISSION_GRANTED
+//                ) {
+//                }
+//                sleep(500)
+//                characteristicWrite!!.value = pack[counter]
+//                Log.i("PACK", pack[counter].toString())
+//                characteristicWrite!!.writeType = BluetoothGattCharacteristic.WRITE_TYPE_DEFAULT
+//                gatt.writeCharacteristic(characteristicWrite)
+//                counter++
+//              }
             if (characteristicWrite === characteristic) {
-                Log.i("Char Write", "Char: $characteristic status: $status")
-                if (characteristic === characteristicWrite) {
-                    characteristic.value
-                }
+                Log.i("Char Writed", "Char: ${characteristic.value.toHexString()}")
             } else Log.i(TAG, "ERROR: Write is not ok")
         }
 
@@ -160,6 +190,7 @@ class Ble(private val mContext: Context) {
                 val devicePower = characteristic.value[3].toUByte().toInt()
                 val myJason = "{\"rndNumber\":$rndNumber, \"battery\":$devicePower}"
                 Log.i(TAG, "onCharacteristicChanged: $myJason")
+
 
                 when (mAction) {
                     Constants.ACTION_OPEN_LOCK ->
