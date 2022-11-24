@@ -19,7 +19,7 @@ class Ble(private val mContext: Context) {
     private val TAG = "Main Activity"
 
     //private val MAC_ADRESS = "C7:12:48:82:08:2F"
-    private val MAC_ADRESS = "D6:F5:3B:E4:6D:F5"
+    private val MAC_ADRESS = "E0:D2:1A:65:67:F4"
     private val SERVICE_UUID = UUID.fromString("6e400001-b5a3-f393-e0a9-e50e24dcca9e")
     private val NOTIFY_CHARACTERISTIC = UUID.fromString("6e400003-b5a3-f393-e0a9-e50e24dcca9e")
     private val WRITE_CHARACTER = UUID.fromString("6e400002-b5a3-f393-e0a9-e50e24dcca9e")
@@ -30,6 +30,7 @@ class Ble(private val mContext: Context) {
 
     /*para dividir en paquetes*/
     private val maxPackageSize = 20
+    private var counter = 0
     private lateinit var pack: Array<ByteArray>
     private var packAmount = 0
 
@@ -126,7 +127,7 @@ class Ble(private val mContext: Context) {
 
             packAmount = maxByteArraySize / maxPackageSize + plusOne
             pack = emptyArray()
-                for (j in 1..packAmount) {
+            for (j in 1..packAmount) {
                 pack += if (maxByteArraySize - ((j - 1) * maxPackageSize) >= maxPackageSize) {
                     arrayOf(
                         codeHex.copyOfRange(
@@ -139,13 +140,11 @@ class Ble(private val mContext: Context) {
                 }
 
             }
-            for (i in 0 until packAmount){
-                characteristicWrite!!.value = pack[i]
-                characteristicWrite!!.writeType = BluetoothGattCharacteristic.WRITE_TYPE_DEFAULT
-                gatt.writeCharacteristic(characteristicWrite)
-                Log.i(TAG, "charWrite: ${characteristicWrite!!.value.toHexString()}")
-                sleep(500)
-            }
+            characteristicWrite!!.value = pack[0]
+            counter = 1
+            characteristicWrite!!.writeType = BluetoothGattCharacteristic.WRITE_TYPE_DEFAULT
+            gatt.writeCharacteristic(characteristicWrite)
+            Log.i(TAG, "charWrite: ${characteristicWrite!!.value.toHexString()}")
         }
 
         @ExperimentalUnsignedTypes
@@ -159,26 +158,24 @@ class Ble(private val mContext: Context) {
             characteristic: BluetoothGattCharacteristic,
             status: Int
         ) {
-//            if (counter<packAmount) {
-//                if (ActivityCompat.checkSelfPermission(
-//                        mContext,
-//                        Manifest.permission.BLUETOOTH_CONNECT
-//                    ) != PackageManager.PERMISSION_GRANTED
-//                ) {
-//                }
-//                sleep(500)
-//                characteristicWrite!!.value = pack[counter]
-//                Log.i("PACK", pack[counter].toString())
-//                characteristicWrite!!.writeType = BluetoothGattCharacteristic.WRITE_TYPE_DEFAULT
-//                gatt.writeCharacteristic(characteristicWrite)
-//                counter++
-//              }
+            for (i in 1 until packAmount ) {
+                if (ActivityCompat.checkSelfPermission(
+                        mContext,
+                        Manifest.permission.BLUETOOTH_CONNECT
+                    ) != PackageManager.PERMISSION_GRANTED
+                ) {
+                }
+                sleep(500)
+                characteristicWrite!!.value = pack[i]
+                Log.i(TAG, "charWrite_: ${pack[i].toHexString()}")
+                characteristicWrite!!.writeType = BluetoothGattCharacteristic.WRITE_TYPE_DEFAULT
+                gatt.writeCharacteristic(characteristicWrite)
+            }
             if (characteristicWrite === characteristic) {
                 Log.i("Char Writed", "Char: ${characteristic.value.toHexString()}")
             } else Log.i(TAG, "ERROR: Write is not ok")
         }
-
-        /*-----------------------6ª-----------------------*/
+         /*-----------------------6ª-----------------------*/
         /* Al recibir la respuesta de la manija lanzamos la request http*/
 
         override fun onCharacteristicChanged(

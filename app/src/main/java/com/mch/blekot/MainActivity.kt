@@ -9,6 +9,7 @@ import android.util.Log
 import androidx.appcompat.app.AppCompatActivity
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import com.mch.blekot.databinding.ActivityMainBinding
+import com.mch.blekot.databinding.ActivityMainTemporalBinding
 import com.mch.blekot.services.DeviceSocketIO
 import com.mch.blekot.util.Constants
 
@@ -19,22 +20,24 @@ class MainActivity : AppCompatActivity() {
     val ACTION_MEMORY_EXIT = "com.mch.blekot.services.action.MEMORY_EXIT"
 
 
-    private lateinit var mBinding: ActivityMainBinding
+    //    private lateinit var mBinding: ActivityMainBinding
+    private lateinit var mBinding: ActivityMainTemporalBinding
 
-    override fun onCreate(savedInstanceState: Bundle?) {
+    override
+    fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        mBinding = ActivityMainBinding.inflate(layoutInflater)
+        mBinding = ActivityMainTemporalBinding.inflate(layoutInflater)
         setContentView(mBinding.root)
 
-        mBinding.btnAbout.setOnClickListener{
-            val ble = Ble(applicationContext)
-            ble.startBle("5530", "openLock", "");
-        }
-        mBinding.btnContact.setOnClickListener{
-            val ble = Ble(applicationContext)
-            ble.startBle("5530", "newCode", "123456");
-        }
+//        mBinding.btnAbout.setOnClickListener{
+//            val ble = Ble(applicationContext)
+//            ble.startBle("5530", "openLock", "");
+//        }
+//        mBinding.btnContact.setOnClickListener{
+//            val ble = Ble(applicationContext)
+//            ble.startBle("5530", "newCode", "123456");
+//        }
 
         val filter = IntentFilter(ACTION_RUN_SERVICE)
         filter.addAction(ACTION_MEMORY_EXIT)
@@ -51,7 +54,7 @@ class MainActivity : AppCompatActivity() {
     }
 
 
-        /*---------------------write char---------------------*/
+    /*---------------------write char---------------------*/
 
     private class ResponseReceiver : BroadcastReceiver() {
 

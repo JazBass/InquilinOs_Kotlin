@@ -23,12 +23,12 @@ class WeLock(
     private var mCode: String? = null
     private var mType: String? = null
     private var mQr: String? = null
-    private var deviceName = "WeLockE31J8"
-    private var deviceIdNumber = "21471175"
+    private var deviceName = "WeLockKX2PV"
+    private var deviceIdNumber = "21470403"
 
 
     fun getHex() {
-        val startDate: Int = ((System.currentTimeMillis() / 1000) - 28800).toInt()
+        val startDate: Int = ((System.currentTimeMillis() / 1000) - 25200).toInt()
 
         val endDate: Int = startDate + 86400
 
@@ -48,7 +48,7 @@ class WeLock(
             devicePower: "$mDevicePower", 
             deviceRandomFactor: "$mRndNumber", 
             password: $mCode, 
-            index: 20, 
+            index: 10, 
             user: 15, 
             times: 65000, 
             startTimestamp: $startDate, 

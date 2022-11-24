@@ -14,6 +14,7 @@ import com.mch.blekot.MainActivity;
 import com.mch.blekot.util.Constants;
 import com.mch.blekot.util.ProcessDataJson;
 
+import java.io.IOException;
 import java.util.Objects;
 import java.util.TimerTask;
 
@@ -21,6 +22,9 @@ import java.util.TimerTask;
 import io.socket.client.IO;
 import io.socket.client.Socket;
 import io.socket.emitter.Emitter;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.Response;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -29,7 +33,9 @@ import org.json.JSONObject;
 import java.net.URI;
 
 public final class DeviceSocketIO extends Service {
+
     private static final String TAG = DeviceSocketIO.class.getSimpleName();
+    private final OkHttpClient httpClient = new OkHttpClient();
 
     // SocketIO
     private IO.Options options = new IO.Options();
@@ -77,7 +83,9 @@ public final class DeviceSocketIO extends Service {
                 pDataJson.getData(dataJson);
                 String action = (Objects.requireNonNull(pDataJson.getValue("cmd"))).toString();
                 Ble ble = new Ble(getApplicationContext());
+
                 switch (action) {
+
                     case Constants.ACTION_OPEN_LOCK:
                         ble.startBle("5530", action, "");
                         break;
@@ -92,6 +100,23 @@ public final class DeviceSocketIO extends Service {
                         String type = (Objects.requireNonNull(pDataJson.getValue("type"))).toString();
                         ble.startBle("5530", action, "");
                         break;
+
+                    /*Conección local con arduino*/
+
+                    case Constants.ACTION_OPEN_PORTAL:
+                        Request request = new Request.Builder()
+                                .url("http://192.168.1.150/portal/open")
+                                .get()
+                                .build();
+                        try (Response response = httpClient.newCall(request).execute()) {
+                            if (!response.isSuccessful()) {
+                                Log.i("Open Portal", "Response: " + response.body().string());
+                            }
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
+
+
                 }
 
             } catch (JSONException e) {
