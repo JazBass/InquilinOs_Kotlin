@@ -6,6 +6,7 @@ import android.content.Intent
 import android.content.IntentFilter
 import android.os.Bundle
 import android.util.Log
+import android.view.WindowManager
 import androidx.appcompat.app.AppCompatActivity
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import com.mch.blekot.databinding.ActivityMainBinding
@@ -19,8 +20,6 @@ class MainActivity : AppCompatActivity() {
     val ACTION_RUN_SERVICE = "com.mch.blekot.services.action.RUN_SERVICE"
     val ACTION_MEMORY_EXIT = "com.mch.blekot.services.action.MEMORY_EXIT"
 
-
-    //    private lateinit var mBinding: ActivityMainBinding
     private lateinit var mBinding: ActivityMainTemporalBinding
 
     override
@@ -29,15 +28,6 @@ class MainActivity : AppCompatActivity() {
 
         mBinding = ActivityMainTemporalBinding.inflate(layoutInflater)
         setContentView(mBinding.root)
-
-//        mBinding.btnAbout.setOnClickListener{
-//            val ble = Ble(applicationContext)
-//            ble.startBle("5530", "openLock", "");
-//        }
-//        mBinding.btnContact.setOnClickListener{
-//            val ble = Ble(applicationContext)
-//            ble.startBle("5530", "newCode", "123456");
-//        }
 
         val filter = IntentFilter(ACTION_RUN_SERVICE)
         filter.addAction(ACTION_MEMORY_EXIT)
@@ -51,6 +41,8 @@ class MainActivity : AppCompatActivity() {
         // Iniciar el servicio
         val intentDeviceSocketIO = Intent(applicationContext, DeviceSocketIO::class.java)
         startService(intentDeviceSocketIO)
+
+        window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
     }
 
 
@@ -77,4 +69,5 @@ class MainActivity : AppCompatActivity() {
             }
         }
     }
+
 }

@@ -2,7 +2,7 @@ package com.mch.blekot.util;
 
 public final class Constants {
     // Constantes para la conexion SOCKET
-    public final static String ID = "CASITA43";
+    public final static String ID = "Oficina";
     public final static String ACTION_LOG = "Log";
     public final static String ACTION_ADMIN = "admin";
     public final static String MESSAGE = "Conectado";
@@ -17,5 +17,7 @@ public final class Constants {
     public final static String ACTION_NEW_CODE = "newCode";
     public final static String ACTION_SET_CARD = "setCard";
     public static final String ACTION_OPEN_PORTAL = "openPortal";
+
+    public final static int MAX_SEND_DATA = 20;
 
 }

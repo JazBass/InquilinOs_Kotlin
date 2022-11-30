@@ -1,25 +1,25 @@
 package com.mch.blekot
 
-import android.Manifest
+import android.annotation.SuppressLint
 import android.bluetooth.*
 import android.content.Context
-import android.content.pm.PackageManager
 import android.util.Log
-import androidx.core.app.ActivityCompat
 import com.mch.blekot.util.Constants
-import java.lang.Thread.sleep
+import com.mch.blekot.util.HexUtil
 import java.util.*
 
-class Ble(private val mContext: Context) {
+class Ble(weLock: WeLock) {
 
     private lateinit var mCode: String
-    private lateinit var mAction: String
-    private lateinit var mNewCode: String
 
     private val TAG = "Main Activity"
 
     //private val MAC_ADRESS = "C7:12:48:82:08:2F"
-    private val MAC_ADRESS = "E0:D2:1A:65:67:F4"
+    //private val MAC_ADRESS = "E0:D2:1A:65:67:F4"
+    //private val MAC_ADRESS = "D6:F5:3B:E4:6D:F5" //Chueca9
+
+    private val MAC_ADRESS = "CC:37:4D:3B:11:3A"
+
     private val SERVICE_UUID = UUID.fromString("6e400001-b5a3-f393-e0a9-e50e24dcca9e")
     private val NOTIFY_CHARACTERISTIC = UUID.fromString("6e400003-b5a3-f393-e0a9-e50e24dcca9e")
     private val WRITE_CHARACTER = UUID.fromString("6e400002-b5a3-f393-e0a9-e50e24dcca9e")
@@ -29,43 +29,37 @@ class Ble(private val mContext: Context) {
     private var characteristicWrite: BluetoothGattCharacteristic? = null
 
     /*para dividir en paquetes*/
-    private val maxPackageSize = 20
-    private var counter = 0
-    private lateinit var pack: Array<ByteArray>
     private var packAmount = 0
+
+    private lateinit var mDataQueue  : Queue<ByteArray>
 
     /*--------------------------BLE--------------------------*/
 
-    fun startBle(code: String, action: String? = "", newCode: String? = null) {
+    fun writeChar(gatt: BluetoothGatt) {
+        val dataIn = HexUtil.hexStringToBytes(mCode)
+        mDataQueue = HexUtil.splitByte(dataIn, Constants.MAX_SEND_DATA)
+        Log.i(TAG, "SIZE: ${mDataQueue.size}")
+        writeDataDevice(gatt)
+    }
 
-        //Tomamos el codigo y lo guardamos en una variable global
-        mCode = code
-        if (newCode != null) {
-            mNewCode = newCode
-        }
-        mAction = action!!
+    @SuppressLint("MissingPermission")
+    fun sendBle(code: String? = null) {
+
+        //si code es null pedimos rdm number y bateria, si no enviamos el codigo
+        mCode = code ?: "5530"
 
         val btAdapter = BluetoothAdapter.getDefaultAdapter()
         val device = btAdapter.getRemoteDevice(MAC_ADRESS)
-        if (ActivityCompat.checkSelfPermission(mContext, Manifest.permission.BLUETOOTH_CONNECT) !=
-            PackageManager.PERMISSION_GRANTED
-        ) {
-        }
-        device.connectGatt(mContext, true, mGattCallback)
+        device.connectGatt(null, true, mGattCallback)
     }
 
     private val mGattCallback: BluetoothGattCallback = object : BluetoothGattCallback() {
 
         /*-----------------------1º-----------------------*/
+        @SuppressLint("MissingPermission")
         override fun onConnectionStateChange(gatt: BluetoothGatt, status: Int, newState: Int) {
             super.onConnectionStateChange(gatt, status, newState)
             if (newState == BluetoothProfile.STATE_CONNECTED) {
-                if (ActivityCompat.checkSelfPermission(
-                        mContext,
-                        Manifest.permission.BLUETOOTH_CONNECT
-                    ) == PackageManager.PERMISSION_GRANTED
-                ) {
-                }
                 gatt.discoverServices()
                 Log.i(TAG, "onConnectionStateChange: Discover Services")
             }
@@ -73,17 +67,11 @@ class Ble(private val mContext: Context) {
 
         /*-----------------------2º-----------------------*/
         /*Nos suscribimos a las notificaciones y escribimos el descriptor*/
-
+        @SuppressLint("MissingPermission")
         override fun onServicesDiscovered(gatt: BluetoothGatt, status: Int) {
             super.onServicesDiscovered(gatt, status)
             characteristicNotify =
                 gatt.getService(SERVICE_UUID).getCharacteristic(NOTIFY_CHARACTERISTIC)
-            if (ActivityCompat.checkSelfPermission(
-                    mContext,
-                    Manifest.permission.BLUETOOTH_CONNECT
-                ) == PackageManager.PERMISSION_GRANTED
-            ) {
-            }
             gatt.setCharacteristicNotification(characteristicNotify, true)
             val desc = characteristicNotify!!.getDescriptor(CCCD_UUID)
             desc.value = BluetoothGattDescriptor.ENABLE_NOTIFICATION_VALUE
@@ -97,7 +85,7 @@ class Ble(private val mContext: Context) {
             status: Int
         ) {
             if (descriptor.characteristic === characteristicNotify) {
-                sendBLE(gatt)
+                writeChar(gatt)
             } else Log.i(TAG, "onDescriptorWrite: Descriptor is not connected")
         }
 
@@ -112,7 +100,8 @@ class Ble(private val mContext: Context) {
 
         // Aqui escribimos las caracteristicas
 
-        private fun sendBLE(gatt: BluetoothGatt) {
+        /*
+        private fun writeChar(gatt: BluetoothGatt) {
 
             characteristicWrite = gatt.getService(SERVICE_UUID).getCharacteristic(WRITE_CHARACTER)
             val codeHex = mCode.decodeHex()
@@ -147,9 +136,13 @@ class Ble(private val mContext: Context) {
             Log.i(TAG, "charWrite: ${characteristicWrite!!.value.toHexString()}")
         }
 
+
+         */
         @ExperimentalUnsignedTypes
         fun ByteArray.toHexString() =
             asUByteArray().joinToString("") { it.toString(16).padStart(2, '0') }
+
+
 
         /*-----------------------5º-----------------------*/
 
@@ -158,26 +151,15 @@ class Ble(private val mContext: Context) {
             characteristic: BluetoothGattCharacteristic,
             status: Int
         ) {
-            for (i in 1 until packAmount ) {
-                if (ActivityCompat.checkSelfPermission(
-                        mContext,
-                        Manifest.permission.BLUETOOTH_CONNECT
-                    ) != PackageManager.PERMISSION_GRANTED
-                ) {
-                }
-                sleep(500)
-                characteristicWrite!!.value = pack[i]
-                Log.i(TAG, "charWrite_: ${pack[i].toHexString()}")
-                characteristicWrite!!.writeType = BluetoothGattCharacteristic.WRITE_TYPE_DEFAULT
-                gatt.writeCharacteristic(characteristicWrite)
-            }
             if (characteristicWrite === characteristic) {
                 Log.i("Char Writed", "Char: ${characteristic.value.toHexString()}")
             } else Log.i(TAG, "ERROR: Write is not ok")
+
+            writeDataDevice(gatt)
         }
          /*-----------------------6ª-----------------------*/
         /* Al recibir la respuesta de la manija lanzamos la request http*/
-
+         @SuppressLint("MissingPermission")
         override fun onCharacteristicChanged(
             gatt: BluetoothGatt,
             characteristic: BluetoothGattCharacteristic
@@ -188,20 +170,8 @@ class Ble(private val mContext: Context) {
                 val myJason = "{\"rndNumber\":$rndNumber, \"battery\":$devicePower}"
                 Log.i(TAG, "onCharacteristicChanged: $myJason")
 
+                weLock.getToken(devicePower.toString(), rndNumber.toString())
 
-                when (mAction) {
-                    Constants.ACTION_OPEN_LOCK ->
-                        WeLock("$rndNumber", "$devicePower", mAction, this@Ble)
-                            .getToken()
-
-                    Constants.ACTION_NEW_CODE ->
-                        WeLock("$rndNumber", "$devicePower", mAction, this@Ble)
-                            .getToken(code = mNewCode)
-
-                    Constants.ACTION_SET_CARD ->
-                        WeLock("$rndNumber", "$devicePower", mAction, this@Ble)
-                            .getToken()
-                }
             } else if (characteristic.value[0].toInt() == 85 &&
                 characteristic.value[1].toInt() == 49
             ) {
@@ -211,16 +181,33 @@ class Ble(private val mContext: Context) {
 
             }
             Log.i(TAG, "onCharacteristicChanged: Received")
-            if (ActivityCompat.checkSelfPermission(
-                    mContext,
-                    Manifest.permission.BLUETOOTH_CONNECT
-                ) != PackageManager.PERMISSION_GRANTED
-            ) {
-            }
             gatt.disconnect()
             gatt.close()
+
+             sendResponse("")
         }
 
+    }
+
+    private fun sendResponse(responseJson: String) {
+
+    }
+
+    @SuppressLint("MissingPermission")
+    private fun writeDataDevice(gatt: BluetoothGatt){
+        var counter = 1;
+        while(mDataQueue.peek() != null){
+            if (counter > 1) break;
+            val data = mDataQueue.poll()
+
+            characteristicWrite = gatt.getService(SERVICE_UUID).getCharacteristic(WRITE_CHARACTER)
+            characteristicWrite!!.value = data
+            //Log.i(TAG, "Sending: ${characteristicWrite!!.value.toHexString()}")
+            Log.i(TAG, "Sending: ${HexUtil.formatHexString(characteristicWrite!!.value, true)}")
+            characteristicWrite!!.writeType = BluetoothGattCharacteristic.WRITE_TYPE_DEFAULT
+            gatt.writeCharacteristic(characteristicWrite)
+            counter++;
+        }
     }
 
 }

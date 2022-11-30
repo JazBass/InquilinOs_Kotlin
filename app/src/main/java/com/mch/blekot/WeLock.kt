@@ -1,16 +1,13 @@
 package com.mch.blekot
 
 import android.util.Log
+import com.mch.blekot.util.Constants
 import okhttp3.*
 import java.io.IOException
 import java.util.*
 
-class WeLock(
-    private var mRndNumber: String,
-    private var mDevicePower: String,
-    private var mAction: String,
-    private val ble: Ble
-) {
+
+class WeLock() : WeLockAux {
 
     private val urlWeLock = "https://api.we-lock.com"
     private val PATH_CARD = "/API/Device/DeviceCardCommand"
@@ -20,52 +17,85 @@ class WeLock(
 
     private var client: OkHttpClient = OkHttpClient()
     private var mToken: String? = null
-    private var mCode: String? = null
+    private var mNewPassword: String? = null
     private var mType: String? = null
     private var mQr: String? = null
-    private var deviceName = "WeLockKX2PV"
-    private var deviceIdNumber = "21470403"
 
+    //Chueca 9
+    //private var deviceName = "WeLockE31J8"
+    //private var deviceIdNumber = "21471175"
 
+    //Oficina
+    private var deviceName = "WeLockGE4CK"
+    private var deviceIdNumber = "21471477"
+
+    private lateinit var mRndNumber: String
+    private lateinit var mDevicePower: String
+
+    private lateinit var mAction: String
+
+    private var ble = Ble(this)
+
+    override fun openLock() {
+        mAction = Constants.ACTION_OPEN_LOCK
+
+        ble.sendBle()
+    }
+
+    override fun setNewCode(newPassword: String) {
+        mAction = Constants.ACTION_NEW_CODE
+        mNewPassword = newPassword
+
+        ble.sendBle()
+    }
+
+    override fun setNewCard(qr: String, type: String) {
+        mAction = Constants.ACTION_SET_CARD
+        mQr = qr
+        mType = type
+
+        ble.sendBle()
+    }
+
+    //Pedimos el codigo a la api
     fun getHex() {
-        val startDate: Int = ((System.currentTimeMillis() / 1000) - 25200).toInt()
+        val startDate: Int = ((System.currentTimeMillis() / 1000) - 28800).toInt()
 
         val endDate: Int = startDate + 86400
 
-
-        val openLockJson = """{
-            appID: "WELOCK2202161033", 
-            deviceNumber: "$deviceIdNumber", 
-            deviceBleName: "$deviceName", 
-            devicePower: "$mDevicePower", 
-            deviceRandomFactor: "$mRndNumber"}
-            """.trimIndent()
-
-        val newCodeJson = """{
-            appID: "WELOCK2202161033", 
-            deviceNumber: "$deviceIdNumber", 
-            deviceBleName: "$deviceName", 
-            devicePower: "$mDevicePower", 
-            deviceRandomFactor: "$mRndNumber", 
-            password: $mCode, 
-            index: 10, 
-            user: 15, 
-            times: 65000, 
-            startTimestamp: $startDate, 
-            endTimestamp: $endDate}
-        """.trimIndent()
-
-
-
-
-
         when (mAction) {
-            "openLock" -> postWithToken(
-                PATH_OPEN,
-                openLockJson,
-                actionCallback
-            )
+            "openLock" -> {
+
+                val openLockJson = """{
+                    appID: "WELOCK2202161033", 
+                    deviceNumber: "$deviceIdNumber", 
+                    deviceBleName: "$deviceName", 
+                    devicePower: "$mDevicePower", 
+                    deviceRandomFactor: "$mRndNumber"}
+                """.trimIndent()
+
+                postWithToken(
+                    PATH_OPEN,
+                    openLockJson,
+                    actionCallback
+                )
+            }
+
             "newCode" -> {
+
+                val newCodeJson = """{
+                    appID: "WELOCK2202161033", 
+                    deviceNumber: "$deviceIdNumber", 
+                    deviceBleName: "$deviceName", 
+                    deviceRandomFactor: "$mRndNumber", 
+                    password: $mNewPassword, 
+                    index: 20, 
+                    user: 15, 
+                    times: 65000, 
+                    startTimestamp: $startDate, 
+                    endTimestamp: $endDate}
+                """.trimIndent()
+
                 Log.i("Json", newCodeJson)
 
                 postWithToken(
@@ -75,24 +105,34 @@ class WeLock(
                 )
             }
 
+            "setCard" -> {
+
+                val newCardJson = """{
+                    appID: "WELOCK2202161033",
+                    deviceNumber: "$deviceIdNumber",
+                    deviceBleName: "$deviceName",
+                    deviceRandomFactor: "$mRndNumber",
+                    cardQr: "$mQr",
+                    type: 1}""".trimIndent() // FIXME: set type by post
+
+                postWithToken(
+                    PATH_CARD,
+                    newCardJson,
+                    actionCallback
+                )
+            }
+
         }
     }
 
-    fun getToken(qr: String? = null, code: String? = null, type: String? = null) {
 
-        when (mAction) {
-            "newCode" -> {
-                mCode = code!!
-            }
+    fun getToken(battery: String, rdmNumber: String) {
 
-            "setCard" -> {
-                mQr = qr!!
-                mType = type!!
-            }
-        }
+        mRndNumber = rdmNumber
+        mDevicePower = battery
 
         post(
-            "/API/Auth/Token", newJson(
+            PATH_TOKEN, newJson(
                 "WELOCK2202161033",
                 "349910dfcdfac75df0fd1cf2cbb02adb"
             ), tokenCallback
@@ -123,7 +163,7 @@ class WeLock(
             val res = response.body()?.string()?.split("\"")?.get(3)
             Log.i("Action", "onResponse: $res")
             if (res != null) {
-                ble.startBle(code = res)
+                ble.sendBle(code = res)
             }
         }
     }

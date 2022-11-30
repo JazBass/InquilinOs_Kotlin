@@ -3,20 +3,18 @@ package com.mch.blekot.services;
 import android.app.Service;
 import android.content.Intent;
 import android.os.IBinder;
-import android.os.Looper;
 import android.util.Log;
 
 import androidx.annotation.Nullable;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
-import com.mch.blekot.Ble;
-import com.mch.blekot.MainActivity;
+import com.mch.blekot.WeLock;
+import com.mch.blekot.WeLockAux;
 import com.mch.blekot.util.Constants;
 import com.mch.blekot.util.ProcessDataJson;
 
 import java.io.IOException;
 import java.util.Objects;
-import java.util.TimerTask;
 
 // Librerias para el sockect IO
 import io.socket.client.IO;
@@ -38,7 +36,7 @@ public final class DeviceSocketIO extends Service {
     private final OkHttpClient httpClient = new OkHttpClient();
 
     // SocketIO
-    private IO.Options options = new IO.Options();
+    private final IO.Options options = new IO.Options();
     private Socket socket = null;
 
     public DeviceSocketIO() {
@@ -82,41 +80,30 @@ public final class DeviceSocketIO extends Service {
                 ProcessDataJson pDataJson = new ProcessDataJson();
                 pDataJson.getData(dataJson);
                 String action = (Objects.requireNonNull(pDataJson.getValue("cmd"))).toString();
-                Ble ble = new Ble(getApplicationContext());
+
+                WeLockAux weLock = new WeLock();
 
                 switch (action) {
 
                     case Constants.ACTION_OPEN_LOCK:
-                        ble.startBle("5530", action, "");
+                        weLock.openLock();
                         break;
 
                     case Constants.ACTION_NEW_CODE:
                         String code = (Objects.requireNonNull(pDataJson.getValue("code"))).toString();
-                        ble.startBle("5530", action, code);
+                        weLock.setNewCode(code);
                         break;
 
                     case Constants.ACTION_SET_CARD:
-                        String qr = (Objects.requireNonNull(pDataJson.getValue("qr"))).toString();
+                        String qr = (Objects.requireNonNull(pDataJson.getValue("Qr"))).toString();
                         String type = (Objects.requireNonNull(pDataJson.getValue("type"))).toString();
-                        ble.startBle("5530", action, "");
+                        weLock.setNewCard(qr, type);
                         break;
 
                     /*Conección local con arduino*/
 
                     case Constants.ACTION_OPEN_PORTAL:
-                        Request request = new Request.Builder()
-                                .url("http://192.168.1.150/portal/open")
-                                .get()
-                                .build();
-                        try (Response response = httpClient.newCall(request).execute()) {
-                            if (!response.isSuccessful()) {
-                                Log.i("Open Portal", "Response: " + response.body().string());
-                            }
-                        } catch (IOException e) {
-                            e.printStackTrace();
-                        }
-
-
+                        openPortal();
                 }
 
             } catch (JSONException e) {
@@ -130,6 +117,20 @@ public final class DeviceSocketIO extends Service {
         socket.connect();
 
         return START_NOT_STICKY;
+    }
+
+    private void openPortal() {
+        Request request = new Request.Builder()
+                .url("http://192.168.1.150/portal/open")
+                .get()
+                .build();
+        try (Response response = httpClient.newCall(request).execute()) {
+            if (!response.isSuccessful()) {
+                Log.i("Open Portal", "Response: " + response.body().string());
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     @Override
