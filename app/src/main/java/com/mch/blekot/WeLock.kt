@@ -3,6 +3,7 @@ package com.mch.blekot
 import android.util.Log
 import com.mch.blekot.util.Constants
 import okhttp3.*
+import org.json.JSONObject
 import java.io.IOException
 import java.util.*
 
@@ -22,12 +23,12 @@ class WeLock() : WeLockAux {
     private var mQr: String? = null
 
     //Chueca 9
-    //private var deviceName = "WeLockE31J8"
-    //private var deviceIdNumber = "21471175"
+    private var deviceName = "WeLockE31J8"
+    private var deviceIdNumber = "21471175"
 
     //Oficina
-    private var deviceName = "WeLockGE4CK"
-    private var deviceIdNumber = "21471477"
+    //private var deviceName = "WeLockGE4CK"
+    //private var deviceIdNumber = "21471477"
 
     private lateinit var mRndNumber: String
     private lateinit var mDevicePower: String
@@ -146,7 +147,11 @@ class WeLock() : WeLockAux {
         }
 
         override fun onResponse(p0: Call, response: Response) {
-            mToken = response.body()?.string()?.split("\"")?.get(9)
+            val dataJson = JSONObject(response.body()?.string()!!).getJSONObject("data")
+            mToken = dataJson.getString("accessToken")
+
+            //mToken = response.body()?.string()?.split("\"")?.get(9)
+
             Log.i("Token", "onResponse: $mToken")
             getHex()
         }
@@ -160,11 +165,13 @@ class WeLock() : WeLockAux {
         }
 
         override fun onResponse(p0: Call, response: Response) {
-            val res = response.body()?.string()?.split("\"")?.get(3)
+
+            val dataJson = JSONObject(response.body()?.string()!!)
+            val res = dataJson.getString("data")
+
+            //val res = response.body()?.string()?.split("\"")?.get(3)
             Log.i("Action", "onResponse: $res")
-            if (res != null) {
-                ble.sendBle(code = res)
-            }
+            ble.sendBle(code = res)
         }
     }
 

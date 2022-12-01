@@ -26,4 +26,6 @@
     <string name="welcome">Welcome</string>
     <string name="yourStay">For your stay</string>
     <string name="rules_title">Rules</string>
+    <string name="channel_name">TvNotify</string>
+    <string name="channel_description">Tv Notify fot IFTTT</string>
 </resources>
