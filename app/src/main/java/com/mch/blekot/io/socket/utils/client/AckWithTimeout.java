@@ -1,4 +1,4 @@
-package com.mch.blekot.io.socket.client;
+package com.mch.blekot.io.socket.utils.client;
 
 import java.util.Timer;
 import java.util.TimerTask;

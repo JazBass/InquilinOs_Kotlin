@@ -8,10 +8,6 @@ import android.util.Log;
 import androidx.annotation.Nullable;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
-import com.mch.blekot.SocketSingleton;
-
-import io.socket.client.Socket;
-
 public final class DeviceSocketIO extends Service {
 
     private static final String TAG = DeviceSocketIO.class.getSimpleName();

@@ -1,31 +1,4 @@
 <resources>
     <string name="app_name">InquilinOs</string>
-    <string name="contact">Contact us</string>
-    <string name="lang">Select your language</string>
-    <string name="info">Touristic information</string>
-    <string name="services">Services</string>
-    <string name="about">Visit our website</string>
-    <string name="newLanguage">New language selected: English</string>
 
-    <string name="events">Events</string>
-    <string name="searchingEvent">Searching Events in Madrid</string>
-    <string name="touristMap">Tourist Map</string>
-    <string name="nextEvents">Next Events</string>
-    <string name="seeInMap">See in map</string>
-    <string name="goToWeb">Go to website</string>
-
-    <string name="select_spanish" translatable="false">Spanish</string>
-    <string name="select_french" translatable="false">French</string>
-    <string name="select_english" translatable="false">English</string>
-    <string name="content_image" translatable="false">Descriptive image</string>
-    <string name="accept" translatable="false">Accept</string>
-    <string name="description_img_photo" translatable="false">image</string>
-    <string name="select_language" translatable="false">Select Language</string>
-    <string name="hello_blank_fragment" translatable="false">Hello blank fragment</string>
-
-    <string name="welcome">Welcome</string>
-    <string name="yourStay">For your stay</string>
-    <string name="rules_title">Rules</string>
-    <string name="channel_name">TvNotify</string>
-    <string name="channel_description">Tv Notify fot IFTTT</string>
 </resources>

@@ -1,4 +1,4 @@
-package com.mch.blekot.io.socket.parser;
+package com.mch.blekot.io.socket.utils.parser;
 
 import io.socket.hasbinary.HasBinary;
 import org.json.JSONArray;

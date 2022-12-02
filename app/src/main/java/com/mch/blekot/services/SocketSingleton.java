@@ -1,8 +1,4 @@
-package com.mch.blekot;
-
-import static android.provider.Settings.System.getString;
-
-import static androidx.core.content.ContextCompat.getSystemService;
+package com.mch.blekot.services;
 
 import android.annotation.SuppressLint;
 import android.app.NotificationChannel;
@@ -14,6 +10,9 @@ import androidx.annotation.NonNull;
 import androidx.core.app.NotificationCompat;
 import androidx.core.app.NotificationManagerCompat;
 
+import com.mch.blekot.R;
+import com.mch.blekot.io.socket.welock.WeLock;
+import com.mch.blekot.io.socket.welock.WeLockAux;
 import com.mch.blekot.util.Constants;
 import com.mch.blekot.util.ProcessDataJson;
 

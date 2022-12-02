@@ -1,4 +1,4 @@
-package com.mch.blekot.io.socket.client;
+package com.mch.blekot.io.socket.utils.client;
 
 import java.net.URI;
 import java.util.regex.Matcher;

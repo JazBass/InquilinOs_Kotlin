@@ -1,4 +1,4 @@
-package com.mch.blekot.io.socket.parser;
+package com.mch.blekot.io.socket.utils.parser;
 
 import org.json.JSONArray;
 import org.json.JSONException;

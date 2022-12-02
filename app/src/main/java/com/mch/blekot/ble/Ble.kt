@@ -1,8 +1,10 @@
-package com.mch.blekot
+package com.mch.blekot.ble
 
 import android.annotation.SuppressLint
 import android.bluetooth.*
 import android.util.Log
+import com.mch.blekot.services.SocketSingleton
+import com.mch.blekot.io.socket.welock.WeLock
 import com.mch.blekot.util.Constants
 import com.mch.blekot.util.HexUtil
 import java.util.*

@@ -1,4 +1,4 @@
-package com.mch.blekot
+package com.mch.blekot.io.socket.welock
 
 interface WeLockAux {
 

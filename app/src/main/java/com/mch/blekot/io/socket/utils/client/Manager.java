@@ -1,6 +1,7 @@
-package com.mch.blekot.io.socket.client;
+package com.mch.blekot.io.socket.utils.client;
 
-import com.mch.blekot.io.socket.backo.Backoff;
+import com.mch.blekot.io.socket.utils.backo.Backoff;
+
 import io.socket.emitter.Emitter;
 import io.socket.parser.DecodingException;
 import io.socket.parser.IOParser;

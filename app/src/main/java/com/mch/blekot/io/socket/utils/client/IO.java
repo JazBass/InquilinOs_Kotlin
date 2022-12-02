@@ -1,7 +1,7 @@
-package com.mch.blekot.io.socket.client;
+package com.mch.blekot.io.socket.utils.client;
 
 
-import com.mch.blekot.io.socket.parser.Parser;
+import com.mch.blekot.io.socket.utils.parser.Parser;
 import okhttp3.Call;
 import okhttp3.WebSocket;
 

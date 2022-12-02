@@ -1,4 +1,4 @@
-package com.mch.blekot.io.socket.hasbinary;
+package com.mch.blekot.io.socket.utils.hasbinary;
 
 import org.json.JSONArray;
 import org.json.JSONException;
