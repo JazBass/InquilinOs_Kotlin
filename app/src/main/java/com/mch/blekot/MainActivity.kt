@@ -9,7 +9,7 @@ import android.util.Log
 import android.view.WindowManager
 import androidx.appcompat.app.AppCompatActivity
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
-import com.mch.blekot.databinding.ActivityMainBinding
+//import com.mch.blekot.databinding.ActivityMainBinding
 import com.mch.blekot.databinding.ActivityMainTemporalBinding
 import com.mch.blekot.services.DeviceSocketIO
 import com.mch.blekot.util.Constants

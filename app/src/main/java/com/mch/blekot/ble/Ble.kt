@@ -15,12 +15,6 @@ class Ble(weLock: WeLock) {
 
     private val TAG = "Main Activity"
 
-    //private val MAC_ADRESS = "C7:12:48:82:08:2F"
-    //private val MAC_ADRESS = "E0:D2:1A:65:67:F4"
-    private val MAC_ADRESS = "D6:F5:3B:E4:6D:F5" //Chueca9
-
-    //private val MAC_ADRESS = "CC:37:4D:3B:11:3A" //Oficina
-
     private val SERVICE_UUID = UUID.fromString("6e400001-b5a3-f393-e0a9-e50e24dcca9e")
     private val NOTIFY_CHARACTERISTIC = UUID.fromString("6e400003-b5a3-f393-e0a9-e50e24dcca9e")
     private val WRITE_CHARACTER = UUID.fromString("6e400002-b5a3-f393-e0a9-e50e24dcca9e")
@@ -50,7 +44,7 @@ class Ble(weLock: WeLock) {
         mCode = code ?: "5530"
 
         val btAdapter = BluetoothAdapter.getDefaultAdapter()
-        val device = btAdapter.getRemoteDevice(MAC_ADRESS)
+        val device = btAdapter.getRemoteDevice(Constants.MAC_ADRESS)
         device.connectGatt(null, true, mGattCallback)
     }
 
@@ -149,7 +143,8 @@ class Ble(weLock: WeLock) {
                     Log.i(TAG, "")
                 }
                 else Log.i(TAG, "ERROR")
-
+                // Finaliza la accion con el bluetooth
+                SocketSingleton.getSocketInstance().isProcesoActivo = false;
             }
             Log.i(TAG, "onCharacteristicChanged: Received")
             gatt.disconnect()

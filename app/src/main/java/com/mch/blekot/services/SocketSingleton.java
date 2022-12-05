@@ -32,6 +32,8 @@ import okhttp3.Response;
 
 public class SocketSingleton {
 
+    private static final String TAG = DeviceSocketIO.class.getSimpleName();
+    private boolean procesoActivo;
     private static final String CHANNEL_ID = "TV";
     private Socket socket;
     @SuppressLint("StaticFieldLeak")
@@ -47,6 +49,7 @@ public class SocketSingleton {
 
     //Constructor
     private SocketSingleton() {
+        this.procesoActivo = false;
         final IO.Options options = new IO.Options();
         options.reconnection = true;
         socket = IO.socket(URI.create(Constants.URL_TCP), options);
@@ -61,6 +64,13 @@ public class SocketSingleton {
         socket.on(Constants.ACTION_ADMIN, args -> {
             JSONArray dataResponse;
             try {
+                // procesoActivo: TRUE -> No se ejecuta ninguna accion
+                // procesoActivo: FALSE -> Se ejecuta accion nueva
+                if ( this.procesoActivo ) {
+                    Log.i(TAG, "Hay una peticion pendiente!!");
+                    return;
+                }
+
                 dataResponse = new JSONArray(args);
                 JSONObject dataJson = new JSONObject(dataResponse.get(1).toString());
 
@@ -70,6 +80,7 @@ public class SocketSingleton {
                 String action = (Objects.requireNonNull(pDataJson.getValue("cmd"))).toString();
 
                 WeLockAux weLock = new WeLock();
+                this.procesoActivo = true;
 
                 switch (action) {
 
@@ -91,6 +102,7 @@ public class SocketSingleton {
                     /*Conexión local con arduino*/
 
                     case Constants.ACTION_OPEN_PORTAL:
+                        Log.i(TAG, "Error OPEN PORTAL!!");
                         openPortal();
                         break;
 
@@ -104,7 +116,11 @@ public class SocketSingleton {
                 }
 
             } catch (JSONException e) {
+                this.procesoActivo = false; //Error por JSON
                 // TODO Auto-generated catch block
+                e.printStackTrace();
+            } catch (Exception e) {
+                this.procesoActivo = false; // Error X-Desconocido
                 e.printStackTrace();
             }
         });
@@ -149,17 +165,27 @@ public class SocketSingleton {
     }
 
     private void openPortal() {
-        Request request = new Request.Builder()
-                .url("http://192.168.1.150/portal/open")
-                .get()
-                .build();
-        try (Response response = httpClient.newCall(request).execute()) {
+        try {
+            Request request = new Request.Builder()
+                    .url("http://192.168.1.150/portal/open")
+                    .get()
+                    .build();
+            Response response = httpClient.newCall(request).execute();
             if (!response.isSuccessful()) {
                 Log.i("Open Portal", "Response: " + response.body().string());
             }
         } catch (IOException e) {
             e.printStackTrace();
         }
+        // Si hay un error en la peticion OPEN-PORTAL, se permite realizar otra peticion
+        this.procesoActivo = false;
     }
 
+    public boolean isProcesoActivo() {
+        return procesoActivo;
+    }
+
+    public void setProcesoActivo(boolean procesoActivo) {
+        this.procesoActivo = procesoActivo;
+    }
 }

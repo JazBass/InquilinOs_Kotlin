@@ -24,8 +24,8 @@ class WeLock() : WeLockAux {
     private var mQr: String? = null
 
     //Chueca 9
-    private var deviceName = "WeLockE31J8"
-    private var deviceIdNumber = "21471175"
+    private var deviceName = Constants.DEVICE_NAME
+    private var deviceIdNumber = Constants.DEVICE_ID_NUMBER
 
     //Oficina
     //private var deviceName = "WeLockGE4CK"
@@ -91,9 +91,9 @@ class WeLock() : WeLockAux {
                     deviceBleName: "$deviceName", 
                     deviceRandomFactor: "$mRndNumber", 
                     password: $mNewPassword, 
-                    index: 20, 
-                    user: 15, 
-                    times: 65000, 
+                    index: ${Constants.CODE_INDEX}, 
+                    user: ${Constants.CODE_USER}, 
+                    times: ${Constants.CODE_TIMES}, 
                     startTimestamp: $startDate, 
                     endTimestamp: $endDate}
                 """.trimIndent()
@@ -115,7 +115,7 @@ class WeLock() : WeLockAux {
                     deviceBleName: "$deviceName",
                     deviceRandomFactor: "$mRndNumber",
                     cardQr: "$mQr",
-                    type: 1}""".trimIndent() // FIXME: set type by post
+                    type: "$mType"}""".trimIndent() // FIXME: CHANGE: OK OK. set type by post
 
                 postWithToken(
                     PATH_CARD,
