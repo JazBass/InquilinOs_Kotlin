@@ -145,6 +145,9 @@ class Ble(weLock: WeLock) {
                 else Log.i(TAG, "ERROR")
                 // Finaliza la accion con el bluetooth
                 SocketSingleton.getSocketInstance().isProcesoActivo = false;
+            }else { // Otras acciones
+                // Finaliza la accion con el bluetooth
+                SocketSingleton.getSocketInstance().isProcesoActivo = false;
             }
             Log.i(TAG, "onCharacteristicChanged: Received")
             gatt.disconnect()
