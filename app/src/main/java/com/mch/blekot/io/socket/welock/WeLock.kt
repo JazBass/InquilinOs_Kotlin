@@ -172,7 +172,8 @@ class WeLock() : WeLockAux {
 
             //val res = response.body()?.string()?.split("\"")?.get(3)
             Log.i("Action", "onResponse: $res")
-            ble.sendBle(code = res)
+            //ble.sendBle(code = res)
+            ble.writeDataWeLockResponse(code = res)
         }
     }
 

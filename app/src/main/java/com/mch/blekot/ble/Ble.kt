@@ -13,7 +13,9 @@ class Ble(weLock: WeLock) {
 
     private lateinit var mCode: String
 
-    private val TAG = "Main Activity"
+    private lateinit var gattTmp: BluetoothGatt
+
+    private val TAG = "Ble.kt"
 
     private val SERVICE_UUID = UUID.fromString("6e400001-b5a3-f393-e0a9-e50e24dcca9e")
     private val NOTIFY_CHARACTERISTIC = UUID.fromString("6e400003-b5a3-f393-e0a9-e50e24dcca9e")
@@ -83,7 +85,8 @@ class Ble(weLock: WeLock) {
             status: Int
         ) {
             if (descriptor.characteristic === characteristicNotify) {
-                writeChar(gatt)
+                gattTmp = gatt
+                writeChar(gattTmp)
             } else Log.i(TAG, "onDescriptorWrite: Descriptor is not connected")
         }
 
@@ -135,6 +138,8 @@ class Ble(weLock: WeLock) {
 
                 weLock.getToken(devicePower.toString(), rndNumber.toString())
 
+                return
+
             } else if (characteristic.value[0].toInt() == 85 &&
                 characteristic.value[1].toInt() == 49
             ) {
@@ -150,10 +155,30 @@ class Ble(weLock: WeLock) {
                 SocketSingleton.getSocketInstance().isProcesoActivo = false;
             }
             Log.i(TAG, "onCharacteristicChanged: Received")
-            gatt.disconnect()
-            gatt.close()
+            //gatt.disconnect()
+            //gatt.close()
+            gattTmp.disconnect()
+            gattTmp.close()
         }
 
+    }
+
+    @SuppressLint("MissingPermission")
+    public fun writeDataWeLockResponse(code: String) {
+        try {
+            if ( code.trim().length == 0 ) {
+                throw Exception("Error code es vacio!!")
+            }
+            mCode = code
+            writeChar(gattTmp)
+        } catch(e: Exception) {
+            // Si hay algun error al obtener respuesta desde WeLock
+            // Desconectamos el gatt y permitimos otra peticion
+            Log.e(TAG, e.message.toString())
+            gattTmp.disconnect()
+            gattTmp.close()
+            SocketSingleton.getSocketInstance().isProcesoActivo = false;
+        }
     }
 
     private fun sendResponse(responseJson: String) {
