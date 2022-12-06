@@ -45,5 +45,5 @@ public final class Constants {
     public static final String ACTION_OPEN_PORTAL = "openPortal";
 
     public final static int MAX_SEND_DATA = 20;
-
+    public final static int MIN_DAYS_PASSWORD = 1;
 }

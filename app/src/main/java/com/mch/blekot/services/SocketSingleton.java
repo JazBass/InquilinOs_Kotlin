@@ -90,7 +90,9 @@ public class SocketSingleton {
 
                     case Constants.ACTION_NEW_CODE:
                         String code = (Objects.requireNonNull(pDataJson.getValue("code"))).toString();
-                        weLock.setNewCode(code);
+                        int days = Integer.parseInt((Objects.requireNonNull(pDataJson.getValue("days"))).toString());
+                        days = (days == 0)? Constants.MIN_DAYS_PASSWORD: days;
+                        weLock.setNewCode(code, days);
                         break;
 
                     case Constants.ACTION_SET_CARD:

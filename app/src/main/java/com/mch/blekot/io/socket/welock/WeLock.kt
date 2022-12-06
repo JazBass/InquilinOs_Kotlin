@@ -22,6 +22,7 @@ class WeLock() : WeLockAux {
     private var mNewPassword: String? = null
     private var mType: String? = null
     private var mQr: String? = null
+    private var mDays: Int = 1
 
     //Chueca 9
     private var deviceName = Constants.DEVICE_NAME
@@ -44,9 +45,10 @@ class WeLock() : WeLockAux {
         ble.sendBle()
     }
 
-    override fun setNewCode(newPassword: String) {
+    override fun setNewCode(newPassword: String, days: Int) {
         mAction = Constants.ACTION_NEW_CODE
         mNewPassword = newPassword
+        mDays = days
 
         ble.sendBle()
     }
@@ -63,7 +65,7 @@ class WeLock() : WeLockAux {
     fun getHex() {
         val startDate: Int = ((System.currentTimeMillis() / 1000) - 28800).toInt()
 
-        val endDate: Int = startDate + 86400
+        val endDate: Int = startDate + (86400 * mDays)
 
         when (mAction) {
             "openLock" -> {
