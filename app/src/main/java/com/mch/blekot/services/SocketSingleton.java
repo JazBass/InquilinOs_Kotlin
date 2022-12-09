@@ -18,7 +18,6 @@ import com.mch.blekot.util.ProcessDataJson;
 import com.mch.blekot.util.UtilDevice;
 
 import org.json.JSONArray;
-import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.IOException;
@@ -34,9 +33,9 @@ import okhttp3.Response;
 public class SocketSingleton {
 
     private static final String TAG = DeviceSocketIO.class.getSimpleName();
-    private boolean procesoActivo;
+    private boolean isProcessActive;
     private static final String CHANNEL_ID = "TV";
-    private String clienteFromServer = "";
+    private String clientFromServer = "";
     private Socket socket;
     @SuppressLint("StaticFieldLeak")
     private static SocketSingleton mInstance = null;
@@ -51,7 +50,7 @@ public class SocketSingleton {
 
     //Constructor
     private SocketSingleton() {
-        this.procesoActivo = false;
+        this.isProcessActive = false;
         final IO.Options options = new IO.Options();
         options.reconnection = true;
         socket = IO.socket(URI.create(Constants.URL_TCP), options);
@@ -68,9 +67,9 @@ public class SocketSingleton {
             try {
                 // procesoActivo: TRUE -> No se ejecuta ninguna accion
                 // procesoActivo: FALSE -> Se ejecuta accion nueva
-                if ( this.procesoActivo ) {
+                if ( this.isProcessActive) {
                     Log.i(TAG, "Hay una peticion pendiente!!");
-                    UtilDevice.sendResponseToServer(Constants.CODE_MSG_PENDIENTE, Constants.STATUS_MANIJA, Constants.STATUS_MANIJA);
+                    UtilDevice.sendResponseToServer(Constants.CODE_MSG_PENDANT, Constants.STATUS_LOCK, Constants.STATUS_LOCK);
                     return;
                 }
 
@@ -81,10 +80,10 @@ public class SocketSingleton {
                 ProcessDataJson pDataJson = new ProcessDataJson();
                 pDataJson.getData(dataJson);
                 String action = (Objects.requireNonNull(pDataJson.getValue("cmd"))).toString();
-                clienteFromServer = (Objects.requireNonNull(pDataJson.getValue("clientFrom"))).toString();
+                clientFromServer = (Objects.requireNonNull(pDataJson.getValue("clientFrom"))).toString();
 
                 WeLockAux weLock = new WeLock();
-                this.procesoActivo = true;
+                this.isProcessActive = true;
 
                 switch (action) {
 
@@ -121,16 +120,12 @@ public class SocketSingleton {
                         break;
                 }
 
-            } catch (JSONException e) {
-                this.procesoActivo = false; //Error por JSON
-                // TODO Auto-generated catch block
-                e.printStackTrace();
-                UtilDevice.sendResponseToServer(Constants.CODE_MSG_KO, Constants.STATUS_MANIJA, Constants.STATUS_MANIJA);
             } catch (Exception e) {
-                this.procesoActivo = false; // Error X-Desconocido
+                this.isProcessActive = false; //Error por JSON
                 e.printStackTrace();
-                UtilDevice.sendResponseToServer(Constants.CODE_MSG_KO, Constants.STATUS_MANIJA, Constants.STATUS_MANIJA);
-            }
+                UtilDevice.sendResponseToServer(Constants.CODE_MSG_KO, Constants.STATUS_LOCK, Constants.STATUS_LOCK);
+            }// Error X-Desconocido
+
         });
 
         socket.on(Socket.EVENT_DISCONNECT, args -> System.out.println("disconnect due to: " + args[0]));
@@ -172,8 +167,8 @@ public class SocketSingleton {
         return socket;
     }
 
-    public String getClienteFromServer() {
-        return clienteFromServer;
+    public String getClientFromServer() {
+        return clientFromServer;
     }
 
     private void openPortal() {
@@ -190,14 +185,14 @@ public class SocketSingleton {
             e.printStackTrace();
         }
         // Si hay un error en la peticion OPEN-PORTAL, se permite realizar otra peticion
-        this.procesoActivo = false;
+        this.isProcessActive = false;
     }
 
-    public boolean isProcesoActivo() {
-        return procesoActivo;
+    public boolean isProcessActive() {
+        return isProcessActive;
     }
 
-    public void setProcesoActivo(boolean procesoActivo) {
-        this.procesoActivo = procesoActivo;
+    public void setProcessActive(boolean processActive) {
+        this.isProcessActive = processActive;
     }
 }

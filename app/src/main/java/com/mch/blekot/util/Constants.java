@@ -50,13 +50,13 @@ public final class Constants {
     public final static int MIN_DAYS_PASSWORD = 1;
 
     public final static String MSG_OK = "Se ha procesado exitosamente la peticion";
-    public final static String MSG_PENDIENTE = "Hay una peticion pendiente!!";
+    public final static String MSG_PENDANT = "Hay una peticion pendiente!!";
     public final static String MSG_KO = "Error con el dispositivo Bluetooth!!";
     public final static String MSG_PARAMS = "Error, el valor de los parametros son erroneos!";
 
     public final static int CODE_MSG_OK = 1;
-    public final static int CODE_MSG_PENDIENTE = 0;
+    public final static int CODE_MSG_PENDANT = 0;
     public final static int CODE_MSG_PARAMS = 2;
     public final static int CODE_MSG_KO = -1;
-    public final static int STATUS_MANIJA = -1;
+    public final static int STATUS_LOCK = -1;
 }

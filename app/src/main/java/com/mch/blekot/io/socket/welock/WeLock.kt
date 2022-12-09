@@ -182,8 +182,8 @@ class WeLock() : WeLockAux {
                 ble.writeDataWeLockResponse(code = res)
             } else {
                 ble.desconectarGattTmp()
-                SocketSingleton.getSocketInstance().isProcesoActivo = false;
-                UtilDevice.sendResponseToServer(Constants.CODE_MSG_PARAMS, Constants.STATUS_MANIJA, Constants.STATUS_MANIJA);
+                SocketSingleton.getSocketInstance().isProcessActive = false;
+                UtilDevice.sendResponseToServer(status = Constants.CODE_MSG_PARAMS);
             }
         }
     }

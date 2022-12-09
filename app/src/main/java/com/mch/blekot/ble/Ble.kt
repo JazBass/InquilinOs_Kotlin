@@ -91,23 +91,7 @@ class Ble(weLock: WeLock) {
             } else Log.i(TAG, "onDescriptorWrite: Descriptor is not connected")
         }
 
-        fun String.decodeHex(): ByteArray {
-            check(length % 2 == 0)
-
-            return chunked(2)
-                .map { it.toInt(16).toByte() }
-                .toByteArray()
-
-        }
-
-        /*-----------------------4ª-----------------------*/
-
-        @ExperimentalUnsignedTypes
-        fun ByteArray.toHexString() =
-            asUByteArray().joinToString("") { it.toString(16).padStart(2, '0') }
-
-
-        /*-----------------------5º-----------------------*/
+        /*-----------------------4º-----------------------*/
 
         override fun onCharacteristicWrite(
             gatt: BluetoothGatt,
@@ -121,7 +105,7 @@ class Ble(weLock: WeLock) {
             writeDataDevice(gatt)
         }
 
-        /*-----------------------6ª-----------------------*/
+        /*-----------------------5ª-----------------------*/
 
         /* Al recibir la respuesta de la manija lanzamos la request http*/
 
@@ -167,7 +151,7 @@ class Ble(weLock: WeLock) {
             //gatt.close()
 
             // Finaliza la accion con el bluetooth
-            SocketSingleton.getSocketInstance().isProcesoActivo = false;
+            SocketSingleton.getSocketInstance().isProcessActive = false;
             UtilDevice.sendResponseToServer(Constants.CODE_MSG_OK, characteristic.value[2].toInt(), characteristic.value[3].toInt())
 
             gattTmp.disconnect()
@@ -190,8 +174,8 @@ class Ble(weLock: WeLock) {
             Log.e(TAG, e.message.toString())
             gattTmp.disconnect()
             gattTmp.close()
-            SocketSingleton.getSocketInstance().isProcesoActivo = false;
-            UtilDevice.sendResponseToServer(Constants.CODE_MSG_KO, Constants.STATUS_MANIJA, Constants.STATUS_MANIJA);
+            SocketSingleton.getSocketInstance().isProcessActive = false;
+            UtilDevice.sendResponseToServer(status = Constants.CODE_MSG_KO);
         }
     }
 
@@ -201,10 +185,10 @@ class Ble(weLock: WeLock) {
         gattTmp.close()
     }
 
-    private fun sendResponse(responseJson: String) {
-        SocketSingleton.getSocketInstance().socket.emit(Constants.RESPONSE_SOCKET_BLUETOOTH, Constants.ID, responseJson)
-        Log.i(TAG, "sendResponse: $responseJson")
-    }
+//    private fun sendResponse(responseJson: String) {
+//        SocketSingleton.getSocketInstance().socket.emit(Constants.RESPONSE_SOCKET_BLUETOOTH, Constants.ID, responseJson)
+//        Log.i(TAG, "sendResponse: $responseJson")
+//    }
 
     @SuppressLint("MissingPermission")
     private fun writeDataDevice(gatt: BluetoothGatt) {
@@ -222,4 +206,12 @@ class Ble(weLock: WeLock) {
             counter++;
         }
     }
+
+    /*****************UTIL****************/
+    @ExperimentalUnsignedTypes
+    fun ByteArray.toHexString() =
+        asUByteArray().joinToString("") { it.toString(16).padStart(2, '0') }
+
+    // TODO: Instanciar el gatt una sola vez
+
 }
