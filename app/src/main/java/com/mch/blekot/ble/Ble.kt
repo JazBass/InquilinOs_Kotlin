@@ -3,10 +3,11 @@ package com.mch.blekot.ble
 import android.annotation.SuppressLint
 import android.bluetooth.*
 import android.util.Log
-import com.mch.blekot.services.SocketSingleton
 import com.mch.blekot.io.socket.welock.WeLock
+import com.mch.blekot.services.SocketSingleton
 import com.mch.blekot.util.Constants
 import com.mch.blekot.util.HexUtil
+import com.mch.blekot.util.UtilDevice
 import java.util.*
 
 class Ble(weLock: WeLock) {
@@ -144,19 +145,31 @@ class Ble(weLock: WeLock) {
                 characteristic.value[1].toInt() == 49
             ) {
                 if (characteristic.value[2].toInt() == 1) {
-                    sendResponse("Success")
+                    //sendResponse("Success")
                     Log.i(TAG, "")
                 }
                 else Log.i(TAG, "ERROR")
                 // Finaliza la accion con el bluetooth
-                SocketSingleton.getSocketInstance().isProcesoActivo = false;
+                //SocketSingleton.getSocketInstance().isProcesoActivo = false;
             }else { // Otras acciones
                 // Finaliza la accion con el bluetooth
-                SocketSingleton.getSocketInstance().isProcesoActivo = false;
+                //SocketSingleton.getSocketInstance().isProcesoActivo = false;
             }
             Log.i(TAG, "onCharacteristicChanged: Received")
+
+            Log.i(TAG, "DIM: ${characteristic.value.size}")
+            Log.i(TAG, "Pos 0: ${characteristic.value[0].toInt()} - ${characteristic.value[0].toUByte().toInt()}")
+            Log.i(TAG, "Pos 1: ${characteristic.value[1].toInt()} - ${characteristic.value[1].toUByte().toInt()}")
+            Log.i(TAG, "Pos 2: ${characteristic.value[2].toInt()} - ${characteristic.value[2].toUByte().toInt()}")
+            Log.i(TAG, "Pos 3: ${characteristic.value[3].toInt()} - ${characteristic.value[3].toUByte().toInt()}")
+
             //gatt.disconnect()
             //gatt.close()
+
+            // Finaliza la accion con el bluetooth
+            SocketSingleton.getSocketInstance().isProcesoActivo = false;
+            UtilDevice.sendResponseToServer(Constants.CODE_MSG_OK, characteristic.value[2].toInt(), characteristic.value[3].toInt())
+
             gattTmp.disconnect()
             gattTmp.close()
         }
@@ -178,11 +191,18 @@ class Ble(weLock: WeLock) {
             gattTmp.disconnect()
             gattTmp.close()
             SocketSingleton.getSocketInstance().isProcesoActivo = false;
+            UtilDevice.sendResponseToServer(Constants.CODE_MSG_KO, Constants.STATUS_MANIJA, Constants.STATUS_MANIJA);
         }
     }
 
+    @SuppressLint("MissingPermission")
+    public fun desconectarGattTmp () {
+        gattTmp.disconnect()
+        gattTmp.close()
+    }
+
     private fun sendResponse(responseJson: String) {
-        SocketSingleton.getSocketInstance().socket.emit("Response", responseJson)
+        SocketSingleton.getSocketInstance().socket.emit(Constants.RESPONSE_SOCKET_BLUETOOTH, Constants.ID, responseJson)
         Log.i(TAG, "sendResponse: $responseJson")
     }
 

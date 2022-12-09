@@ -15,6 +15,7 @@ import com.mch.blekot.io.socket.welock.WeLock;
 import com.mch.blekot.io.socket.welock.WeLockAux;
 import com.mch.blekot.util.Constants;
 import com.mch.blekot.util.ProcessDataJson;
+import com.mch.blekot.util.UtilDevice;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -35,6 +36,7 @@ public class SocketSingleton {
     private static final String TAG = DeviceSocketIO.class.getSimpleName();
     private boolean procesoActivo;
     private static final String CHANNEL_ID = "TV";
+    private String clienteFromServer = "";
     private Socket socket;
     @SuppressLint("StaticFieldLeak")
     private static SocketSingleton mInstance = null;
@@ -68,6 +70,7 @@ public class SocketSingleton {
                 // procesoActivo: FALSE -> Se ejecuta accion nueva
                 if ( this.procesoActivo ) {
                     Log.i(TAG, "Hay una peticion pendiente!!");
+                    UtilDevice.sendResponseToServer(Constants.CODE_MSG_PENDIENTE, Constants.STATUS_MANIJA, Constants.STATUS_MANIJA);
                     return;
                 }
 
@@ -78,6 +81,7 @@ public class SocketSingleton {
                 ProcessDataJson pDataJson = new ProcessDataJson();
                 pDataJson.getData(dataJson);
                 String action = (Objects.requireNonNull(pDataJson.getValue("cmd"))).toString();
+                clienteFromServer = (Objects.requireNonNull(pDataJson.getValue("clientFrom"))).toString();
 
                 WeLockAux weLock = new WeLock();
                 this.procesoActivo = true;
@@ -121,9 +125,11 @@ public class SocketSingleton {
                 this.procesoActivo = false; //Error por JSON
                 // TODO Auto-generated catch block
                 e.printStackTrace();
+                UtilDevice.sendResponseToServer(Constants.CODE_MSG_KO, Constants.STATUS_MANIJA, Constants.STATUS_MANIJA);
             } catch (Exception e) {
                 this.procesoActivo = false; // Error X-Desconocido
                 e.printStackTrace();
+                UtilDevice.sendResponseToServer(Constants.CODE_MSG_KO, Constants.STATUS_MANIJA, Constants.STATUS_MANIJA);
             }
         });
 
@@ -164,6 +170,10 @@ public class SocketSingleton {
 
     public Socket getSocket() {
         return socket;
+    }
+
+    public String getClienteFromServer() {
+        return clienteFromServer;
     }
 
     private void openPortal() {

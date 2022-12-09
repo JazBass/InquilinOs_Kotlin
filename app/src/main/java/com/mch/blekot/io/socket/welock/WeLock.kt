@@ -2,7 +2,9 @@ package com.mch.blekot.io.socket.welock
 
 import android.util.Log
 import com.mch.blekot.ble.Ble
+import com.mch.blekot.services.SocketSingleton
 import com.mch.blekot.util.Constants
+import com.mch.blekot.util.UtilDevice
 import okhttp3.*
 import org.json.JSONObject
 import java.io.IOException
@@ -170,12 +172,19 @@ class WeLock() : WeLockAux {
         override fun onResponse(p0: Call, response: Response) {
 
             val dataJson = JSONObject(response.body()?.string()!!)
-            val res = dataJson.getString("data")
+            val code = dataJson.getString("code").toInt()
+            if (code == 0) {
+                val res = dataJson.getString("data")
 
-            //val res = response.body()?.string()?.split("\"")?.get(3)
-            Log.i("Action", "onResponse: $res")
-            //ble.sendBle(code = res)
-            ble.writeDataWeLockResponse(code = res)
+                //val res = response.body()?.string()?.split("\"")?.get(3)
+                Log.i("Action", "onResponse: $res")
+                //ble.sendBle(code = res)
+                ble.writeDataWeLockResponse(code = res)
+            } else {
+                ble.desconectarGattTmp()
+                SocketSingleton.getSocketInstance().isProcesoActivo = false;
+                UtilDevice.sendResponseToServer(Constants.CODE_MSG_PARAMS, Constants.STATUS_MANIJA, Constants.STATUS_MANIJA);
+            }
         }
     }
 
