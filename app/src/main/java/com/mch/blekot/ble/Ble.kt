@@ -10,7 +10,7 @@ import com.mch.blekot.util.HexUtil
 import com.mch.blekot.util.UtilDevice
 import java.util.*
 
-class Ble(weLock: WeLock) {
+object Ble {
 
     private lateinit var mCode: String
 
@@ -38,15 +38,29 @@ class Ble(weLock: WeLock) {
         writeDataDevice(gatt)
     }
 
-    @SuppressLint("MissingPermission")
     fun sendBle(code: String? = null) {
 
         mCode = code ?: "5530"
+        setUpGatt()
+
+    }
+
+    object bleGatt {
 
         val btAdapter = BluetoothAdapter.getDefaultAdapter()
-        val device = btAdapter.getRemoteDevice(Constants.MAC_ADDRESS)
-        device.connectGatt(null, false, mGattCallback)
 
+        @SuppressLint("MissingPermission")
+        fun getGatt(): BluetoothGatt {
+            return btAdapter.getRemoteDevice(Constants.MAC_ADDRESS)
+                .connectGatt(null, true, mGattCallback)
+        }
+    }
+
+    @SuppressLint("MissingPermission")
+    private fun setUpGatt() {
+        val btAdapter = BluetoothAdapter.getDefaultAdapter()
+        val device = btAdapter.getRemoteDevice(Constants.MAC_ADDRESS)
+        device.connectGatt(null, true, mGattCallback)
     }
 
     @OptIn(ExperimentalUnsignedTypes::class)
@@ -120,7 +134,7 @@ class Ble(weLock: WeLock) {
                 val myJason = "{\"rndNumber\":$rndNumber, \"battery\":$devicePower}"
                 Log.i(TAG, "onCharacteristicChanged: $myJason")
 
-                weLock.getToken(devicePower.toString(), rndNumber.toString())
+                WeLock.getToken(devicePower.toString(), rndNumber.toString())
 
                 return
 

@@ -29,8 +29,7 @@ class MainActivity : AppCompatActivity() {
         mBinding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(mBinding.root)
 
-        val weLock = WeLock()
-        mBinding.btnOpenLock.setOnClickListener { weLock.openLock() }
+        mBinding.btnOpenLock.setOnClickListener { WeLock.openLock() }
 
         launchSocketService()
 
