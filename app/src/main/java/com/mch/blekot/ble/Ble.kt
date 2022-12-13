@@ -10,7 +10,7 @@ import com.mch.blekot.util.HexUtil
 import com.mch.blekot.util.UtilDevice
 import java.util.*
 
-class Ble(weLock: WeLock) {
+object Ble {
 
     private lateinit var mCode: String
 
@@ -32,11 +32,6 @@ class Ble(weLock: WeLock) {
 
     /*--------------------------BLE--------------------------*/
 
-
-    object bleGatt {
-        
-    }
-
     fun writeChar(gatt: BluetoothGatt) {
         val dataIn = HexUtil.hexStringToBytes(mCode)
         mDataQueue = HexUtil.splitByte(dataIn, Constants.MAX_SEND_DATA)
@@ -44,29 +39,34 @@ class Ble(weLock: WeLock) {
         writeDataDevice(gatt)
     }
 
+    object bleGatt {
 
-    fun sendBle(code: String? = null) {
 
-        mCode = code ?: "5530"
 
-        connectDevice()
     }
 
     @SuppressLint("MissingPermission")
-    private fun connectDevice() {
+    fun connectDevice() {
+
+        mCode = "5530"
 
         val btAdapter = BluetoothAdapter.getDefaultAdapter()
-        val device: BluetoothDevice
 
         btAdapter?.let { adapter ->
             try {
-                device = adapter.getRemoteDevice(Constants.MAC_ADDRESS)
+                val device = adapter.getRemoteDevice(Constants.MAC_ADDRESS)
                 mBluetoothGatt = device.connectGatt(null, true, mGattCallback)
             }catch (exception: IllegalArgumentException){
                 Log.w(TAG, "Dispositivo no encontrado")
             }
         } ?: run {
             Log.w(TAG, "BluetoothAdapter no inicializado")
+        }
+
+        @SuppressLint("MissingPermission")
+        fun getGatt(): BluetoothGatt {
+            return btAdapter.getRemoteDevice(Constants.MAC_ADDRESS)
+                .connectGatt(null, true, mGattCallback)
         }
     }
 
@@ -143,7 +143,7 @@ class Ble(weLock: WeLock) {
                 val myJason = "{\"rndNumber\":$rndNumber, \"battery\":$devicePower}"
                 Log.i(TAG, "onCharacteristicChanged: $myJason")
 
-                weLock.getToken(devicePower.toString(), rndNumber.toString())
+                WeLock.getToken(devicePower.toString(), rndNumber.toString())
 
                 return
 

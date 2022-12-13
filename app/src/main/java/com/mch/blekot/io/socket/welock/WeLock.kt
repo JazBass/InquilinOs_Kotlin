@@ -11,7 +11,9 @@ import java.io.IOException
 import java.util.*
 import java.util.concurrent.TimeUnit
 
-class WeLock() : WeLockAux {
+
+object WeLock {
+
 
     private val urlWeLock = "https://api.we-lock.com"
     private val PATH_CARD = "/API/Device/DeviceCardCommand"
@@ -35,28 +37,29 @@ class WeLock() : WeLockAux {
 
     private lateinit var mAction: String
 
-    private var ble = Ble(this)
-
-    override fun openLock() {
+    @JvmStatic //Objeto statico reconocible para JAVA
+    fun openLock() {
         mAction = Constants.ACTION_OPEN_LOCK
 
-        ble.sendBle()
+        Ble.connectDevice()
     }
 
-    override fun setNewCode(newPassword: String, days: Int) {
+    @JvmStatic //Objeto statico reconocible para JAVA
+    fun setNewCode(newPassword: String, days: Int) {
         mAction = Constants.ACTION_NEW_CODE
         mNewPassword = newPassword
         mDays = days
 
-        ble.sendBle()
+        Ble.connectDevice()
     }
 
-    override fun setNewCard(qr: String, type: String) {
+    @JvmStatic //Objeto statico reconocible para JAVA
+    fun setNewCard(qr: String, type: String) {
         mAction = Constants.ACTION_SET_CARD
         mQr = qr
         mType = type
 
-        ble.sendBle()
+        Ble.connectDevice()
     }
 
     fun getHex() {
@@ -172,9 +175,9 @@ class WeLock() : WeLockAux {
                 val res = dataJson.getString("data")
 
                 Log.i("Action", "onResponse: $res")
-                ble.writeDataWeLockResponse(code = res)
+                Ble.writeDataWeLockResponse(code = res)
             } else {
-                ble.disconnectGatt()
+                Ble.disconnectGatt()
                 SocketSingleton.getSocketInstance().isProcessActive = false;
                 UtilDevice.sendResponseToServer(status = Constants.CODE_MSG_PARAMS);
             }

@@ -12,7 +12,6 @@ import androidx.core.app.NotificationManagerCompat;
 
 import com.mch.blekot.R;
 import com.mch.blekot.io.socket.welock.WeLock;
-import com.mch.blekot.io.socket.welock.WeLockAux;
 import com.mch.blekot.util.Constants;
 import com.mch.blekot.util.ProcessDataJson;
 import com.mch.blekot.util.UtilDevice;
@@ -105,26 +104,25 @@ public class SocketSingleton {
                 String action = (Objects.requireNonNull(pDataJson.getValue("cmd"))).toString();
                 clientFromServer = (Objects.requireNonNull(pDataJson.getValue("clientFrom"))).toString();
 
-                WeLockAux weLock = new WeLock();
                 this.isProcessActive = true;
 
                 switch (action) {
 
                     case Constants.ACTION_OPEN_LOCK:
-                        weLock.openLock();
+                        WeLock.openLock();
                         break;
 
                     case Constants.ACTION_NEW_CODE:
                         String code = (Objects.requireNonNull(pDataJson.getValue("code"))).toString();
                         int days = Integer.parseInt((Objects.requireNonNull(pDataJson.getValue("days"))).toString());
                         days = (days == 0)? Constants.MIN_DAYS_PASSWORD: days;
-                        weLock.setNewCode(code, days);
+                        WeLock.setNewCode(code, days);
                         break;
 
                     case Constants.ACTION_SET_CARD:
                         String qr = (Objects.requireNonNull(pDataJson.getValue("Qr"))).toString();
                         String type = (Objects.requireNonNull(pDataJson.getValue("type"))).toString();
-                        weLock.setNewCard(qr, type);
+                        WeLock.setNewCard(qr, type);
                         break;
 
                     /*Conexión local con arduino*/
