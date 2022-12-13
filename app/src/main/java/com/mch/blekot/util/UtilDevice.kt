@@ -4,9 +4,9 @@ import android.util.Log
 import com.mch.blekot.services.DeviceSocketIO
 import com.mch.blekot.services.SocketSingleton
 
+
 object UtilDevice {
     private val TAG = DeviceSocketIO::class.java.simpleName
-
     /**
      * Metodo que envia la respuesta al servidor OK/KO/Pendiente
      * 1 -> OK
@@ -18,7 +18,8 @@ object UtilDevice {
     @JvmStatic
     fun sendResponseToServer(status: Int, statusMOne: Int? = Constants.STATUS_LOCK,
                              statusMTwo: Int? = Constants.STATUS_LOCK) {
-        //"{\"status\": 1, \"msg\": \"Se ha procesado exitosamente la peticion\"}"
+
+        val mSocket = SocketSingleton.getSocketInstance()
 
         val msg: String = when(status){
             Constants.CODE_MSG_OK -> Constants.MSG_OK
@@ -32,18 +33,13 @@ object UtilDevice {
               "statusMOne":$statusMOne,
               "statusMTwo":$statusMTwo,
               "msg":"$msg",
-              "clientFrom":"${SocketSingleton.getSocketInstance().clientFromServer}"
+              "clientFrom":"${mSocket.clientFromServer}",
+              "startTime":"${mSocket.startTime}",
+              "endTime":"${mSocket.endTime}"
             }
         """.trimIndent()
 
-//        val responseJson1 =
-//            "" + "{" + "\"status\":" + Integer.toString(status) + "," + "\"statusMOne\":" + Integer.toString(
-//                statusMOne
-//            ) + "," + "\"statusMTwo\":" + Integer.toString(statusMTwo) + "," + "\"msg\":" + "\"" +
-//                    msg + "\"" + "," + "\"clientFrom\":" + "\"" + SocketSingleton.getSocketInstance().clienteFromServer + "\"" + "}"
-
-
-        SocketSingleton.getSocketInstance().socket.emit(
+        mSocket.socket.emit(
             Constants.RESPONSE_SOCKET_BLUETOOTH,
             Constants.ID,
             responseJson

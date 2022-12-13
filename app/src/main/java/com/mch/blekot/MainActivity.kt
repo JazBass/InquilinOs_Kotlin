@@ -9,26 +9,36 @@ import android.util.Log
 import android.view.WindowManager
 import androidx.appcompat.app.AppCompatActivity
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
-//import com.mch.blekot.databinding.ActivityMainBinding
-import com.mch.blekot.databinding.ActivityMainTemporalBinding
+import com.mch.blekot.databinding.ActivityMainBinding
+import com.mch.blekot.io.socket.welock.WeLock
 import com.mch.blekot.services.DeviceSocketIO
 import com.mch.blekot.util.Constants
 
 
 class MainActivity : AppCompatActivity() {
 
-    val ACTION_RUN_SERVICE = "com.mch.blekot.services.action.RUN_SERVICE"
-    val ACTION_MEMORY_EXIT = "com.mch.blekot.services.action.MEMORY_EXIT"
+    private val ACTION_RUN_SERVICE = "com.mch.blekot.services.action.RUN_SERVICE"
+    private val ACTION_MEMORY_EXIT = "com.mch.blekot.services.action.MEMORY_EXIT"
 
-    private lateinit var mBinding: ActivityMainTemporalBinding
+    private lateinit var mBinding: ActivityMainBinding
 
     override
     fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        mBinding = ActivityMainTemporalBinding.inflate(layoutInflater)
+        mBinding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(mBinding.root)
 
+        val weLock = WeLock()
+        mBinding.btnOpenLock.setOnClickListener { weLock.openLock() }
+
+        launchSocketService()
+
+        window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
+    }
+
+
+    private fun launchSocketService() {
         val filter = IntentFilter(ACTION_RUN_SERVICE)
         filter.addAction(ACTION_MEMORY_EXIT)
 
@@ -41,8 +51,6 @@ class MainActivity : AppCompatActivity() {
         // Iniciar el servicio
         val intentDeviceSocketIO = Intent(applicationContext, DeviceSocketIO::class.java)
         startService(intentDeviceSocketIO)
-
-        window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
     }
 
 
@@ -53,7 +61,6 @@ class MainActivity : AppCompatActivity() {
         // Filtro de acciones que serán alertadas
         val ACTION_RUN_SERVICE = "com.rdajila.tandroidsocketio.services.action.RUN_SERVICE"
         val ACTION_MEMORY_EXIT = "com.rdajila.tandroidsocketio.services.action.MEMORY_EXIT"
-        val COUNTER = "com.rdajila.tandroidsocketio.services.extra.COUNT"
         override fun onReceive(context: Context?, intent: Intent) {
             when (intent.action) {
                 ACTION_RUN_SERVICE -> {

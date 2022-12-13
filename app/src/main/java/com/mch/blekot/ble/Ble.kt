@@ -26,8 +26,6 @@ class Ble(weLock: WeLock) {
     private var characteristicNotify: BluetoothGattCharacteristic? = null
     private var characteristicWrite: BluetoothGattCharacteristic? = null
 
-    /*para dividir en paquetes*/
-    private var packAmount = 0
 
     private lateinit var mDataQueue: Queue<ByteArray>
 
@@ -43,14 +41,15 @@ class Ble(weLock: WeLock) {
     @SuppressLint("MissingPermission")
     fun sendBle(code: String? = null) {
 
-        //si code es null pedimos rdm number y bateria, si no enviamos el codigo
         mCode = code ?: "5530"
 
         val btAdapter = BluetoothAdapter.getDefaultAdapter()
-        val device = btAdapter.getRemoteDevice(Constants.MAC_ADRESS)
-        device.connectGatt(null, true, mGattCallback)
+        val device = btAdapter.getRemoteDevice(Constants.MAC_ADDRESS)
+        device.connectGatt(null, false, mGattCallback)
+
     }
 
+    @OptIn(ExperimentalUnsignedTypes::class)
     private val mGattCallback: BluetoothGattCallback = object : BluetoothGattCallback() {
 
         /*-----------------------1º-----------------------*/
@@ -131,70 +130,54 @@ class Ble(weLock: WeLock) {
                 if (characteristic.value[2].toInt() == 1) {
                     //sendResponse("Success")
                     Log.i(TAG, "")
-                }
-                else Log.i(TAG, "ERROR")
-                // Finaliza la accion con el bluetooth
-                //SocketSingleton.getSocketInstance().isProcesoActivo = false;
-            }else { // Otras acciones
-                // Finaliza la accion con el bluetooth
-                //SocketSingleton.getSocketInstance().isProcesoActivo = false;
+                } else Log.i(TAG, "ERROR")
             }
             Log.i(TAG, "onCharacteristicChanged: Received")
 
-            Log.i(TAG, "DIM: ${characteristic.value.size}")
-            Log.i(TAG, "Pos 0: ${characteristic.value[0].toInt()} - ${characteristic.value[0].toUByte().toInt()}")
-            Log.i(TAG, "Pos 1: ${characteristic.value[1].toInt()} - ${characteristic.value[1].toUByte().toInt()}")
-            Log.i(TAG, "Pos 2: ${characteristic.value[2].toInt()} - ${characteristic.value[2].toUByte().toInt()}")
-            Log.i(TAG, "Pos 3: ${characteristic.value[3].toInt()} - ${characteristic.value[3].toUByte().toInt()}")
-
-            //gatt.disconnect()
-            //gatt.close()
-
             // Finaliza la accion con el bluetooth
-            SocketSingleton.getSocketInstance().isProcessActive = false;
-            UtilDevice.sendResponseToServer(Constants.CODE_MSG_OK, characteristic.value[2].toInt(), characteristic.value[3].toInt())
+            SocketSingleton.getSocketInstance().isProcessActive = false
+            UtilDevice.sendResponseToServer(
+                Constants.CODE_MSG_OK,
+                characteristic.value[2].toInt(),
+                characteristic.value[3].toInt()
+            )
 
-            gattTmp.disconnect()
-            gattTmp.close()
+            disconnectGattTmp()
         }
 
     }
 
     @SuppressLint("MissingPermission")
-    public fun writeDataWeLockResponse(code: String) {
+    fun writeDataWeLockResponse(code: String) {
         try {
-            if ( code.trim().length == 0 ) {
+            if (code.trim().isEmpty()) {
                 throw Exception("Error code es vacio!!")
             }
             mCode = code
             writeChar(gattTmp)
-        } catch(e: Exception) {
+        } catch (e: Exception) {
             // Si hay algun error al obtener respuesta desde WeLock
             // Desconectamos el gatt y permitimos otra peticion
             Log.e(TAG, e.message.toString())
             gattTmp.disconnect()
             gattTmp.close()
-            SocketSingleton.getSocketInstance().isProcessActive = false;
-            UtilDevice.sendResponseToServer(status = Constants.CODE_MSG_KO);
+            SocketSingleton.getSocketInstance().isProcessActive = false
+            UtilDevice.sendResponseToServer(status = Constants.CODE_MSG_KO)
         }
     }
 
     @SuppressLint("MissingPermission")
-    public fun desconectarGattTmp () {
+    fun disconnectGattTmp() {
         gattTmp.disconnect()
         gattTmp.close()
     }
 
-//    private fun sendResponse(responseJson: String) {
-//        SocketSingleton.getSocketInstance().socket.emit(Constants.RESPONSE_SOCKET_BLUETOOTH, Constants.ID, responseJson)
-//        Log.i(TAG, "sendResponse: $responseJson")
-//    }
 
     @SuppressLint("MissingPermission")
     private fun writeDataDevice(gatt: BluetoothGatt) {
-        var counter = 1;
+        var counter = 1
         while (mDataQueue.peek() != null) {
-            if (counter > 1) break;
+            if (counter > 1) break
             val data = mDataQueue.poll()
 
             characteristicWrite = gatt.getService(SERVICE_UUID).getCharacteristic(WRITE_CHARACTER)
@@ -203,7 +186,7 @@ class Ble(weLock: WeLock) {
             Log.i(TAG, "Sending: ${HexUtil.formatHexString(characteristicWrite!!.value, true)}")
             characteristicWrite!!.writeType = BluetoothGattCharacteristic.WRITE_TYPE_DEFAULT
             gatt.writeCharacteristic(characteristicWrite)
-            counter++;
+            counter++
         }
     }
 
@@ -212,6 +195,6 @@ class Ble(weLock: WeLock) {
     fun ByteArray.toHexString() =
         asUByteArray().joinToString("") { it.toString(16).padStart(2, '0') }
 
-    // TODO: Instanciar el gatt una sola vez
+    // TODO: Instanciar el gatt una sola vez, singleton o como sea
 
 }

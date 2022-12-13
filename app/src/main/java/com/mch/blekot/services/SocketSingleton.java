@@ -34,9 +34,15 @@ public class SocketSingleton {
 
     private static final String TAG = DeviceSocketIO.class.getSimpleName();
     private boolean isProcessActive;
+
     private static final String CHANNEL_ID = "TV";
+
     private String clientFromServer = "";
     private Socket socket;
+
+    private String endTime;
+    private String startTime;
+
     @SuppressLint("StaticFieldLeak")
     private static SocketSingleton mInstance = null;
     final OkHttpClient httpClient = new OkHttpClient();
@@ -47,9 +53,26 @@ public class SocketSingleton {
         this.context = context.getApplicationContext();
     }
 
+    public String getEndTime() {
+        return endTime;
+    }
+
+    public void setEndTime(String endTime) {
+        this.endTime = endTime;
+    }
+
+    public String getStartTime() {
+        return startTime;
+    }
+
+    public void setStartTime(String startTime) {
+        this.startTime = startTime;
+    }
+
 
     //Constructor
     private SocketSingleton() {
+
         this.isProcessActive = false;
         final IO.Options options = new IO.Options();
         options.reconnection = true;

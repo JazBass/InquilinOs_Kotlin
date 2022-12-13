@@ -9,6 +9,7 @@ import okhttp3.*
 import org.json.JSONObject
 import java.io.IOException
 import java.util.*
+import java.util.concurrent.TimeUnit
 
 
 class WeLock() : WeLockAux {
@@ -27,12 +28,8 @@ class WeLock() : WeLockAux {
     private var mDays: Int = 1
 
     //Chueca 9
-    private var deviceName = Constants.DEVICE_NAME
-    private var deviceIdNumber = Constants.DEVICE_ID_NUMBER
-
-    //Oficina
-    //private var deviceName = "WeLockGE4CK"
-    //private var deviceIdNumber = "21471477"
+    private val deviceName = Constants.DEVICE_NAME
+    private val deviceIdNumber = Constants.DEVICE_ID_NUMBER
 
     private lateinit var mRndNumber: String
     private lateinit var mDevicePower: String
@@ -63,11 +60,7 @@ class WeLock() : WeLockAux {
         ble.sendBle()
     }
 
-    //Pedimos el codigo a la api
     fun getHex() {
-        val startDate: Int = ((System.currentTimeMillis() / 1000) - 28800).toInt()
-
-        val endDate: Int = startDate + (86400 * mDays)
 
         when (mAction) {
             "openLock" -> {
@@ -88,6 +81,12 @@ class WeLock() : WeLockAux {
             }
 
             "newCode" -> {
+
+                val startDate: Int = ((System.currentTimeMillis() / 1000) - 28800).toInt()
+                val endDate: Int = startDate + (86400 * mDays)
+
+                SocketSingleton.getSocketInstance().startTime = startDate.toString()
+                SocketSingleton.getSocketInstance().endTime = endDate.toString()
 
                 val newCodeJson = """{
                     appID: "WELOCK2202161033", 
@@ -131,7 +130,6 @@ class WeLock() : WeLockAux {
         }
     }
 
-
     fun getToken(battery: String, rdmNumber: String) {
 
         mRndNumber = rdmNumber
@@ -155,8 +153,6 @@ class WeLock() : WeLockAux {
             val dataJson = JSONObject(response.body()?.string()!!).getJSONObject("data")
             mToken = dataJson.getString("accessToken")
 
-            //mToken = response.body()?.string()?.split("\"")?.get(9)
-
             Log.i("Token", "onResponse: $mToken")
             getHex()
         }
@@ -176,18 +172,15 @@ class WeLock() : WeLockAux {
             if (code == 0) {
                 val res = dataJson.getString("data")
 
-                //val res = response.body()?.string()?.split("\"")?.get(3)
                 Log.i("Action", "onResponse: $res")
-                //ble.sendBle(code = res)
                 ble.writeDataWeLockResponse(code = res)
             } else {
-                ble.desconectarGattTmp()
+                ble.disconnectGattTmp()
                 SocketSingleton.getSocketInstance().isProcessActive = false;
                 UtilDevice.sendResponseToServer(status = Constants.CODE_MSG_PARAMS);
             }
         }
     }
-
 
     private fun newJson(appID: String, secret: String): String {
         return """{appID: "$appID", secret: "$secret"}"""
