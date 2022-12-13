@@ -26,10 +26,16 @@ class Ble(weLock: WeLock) {
     private var characteristicNotify: BluetoothGattCharacteristic? = null
     private var characteristicWrite: BluetoothGattCharacteristic? = null
 
+    private lateinit var mBluetoothGatt: BluetoothGatt
 
     private lateinit var mDataQueue: Queue<ByteArray>
 
     /*--------------------------BLE--------------------------*/
+
+
+    object bleGatt {
+
+    }
 
     fun writeChar(gatt: BluetoothGatt) {
         val dataIn = HexUtil.hexStringToBytes(mCode)
@@ -38,14 +44,30 @@ class Ble(weLock: WeLock) {
         writeDataDevice(gatt)
     }
 
-    @SuppressLint("MissingPermission")
+
     fun sendBle(code: String? = null) {
 
         mCode = code ?: "5530"
 
+        connectDevice()
+    }
+
+    @SuppressLint("MissingPermission")
+    private fun connectDevice() {
+
         val btAdapter = BluetoothAdapter.getDefaultAdapter()
-        val device = btAdapter.getRemoteDevice(Constants.MAC_ADDRESS)
-        device.connectGatt(null, true, mGattCallback)
+        val device: BluetoothDevice
+
+        btAdapter?.let { adapter ->
+            try {
+                device = adapter.getRemoteDevice(Constants.MAC_ADDRESS)
+                mBluetoothGatt = device.connectGatt(null, true, mGattCallback)
+            }catch (exception: IllegalArgumentException){
+                Log.w(TAG, "Dispositivo no encontrado")
+            }
+        } ?: run {
+            Log.w(TAG, "BluetoothAdapter no inicializado")
+        }
     }
 
     @OptIn(ExperimentalUnsignedTypes::class)
@@ -58,7 +80,9 @@ class Ble(weLock: WeLock) {
             super.onConnectionStateChange(gatt, status, newState)
             if (newState == BluetoothProfile.STATE_CONNECTED) {
                 gatt.discoverServices()
-                Log.i(TAG, "onConnectionStateChange: Discover Services")
+                Log.i(TAG, "Conectado! Buscando servicios...")
+            }else if (newState == BluetoothProfile.STATE_DISCONNECTED){
+                Log.w(TAG, "Desconectado")
             }
         }
 
@@ -140,9 +164,14 @@ class Ble(weLock: WeLock) {
                 characteristic.value[2].toInt(),
                 characteristic.value[3].toInt()
             )
-            disconnectGattTmp()
+            gattTmp.close()
         }
 
+    }
+
+    @SuppressLint("MissingPermission")
+    fun disconnectGatt(){
+        gattTmp.close()
     }
 
     @SuppressLint("MissingPermission")
@@ -160,15 +189,8 @@ class Ble(weLock: WeLock) {
 
             SocketSingleton.getSocketInstance().isProcessActive = false
             UtilDevice.sendResponseToServer(status = Constants.CODE_MSG_KO)
-            disconnectGattTmp()
-        }
-    }
 
-    @SuppressLint("MissingPermission")
-    fun disconnectGattTmp() {
-        with(gattTmp) {
-            disconnect()
-            close()
+            gattTmp.close()
         }
     }
 

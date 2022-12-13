@@ -11,7 +11,6 @@ import java.io.IOException
 import java.util.*
 import java.util.concurrent.TimeUnit
 
-
 class WeLock() : WeLockAux {
 
     private val urlWeLock = "https://api.we-lock.com"
@@ -175,7 +174,7 @@ class WeLock() : WeLockAux {
                 Log.i("Action", "onResponse: $res")
                 ble.writeDataWeLockResponse(code = res)
             } else {
-                ble.disconnectGattTmp()
+                ble.disconnectGatt()
                 SocketSingleton.getSocketInstance().isProcessActive = false;
                 UtilDevice.sendResponseToServer(status = Constants.CODE_MSG_PARAMS);
             }

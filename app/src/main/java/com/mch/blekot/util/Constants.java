@@ -63,4 +63,6 @@ public final class Constants {
     public final static int CODE_MSG_PARAMS = 2;
     public final static int CODE_MSG_KO = -1;
     public final static int STATUS_LOCK = -1;
+    public static final int STATUS_ARDUINO_OK = 1;
+    public static final int STATUS_ARDUINO_ERROR = 1;
 }

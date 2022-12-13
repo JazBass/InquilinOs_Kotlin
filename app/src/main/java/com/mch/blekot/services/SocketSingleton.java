@@ -38,7 +38,7 @@ public class SocketSingleton {
     private static final String CHANNEL_ID = "TV";
 
     private String clientFromServer = "";
-    private Socket socket;
+    private final Socket socket;
 
     private String endTime;
     private String startTime;
@@ -201,11 +201,23 @@ public class SocketSingleton {
                     .get()
                     .build();
             Response response = httpClient.newCall(request).execute();
-            if (!response.isSuccessful()) {
+            if (response.isSuccessful()) {
                 Log.i("Open Portal", "Response: " + response.body().string());
-            }
+
+                UtilDevice.sendResponseToServer(
+                        Constants.STATUS_ARDUINO_OK,
+                        null,
+                        null
+                );
+
+            }else throw new IOException("Arduino connection fail");
         } catch (IOException e) {
             e.printStackTrace();
+            UtilDevice.sendResponseToServer(
+                    Constants.STATUS_ARDUINO_ERROR,
+                    null,
+                    null
+            );
         }
         // Si hay un error en la peticion OPEN-PORTAL, se permite realizar otra peticion
         this.isProcessActive = false;
