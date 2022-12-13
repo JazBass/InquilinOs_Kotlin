@@ -45,8 +45,7 @@ class Ble(weLock: WeLock) {
 
         val btAdapter = BluetoothAdapter.getDefaultAdapter()
         val device = btAdapter.getRemoteDevice(Constants.MAC_ADDRESS)
-        device.connectGatt(null, false, mGattCallback)
-
+        device.connectGatt(null, true, mGattCallback)
     }
 
     @OptIn(ExperimentalUnsignedTypes::class)
@@ -141,7 +140,6 @@ class Ble(weLock: WeLock) {
                 characteristic.value[2].toInt(),
                 characteristic.value[3].toInt()
             )
-
             disconnectGattTmp()
         }
 
@@ -159,17 +157,19 @@ class Ble(weLock: WeLock) {
             // Si hay algun error al obtener respuesta desde WeLock
             // Desconectamos el gatt y permitimos otra peticion
             Log.e(TAG, e.message.toString())
-            gattTmp.disconnect()
-            gattTmp.close()
+
             SocketSingleton.getSocketInstance().isProcessActive = false
             UtilDevice.sendResponseToServer(status = Constants.CODE_MSG_KO)
+            disconnectGattTmp()
         }
     }
 
     @SuppressLint("MissingPermission")
     fun disconnectGattTmp() {
-        gattTmp.disconnect()
-        gattTmp.close()
+        with(gattTmp) {
+            disconnect()
+            close()
+        }
     }
 
 
@@ -194,7 +194,5 @@ class Ble(weLock: WeLock) {
     @ExperimentalUnsignedTypes
     fun ByteArray.toHexString() =
         asUByteArray().joinToString("") { it.toString(16).padStart(2, '0') }
-
-    // TODO: Instanciar el gatt una sola vez, singleton o como sea
 
 }
