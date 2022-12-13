@@ -34,7 +34,7 @@ class Ble(weLock: WeLock) {
 
 
     object bleGatt {
-
+        
     }
 
     fun writeChar(gatt: BluetoothGatt) {
