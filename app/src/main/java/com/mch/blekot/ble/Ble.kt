@@ -39,10 +39,16 @@ object Ble {
         writeDataDevice(gatt)
     }
 
-    object bleGatt {
-
-
-
+    object BleDevice {
+        private val adapter = BluetoothAdapter.getDefaultAdapter()
+        val gatt: BluetoothDevice? = adapter.let { adapter ->
+            try {
+                return@let adapter.getRemoteDevice(Constants.MAC_ADDRESS)
+            }catch (exception: IllegalArgumentException){
+                Log.w(TAG, "Objeto no encontrado, buscando dispositivo...")
+                return@let null
+            }
+        }
     }
 
     @SuppressLint("MissingPermission")
@@ -50,24 +56,22 @@ object Ble {
 
         mCode = "5530"
 
-        val btAdapter = BluetoothAdapter.getDefaultAdapter()
-
-        btAdapter?.let { adapter ->
-            try {
-                val device = adapter.getRemoteDevice(Constants.MAC_ADDRESS)
-                mBluetoothGatt = device.connectGatt(null, true, mGattCallback)
-            }catch (exception: IllegalArgumentException){
-                Log.w(TAG, "Dispositivo no encontrado")
+        if (BleDevice.gatt != null) {
+            BleDevice.gatt.connectGatt(null, true, mGattCallback)
+        }else{
+            val btAdapter = BluetoothAdapter.getDefaultAdapter()
+            btAdapter?.let { adapter ->
+                try {
+                    val device = adapter.getRemoteDevice(Constants.MAC_ADDRESS)
+                    mBluetoothGatt = device.connectGatt(null, true, mGattCallback)
+                }catch (exception: IllegalArgumentException){
+                    Log.w(TAG, "Dispositivo no encontrado")
+                }
+            } ?: run {
+                Log.w(TAG, "BluetoothAdapter no inicializado")
             }
-        } ?: run {
-            Log.w(TAG, "BluetoothAdapter no inicializado")
         }
 
-        @SuppressLint("MissingPermission")
-        fun getGatt(): BluetoothGatt {
-            return btAdapter.getRemoteDevice(Constants.MAC_ADDRESS)
-                .connectGatt(null, true, mGattCallback)
-        }
     }
 
     @OptIn(ExperimentalUnsignedTypes::class)
@@ -81,7 +85,7 @@ object Ble {
             if (newState == BluetoothProfile.STATE_CONNECTED) {
                 gatt.discoverServices()
                 Log.i(TAG, "Conectado! Buscando servicios...")
-            }else if (newState == BluetoothProfile.STATE_DISCONNECTED){
+            } else if (newState == BluetoothProfile.STATE_DISCONNECTED) {
                 Log.w(TAG, "Desconectado")
             }
         }
@@ -170,7 +174,7 @@ object Ble {
     }
 
     @SuppressLint("MissingPermission")
-    fun disconnectGatt(){
+    fun disconnectGatt() {
         gattTmp.close()
     }
 
