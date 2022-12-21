@@ -31,7 +31,8 @@ import okhttp3.Response;
 
 public class SocketSingleton {
 
-    private static final String TAG = DeviceSocketIO.class.getSimpleName();
+
+    private static final String TAG = SocketService.class.getSimpleName();
     private boolean isProcessActive;
 
     private static final String CHANNEL_ID = "TV";

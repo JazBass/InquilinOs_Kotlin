@@ -1,12 +1,12 @@
 package com.mch.blekot.util
 
 import android.util.Log
-import com.mch.blekot.services.DeviceSocketIO
+import com.mch.blekot.services.SocketService
 import com.mch.blekot.services.SocketSingleton
 
 
 object UtilDevice {
-    private val TAG = DeviceSocketIO::class.java.simpleName
+    private val TAG = SocketService::class.java.simpleName
     /**
      * Metodo que envia la respuesta al servidor OK/KO/Pendiente
      * 1 -> OK

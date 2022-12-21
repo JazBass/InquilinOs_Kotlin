@@ -11,7 +11,8 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import com.mch.blekot.databinding.ActivityMainBinding
 import com.mch.blekot.io.socket.welock.WeLock
-import com.mch.blekot.services.DeviceSocketIO
+import com.mch.blekot.services.MicroService
+import com.mch.blekot.services.SocketService
 import com.mch.blekot.util.Constants
 
 
@@ -33,9 +34,15 @@ class MainActivity : AppCompatActivity() {
 
         launchSocketService()
 
+        //launchMicroService()
+
         window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
     }
 
+    private fun launchMicroService(){
+        val intent = Intent(applicationContext, MicroService::class.java)
+        startService(intent)
+    }
 
     private fun launchSocketService() {
         val filter = IntentFilter(ACTION_RUN_SERVICE)
@@ -48,8 +55,8 @@ class MainActivity : AppCompatActivity() {
         LocalBroadcastManager.getInstance(this).registerReceiver(receiver, filter)
 
         // Iniciar el servicio
-        val intentDeviceSocketIO = Intent(applicationContext, DeviceSocketIO::class.java)
-        startService(intentDeviceSocketIO)
+        val intent = Intent(applicationContext, SocketService::class.java)
+        startService(intent)
     }
 
 

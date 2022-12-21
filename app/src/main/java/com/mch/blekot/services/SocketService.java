@@ -8,12 +8,12 @@ import android.util.Log;
 import androidx.annotation.Nullable;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
-public final class DeviceSocketIO extends Service {
+public final class SocketService extends Service {
 
-    private static final String TAG = DeviceSocketIO.class.getSimpleName();
+    private static final String TAG = SocketService.class.getSimpleName();
 
 
-    public DeviceSocketIO() {
+    public SocketService() {
     }
 
     @Nullable
@@ -44,7 +44,7 @@ public final class DeviceSocketIO extends Service {
         Intent localIntent = new Intent(ACTION_MEMORY_EXIT);
 
         // Emitir el intent a la actividad
-        LocalBroadcastManager.getInstance(DeviceSocketIO.this).sendBroadcast(localIntent);
+        LocalBroadcastManager.getInstance(SocketService.this).sendBroadcast(localIntent);
 
         Log.d(TAG, "Servicio destruido...");
     }
