@@ -13,6 +13,7 @@ import com.mch.blekot.databinding.ActivityMainBinding
 import com.mch.blekot.io.socket.welock.WeLock
 import com.mch.blekot.services.MicroService
 import com.mch.blekot.services.SocketService
+import com.mch.blekot.services.SocketSingleton
 import com.mch.blekot.util.Constants
 
 
@@ -32,7 +33,7 @@ class MainActivity : AppCompatActivity() {
 
         mBinding.btnOpenLock.setOnClickListener { WeLock.openLock() }
 
-        launchSocketService()
+        //launchSocketService()
 
         //launchMicroService()
 

@@ -129,12 +129,14 @@ public class SocketSingleton {
                     /*Conexión local con arduino*/
 
                     case Constants.ACTION_OPEN_PORTAL:
-                        Log.i(TAG, "Error OPEN PORTAL!!");
                         openPortal();
                         break;
 
+                    case Constants.ACTION_SYNC_TIME:
+                        String newTime = (Objects.requireNonNull(pDataJson.getValue("Qr"))).toString();
+                        WeLock.syncTime(newTime);
+                        break;
                         /*Lanzamos notificacion para encender la tv con IFTTT*/
-
                     case "tvOn":
 
                         launchNotification();

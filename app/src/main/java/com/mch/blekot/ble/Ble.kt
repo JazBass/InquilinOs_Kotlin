@@ -147,19 +147,15 @@ object Ble {
                 val myJason = "{\"rndNumber\":$rndNumber, \"battery\":$devicePower}"
                 Log.i(TAG, "onCharacteristicChanged: $myJason")
 
-                WeLock.getToken(devicePower.toString(), rndNumber.toString())
+                WeLock. getToken(devicePower.toString(), rndNumber.toString())
 
                 return
 
             } else if (characteristic.value[0].toInt() == 85 &&
                 characteristic.value[1].toInt() == 49
             ) {
-                if (characteristic.value[2].toInt() == 1) {
-                    //sendResponse("Success")
-                    Log.i(TAG, "")
-                } else Log.i(TAG, "ERROR")
+                if (characteristic.value[2].toInt() != 1) Log.i(TAG, "ERROR")
             }
-            Log.i(TAG, "onCharacteristicChanged: Received")
 
             // Finaliza la accion con el bluetooth
             SocketSingleton.getSocketInstance().isProcessActive = false
