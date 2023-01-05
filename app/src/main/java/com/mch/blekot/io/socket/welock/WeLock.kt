@@ -9,42 +9,47 @@ import okhttp3.*
 import org.json.JSONObject
 import java.io.IOException
 import java.util.*
-import java.util.concurrent.TimeUnit
 
 
 object WeLock {
 
+    /*WeLock's API paths*/
+    private const val urlWeLock = "https://api.we-lock.com"
+    private const val PATH_CARD = "/API/Device/DeviceCardCommand"
+    private const val PATH_CODE = "/API/Device/DeviceSetTemporaryPassword"
+    private const val PATH_OPEN = "/API/Device/DeviceUnLockCommand"
+    private const val PATH_TOKEN = "/API/Auth/Token"
+    private const val PATH_SYNC_DATE = "/API/Device/DeviceSyncTime"
 
-    private val urlWeLock = "https://api.we-lock.com"
-    private val PATH_CARD = "/API/Device/DeviceCardCommand"
-    private val PATH_CODE = "/API/Device/DeviceSetTemporaryPassword"
-    private val PATH_OPEN = "/API/Device/DeviceUnLockCommand"
-    private val PATH_TOKEN = "/API/Auth/Token"
+    private var mHttpClient: OkHttpClient = OkHttpClient()
 
-    private var client: OkHttpClient = OkHttpClient()
     private var mToken: String? = null
     private var mNewPassword: String? = null
     private var mType: String? = null
     private var mQr: String? = null
     private var mDays: Int = 1
+    private var mNewTime: String? = null
 
-    //Chueca 9
-    private val deviceName = Constants.DEVICE_NAME
-    private val deviceIdNumber = Constants.DEVICE_ID_NUMBER
+    private const val deviceName = Constants.DEVICE_NAME
+    private const val deviceIdNumber = Constants.DEVICE_ID_NUMBER
 
     private lateinit var mRndNumber: String
     private lateinit var mDevicePower: String
 
     private lateinit var mAction: String
 
-    @JvmStatic //Objeto statico reconocible para JAVA
+    /*
+    * La anotacion "@JvmStatic" es para que la funcion sea de tipo static al ser invocada desdecodigo JAVA
+    */
+
+    @JvmStatic
     fun openLock() {
         mAction = Constants.ACTION_OPEN_LOCK
 
         Ble.connectDevice()
     }
 
-    @JvmStatic //Objeto statico reconocible para JAVA
+    @JvmStatic
     fun setNewCode(newPassword: String, days: Int) {
         mAction = Constants.ACTION_NEW_CODE
         mNewPassword = newPassword
@@ -53,7 +58,7 @@ object WeLock {
         Ble.connectDevice()
     }
 
-    @JvmStatic //Objeto statico reconocible para JAVA
+    @JvmStatic
     fun setNewCard(qr: String, type: String) {
         mAction = Constants.ACTION_SET_CARD
         mQr = qr
@@ -62,9 +67,61 @@ object WeLock {
         Ble.connectDevice()
     }
 
+    @JvmStatic
+    fun syncTime(newTime: String) {
+        mAction = Constants.ACTION_SYNC_TIME
+        mNewTime = newTime
+
+        Ble.connectDevice()
+    }
+
+    /*Pedimos la token*/
+    fun getToken(battery: String, rdmNumber: String) {
+
+        /*
+        *Cuando syncronizamos el tiempo el callback nos trae de vuelta aqui, por eso desconectamos
+        * el BleGatt, mandamos el mensaje al server y terminamos la operacion
+        */
+
+        if (mAction == "TimeSynchronized") {
+            Ble.disconnectGatt()
+            UtilDevice.sendResponseToServer(Constants.SYNC_TIME_OK)
+            SocketSingleton.getSocketInstance().isProcessActive = false
+            return
+        }
+
+        mRndNumber = rdmNumber
+        mDevicePower = battery
+
+        post(
+            PATH_TOKEN,
+            """{appID: "WELOCK2202161033", secret: "349910dfcdfac75df0fd1cf2cbb02adb"}""",
+            tokenCallback
+        )
+    }
+
+
+    /*Callback para recibir la toquen*/
+    private var tokenCallback: Callback = object : Callback {
+
+        override fun onFailure(p0: Call, p1: IOException) {
+            TODO("Not yet implemented")
+        }
+
+        override fun onResponse(p0: Call, response: Response) {
+            val dataJson = JSONObject(response.body()?.string()!!).getJSONObject("data")
+            mToken = dataJson.getString("accessToken")
+
+            Log.i("Token", "onResponse: $mToken")
+            getHex()
+        }
+    }
+
+    /*Aqui controlamos el pedido a la API dependiendo que querramos hacer*/
     fun getHex() {
 
         when (mAction) {
+
             "openLock" -> {
 
                 val openLockJson = """{
@@ -129,38 +186,31 @@ object WeLock {
                 )
             }
 
-        }
-    }
+            "syncTime" -> {
+                val syncTimeJson = """{
+                    appID: "WELOCK2202161033",
+                    deviceNumber: "$deviceIdNumber",
+                    deviceBleName: "$deviceName",
+                    timestamp: $mNewTime,
+                    deviceRandomFactor: "$mRndNumber"}""".trimIndent()
 
-    fun getToken(battery: String, rdmNumber: String) {
+                Log.i("jsonTime: ", syncTimeJson)
 
-        mRndNumber = rdmNumber
-        mDevicePower = battery
+                postWithToken(
+                    PATH_SYNC_DATE,
+                    syncTimeJson,
+                    actionCallback
+                )
 
-        post(
-            PATH_TOKEN, newJson(
-                "WELOCK2202161033",
-                "349910dfcdfac75df0fd1cf2cbb02adb"
-            ), tokenCallback
-        )
-    }
+                mAction = "TimeSynchronized"
+            }
 
-    private var tokenCallback: Callback = object : Callback {
 
-        override fun onFailure(p0: Call, p1: IOException) {
-            TODO("Not yet implemented")
-        }
-
-        override fun onResponse(p0: Call, response: Response) {
-            val dataJson = JSONObject(response.body()?.string()!!).getJSONObject("data")
-            mToken = dataJson.getString("accessToken")
-
-            Log.i("Token", "onResponse: $mToken")
-            getHex()
         }
     }
 
 
+    /*Callback donde recibimos el codigo que le enviaremos a la manija*/
     private var actionCallback: Callback = object : Callback {
 
         override fun onFailure(p0: Call, p1: IOException) {
@@ -177,15 +227,12 @@ object WeLock {
                 Log.i("Action", "onResponse: $res")
                 Ble.writeDataWeLockResponse(code = res)
             } else {
+                Log.i("ERROR", dataJson.toString())
                 Ble.disconnectGatt()
-                SocketSingleton.getSocketInstance().isProcessActive = false;
-                UtilDevice.sendResponseToServer(status = Constants.CODE_MSG_PARAMS);
+                SocketSingleton.getSocketInstance().isProcessActive = false
+                UtilDevice.sendResponseToServer(status = Constants.CODE_MSG_PARAMS)
             }
         }
-    }
-
-    private fun newJson(appID: String, secret: String): String {
-        return """{appID: "$appID", secret: "$secret"}"""
     }
 
     @Throws(IOException::class)
@@ -197,7 +244,7 @@ object WeLock {
             .url(urlWeLock + path)
             .post(body)
             .build()
-        val call: Call = client.newCall(request)
+        val call: Call = mHttpClient.newCall(request)
         if (callback != null) {
             call.enqueue(callback)
         }
@@ -213,7 +260,7 @@ object WeLock {
             .addHeader("Authorization", " Bearer $mToken")
             .post(body)
             .build()
-        val call: Call = client.newCall(request)
+        val call: Call = mHttpClient.newCall(request)
         if (callback != null) {
             call.enqueue(callback)
         }
