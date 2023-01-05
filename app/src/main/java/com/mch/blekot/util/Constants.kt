@@ -21,11 +21,11 @@ object Constants {
     //const val DEVICE_ID_NUMBER = "21471477";
 
     //Chueca9
-    const val ID = "Prueba9"
+    const val ID = "PRUEBA100"
     const val MAC_ADDRESS = "D6:F5:3B:E4:6D:F5"
     const val DEVICE_NAME = "WeLockE31J8"
     const val DEVICE_ID_NUMBER = "21471175"
-    const val URL_TCP = "http://192.168.0.15:3002/"
+    const val URL_TCP = "http://192.168.0.51:3002/"
 
     // Constantes para la conexion SOCKET
     // public final static String ID = "Prueba1";
@@ -50,6 +50,7 @@ object Constants {
     const val ACTION_SET_CARD = "setCard"
     const val ACTION_OPEN_PORTAL = "openPortal"
     const val ACTION_SYNC_TIME = "syncTime"
+    const val ACTION_READ_RECORD = "readRecord"
 
     const val MAX_SEND_DATA = 20
     const val MIN_DAYS_PASSWORD = 1

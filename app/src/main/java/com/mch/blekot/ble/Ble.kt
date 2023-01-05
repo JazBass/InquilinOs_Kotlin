@@ -34,7 +34,7 @@ object Ble {
 
     fun writeChar(gatt: BluetoothGatt) {
         val dataIn = HexUtil.hexStringToBytes(mCode)
-        mDataQueue = HexUtil.splitByte(dataIn, Constants.MAX_SEND_DATA)
+        mDataQueue = HexUtil.splitByte(dataIn!!, Constants.MAX_SEND_DATA)
         Log.i(TAG, "SIZE: ${mDataQueue.size}")
         writeDataDevice(gatt)
     }
@@ -141,6 +141,11 @@ object Ble {
             gatt: BluetoothGatt,
             characteristic: BluetoothGattCharacteristic
         ) {
+
+            for (i in 2 until characteristic.value.size){
+                Log.i("ArrayValues", "valor ${i+1} : ${characteristic.value[i].toUByte()}")
+            }
+
             if (characteristic.value[0].toInt() == 85 && characteristic.value[1].toInt() == 48) {
                 val rndNumber = characteristic.value[2].toUByte().toInt()
                 val devicePower = characteristic.value[3].toUByte().toInt()

@@ -10,7 +10,6 @@ import org.json.JSONObject
 import java.io.IOException
 import java.util.*
 
-
 object WeLock {
 
     /*WeLock's API paths*/
@@ -20,6 +19,7 @@ object WeLock {
     private const val PATH_OPEN = "/API/Device/DeviceUnLockCommand"
     private const val PATH_TOKEN = "/API/Auth/Token"
     private const val PATH_SYNC_DATE = "/API/Device/DeviceSyncTime"
+    private const val PATH_READ_RECORD = "/API/Device/UnlockRecord"
 
     private var mHttpClient: OkHttpClient = OkHttpClient()
 
@@ -75,6 +75,13 @@ object WeLock {
         Ble.connectDevice()
     }
 
+    @JvmStatic
+    fun getRecord(){
+        mAction = Constants.ACTION_READ_RECORD
+
+        Ble.connectDevice()
+    }
+
     /*Pedimos la token*/
     fun getToken(battery: String, rdmNumber: String) {
 
@@ -86,6 +93,7 @@ object WeLock {
         if (mAction == "TimeSynchronized") {
             Ble.disconnectGatt()
             UtilDevice.sendResponseToServer(Constants.SYNC_TIME_OK)
+            SocketSingleton.getSocketInstance().isProcessActive = false
             return
         }
 
@@ -204,7 +212,19 @@ object WeLock {
                 mAction = "TimeSynchronized"
             }
 
+            "readRecord" -> {
+                val readRecordJson = """{
+                    appID: "WELOCK2202161033",
+                    deviceNumber: "$deviceIdNumber",
+                    deviceBleName: "$deviceName",
+                    deviceRandomFactor: "$mRndNumber"}""".trimIndent()
 
+                postWithToken(
+                    PATH_READ_RECORD,
+                    readRecordJson,
+                    actionCallback
+                )
+            }
         }
     }
 
