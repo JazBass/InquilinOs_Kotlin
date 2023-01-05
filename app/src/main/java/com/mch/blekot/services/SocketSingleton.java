@@ -133,6 +133,11 @@ public class SocketSingleton {
                         openPortal();
                         break;
 
+                    case Constants.ACTION_SYNC_TIME:
+                        String newTime = (Objects.requireNonNull(pDataJson.getValue("syncTime"))).toString();
+                        WeLock.syncTime(newTime);
+                        break;
+
                         /*Lanzamos notificacion para encender la tv con IFTTT*/
 
                     case "tvOn":
