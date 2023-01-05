@@ -24,13 +24,13 @@ class ProcessDataJson : IData {
         return if (dataMap.containsKey(key)) dataMap[key] else null
     }
 
-    override fun getData(dataJson: JSONObject) {
+    override fun getData(dataJson: JSONObject?) {
         try {
-            val it = dataJson.keys()
+            val it = dataJson!!.keys()
             var key = ""
             while (it.hasNext()) {
                 key = it.next().toString()
-                dataMap[key] = dataJson[key]
+                dataMap[key] = dataJson.get(key) as Any
             }
             isState = true
         } catch (e: JSONException) {

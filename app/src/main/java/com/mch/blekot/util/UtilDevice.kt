@@ -19,7 +19,7 @@ object UtilDevice {
     fun sendResponseToServer(status: Int, statusMOne: Int? = Constants.STATUS_LOCK,
                              statusMTwo: Int? = Constants.STATUS_LOCK) {
 
-        val mSocket = SocketSingleton.getSocketInstance()
+        val mSocket = SocketSingleton.socketInstance
 
         val msg: String = when(status){
             Constants.CODE_MSG_OK -> Constants.MSG_OK
@@ -33,9 +33,9 @@ object UtilDevice {
               "statusMOne":$statusMOne,
               "statusMTwo":$statusMTwo,
               "msg":"$msg",
-              "clientFrom":"${mSocket.clientFromServer}",
-              "startTime":"${mSocket.startTime}",
-              "endTime":"${mSocket.endTime}"
+              "clientFrom":"${mSocket!!.clientFromServer}",
+              "startTime":"${mSocket!!.startTime}",
+              "endTime":"${mSocket!!.endTime}"
             }
         """.trimIndent()
 

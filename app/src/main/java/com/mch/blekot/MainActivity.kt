@@ -33,13 +33,11 @@ class MainActivity : AppCompatActivity() {
 
         mBinding.btnOpenLock.setOnClickListener { WeLock.openLock() }
 
-        //launchSocketService()
+        launchSocketService()
 
         //launchMicroService()
 
         window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
-
-        WeLock.getRecord()
     }
 
     private fun launchMicroService(){

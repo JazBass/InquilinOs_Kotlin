@@ -163,7 +163,7 @@ object Ble {
             }
 
             // Finaliza la accion con el bluetooth
-            SocketSingleton.getSocketInstance().isProcessActive = false
+            SocketSingleton.socketInstance!!.isProcessActive = false
             UtilDevice.sendResponseToServer(
                 Constants.CODE_MSG_OK,
                 characteristic.value[2].toInt(),
@@ -192,7 +192,7 @@ object Ble {
             // Desconectamos el gatt y permitimos otra peticion
             Log.e(TAG, e.message.toString())
 
-            SocketSingleton.getSocketInstance().isProcessActive = false
+            SocketSingleton.socketInstance!!.isProcessActive = false
             UtilDevice.sendResponseToServer(status = Constants.CODE_MSG_KO)
 
             gattTmp.close()

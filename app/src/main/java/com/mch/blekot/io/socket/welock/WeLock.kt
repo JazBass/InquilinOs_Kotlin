@@ -93,7 +93,7 @@ object WeLock {
         if (mAction == "TimeSynchronized") {
             Ble.disconnectGatt()
             UtilDevice.sendResponseToServer(Constants.SYNC_TIME_OK)
-            SocketSingleton.getSocketInstance().isProcessActive = false
+            SocketSingleton.socketInstance!!.isProcessActive = false
             return
         }
 
@@ -151,8 +151,8 @@ object WeLock {
                 val startDate: Int = ((System.currentTimeMillis() / 1000) - 28800).toInt()
                 val endDate: Int = startDate + (86400 * mDays)
 
-                SocketSingleton.getSocketInstance().startTime = startDate.toString()
-                SocketSingleton.getSocketInstance().endTime = endDate.toString()
+                SocketSingleton.socketInstance!!.startTime = startDate.toString()
+                SocketSingleton.socketInstance!!.endTime = endDate.toString()
 
                 val newCodeJson = """{
                     appID: "WELOCK2202161033", 
@@ -248,7 +248,7 @@ object WeLock {
             } else {
                 Log.i("ERROR", dataJson.toString())
                 Ble.disconnectGatt()
-                SocketSingleton.getSocketInstance().isProcessActive = false
+                SocketSingleton.socketInstance!!.isProcessActive = false
                 UtilDevice.sendResponseToServer(status = Constants.CODE_MSG_PARAMS)
             }
         }
