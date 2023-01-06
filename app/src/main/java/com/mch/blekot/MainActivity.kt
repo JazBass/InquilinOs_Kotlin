@@ -31,7 +31,7 @@ class MainActivity : AppCompatActivity() {
         mBinding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(mBinding.root)
 
-        mBinding.btnOpenLock.setOnClickListener { WeLock.openLock() }
+        mBinding.btnLogs.setOnClickListener { WeLock.getRecord() }
 
         launchSocketService()
 

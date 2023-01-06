@@ -71,7 +71,6 @@ object Ble {
                 Log.w(TAG, "BluetoothAdapter no inicializado")
             }
         }
-
     }
 
     @OptIn(ExperimentalUnsignedTypes::class)
@@ -141,18 +140,13 @@ object Ble {
             gatt: BluetoothGatt,
             characteristic: BluetoothGattCharacteristic
         ) {
-
-            for (i in 2 until characteristic.value.size){
-                Log.i("ArrayValues", "valor ${i+1} : ${characteristic.value[i].toUByte()}")
-            }
-
             if (characteristic.value[0].toInt() == 85 && characteristic.value[1].toInt() == 48) {
                 val rndNumber = characteristic.value[2].toUByte().toInt()
                 val devicePower = characteristic.value[3].toUByte().toInt()
-                val myJason = "{\"rndNumber\":$rndNumber, \"battery\":$devicePower}"
-                Log.i(TAG, "onCharacteristicChanged: $myJason")
 
-                WeLock. getToken(devicePower.toString(), rndNumber.toString())
+                Log.i(TAG, "onCharacteristicChanged: rndNumber: $rndNumber, battery: $devicePower")
+
+                WeLock.getToken(devicePower.toString(),rndNumber.toString())
 
                 return
 
@@ -160,6 +154,33 @@ object Ble {
                 characteristic.value[1].toInt() == 49
             ) {
                 if (characteristic.value[2].toInt() != 1) Log.i(TAG, "ERROR")
+            }
+
+            if (characteristic.value[0].toInt() == 85 && characteristic.value[1].toInt() == 66) {
+
+                val values = arrayOf(mutableListOf<Byte>())
+
+                for (res in characteristic.value){
+                    Log.i(TAG, "res: ${res.toUByte()  }")
+                }
+
+                var a = 0
+                for (i in 2 until characteristic.value.size-2){
+
+                    if (characteristic.value.size % 8 == 0) a =1
+
+                    values[a].add(characteristic.value[i])
+
+                    //if(i - 2 <= 8 ){
+                    //    values1 += characteristic.value[i]
+                    //}else{
+                    //    values2 += characteristic.value[i]
+                    //}
+                }
+                for (j in values){
+                    Log.i(TAG, "$j")
+                }
+
             }
 
             // Finaliza la accion con el bluetooth

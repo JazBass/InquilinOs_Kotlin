@@ -25,7 +25,7 @@ object Constants {
     const val MAC_ADDRESS = "D6:F5:3B:E4:6D:F5"
     const val DEVICE_NAME = "WeLockE31J8"
     const val DEVICE_ID_NUMBER = "21471175"
-    const val URL_TCP = "http://192.168.0.51:3002/"
+    const val URL_TCP = "http://192.168.0.56:3002/"
 
     // Constantes para la conexion SOCKET
     // public final static String ID = "Prueba1";
