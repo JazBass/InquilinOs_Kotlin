@@ -16,7 +16,7 @@ object Ble {
 
     private lateinit var gattTmp: BluetoothGatt
 
-    private val TAG = "Ble.kt"
+    private const val TAG = "Ble.kt"
 
     private val SERVICE_UUID = UUID.fromString("6e400001-b5a3-f393-e0a9-e50e24dcca9e")
     private val NOTIFY_CHARACTERISTIC = UUID.fromString("6e400003-b5a3-f393-e0a9-e50e24dcca9e")
@@ -144,6 +144,10 @@ object Ble {
                 val rndNumber = characteristic.value[2].toUByte().toInt()
                 val devicePower = characteristic.value[3].toUByte().toInt()
 
+                if(devicePower <= 10)
+                    UtilDevice.sendResponseToServer(Constants.CODE_MSG_BATTERY_LOW)
+                // TODO: Aqui se envia status -2 hay que adaptar el server
+
                 Log.i(TAG, "onCharacteristicChanged: rndNumber: $rndNumber, battery: $devicePower")
 
                 WeLock.getToken(devicePower.toString(),rndNumber.toString())
@@ -161,7 +165,7 @@ object Ble {
                 val values = arrayOf(mutableListOf<Byte>())
 
                 for (res in characteristic.value){
-                    Log.i(TAG, "res: ${res.toUByte()  }")
+                    Log.i(TAG, "res: ${res.toUByte()}")
                 }
 
                 var a = 0
@@ -169,7 +173,7 @@ object Ble {
 
                     if (characteristic.value.size % 8 == 0) a =1
 
-                    values[a].add(characteristic.value[i])
+                    values[a].add(characteristic.value[i].toUByte().toByte())
 
                     //if(i - 2 <= 8 ){
                     //    values1 += characteristic.value[i]

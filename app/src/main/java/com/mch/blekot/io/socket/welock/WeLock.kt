@@ -86,7 +86,7 @@ object WeLock {
     fun getToken(battery: String, rdmNumber: String) {
 
         /*
-        *Cuando syncronizamos el tiempo el callback nos trae de vuelta aqui, por eso desconectamos
+        *Cuando sincronizamos el tiempo el callback nos trae de vuelta aqui, por eso desconectamos
         * el BleGatt, mandamos el mensaje al server y terminamos la operacion
         */
 
@@ -148,7 +148,7 @@ object WeLock {
 
             "newCode" -> {
 
-                val startDate: Int = ((System.currentTimeMillis() / 1000) - 28800).toInt()
+                val startDate: Int = ((System.currentTimeMillis() / 1000) - 28800 - 7200).toInt()
                 val endDate: Int = startDate + (86400 * mDays)
 
                 SocketSingleton.socketInstance!!.startTime = startDate.toString()

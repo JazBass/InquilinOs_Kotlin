@@ -65,6 +65,7 @@ object Constants {
     const val CODE_MSG_PENDANT = 0
     const val CODE_MSG_PARAMS = 2
     const val CODE_MSG_KO = -1
+    const val CODE_MSG_BATTERY_LOW = -2
 
     const val STATUS_LOCK = -1
     const val STATUS_ARDUINO_OK = 1
