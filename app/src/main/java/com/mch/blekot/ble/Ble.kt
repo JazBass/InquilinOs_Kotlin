@@ -144,10 +144,6 @@ object Ble {
                 val rndNumber = characteristic.value[2].toUByte().toInt()
                 val devicePower = characteristic.value[3].toUByte().toInt()
 
-                if(devicePower <= 10)
-                    UtilDevice.sendResponseToServer(Constants.CODE_MSG_BATTERY_LOW)
-                // TODO: Aqui se envia status -2 hay que adaptar el server
-
                 Log.i(TAG, "onCharacteristicChanged: rndNumber: $rndNumber, battery: $devicePower")
 
                 WeLock.getToken(devicePower.toString(),rndNumber.toString())
