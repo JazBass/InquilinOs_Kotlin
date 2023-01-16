@@ -1,13 +1,12 @@
-package com.mch.blekot.ble
+package com.mch.blekot.io.ble
 
 import android.annotation.SuppressLint
 import android.bluetooth.*
 import android.util.Log
-import com.mch.blekot.io.socket.welock.WeLock
-import com.mch.blekot.services.SocketSingleton
+import com.mch.blekot.io.socket.SocketSingleton
+import com.mch.blekot.io.welock.BatteriesManager
 import com.mch.blekot.util.Constants
 import com.mch.blekot.util.HexUtil
-import com.mch.blekot.util.UtilDevice
 import java.util.*
 
 object Ble {
@@ -25,6 +24,8 @@ object Ble {
 
     private var characteristicNotify: BluetoothGattCharacteristic? = null
     private var characteristicWrite: BluetoothGattCharacteristic? = null
+
+    private var isOnlyAsk = false
 
     private lateinit var mBluetoothGatt: BluetoothGatt
 
@@ -52,15 +53,18 @@ object Ble {
     }
 
     @SuppressLint("MissingPermission")
-    fun connectDevice() {
+    fun connectDevice(isOnlyAsk: Boolean = false) {
 
         mCode = "5530"
+
+        //Only battery status ask
+        Ble.isOnlyAsk = isOnlyAsk
 
         if (BleDevice.gatt != null) {
             BleDevice.gatt.connectGatt(null, true, mGattCallback)
         }else{
             val btAdapter = BluetoothAdapter.getDefaultAdapter()
-            btAdapter?.let { adapter ->
+            btAdapter?.let  { adapter ->
                 try {
                     val device = adapter.getRemoteDevice(Constants.MAC_ADDRESS)
                     mBluetoothGatt = device.connectGatt(null, true, mGattCallback)
@@ -76,6 +80,8 @@ object Ble {
     @OptIn(ExperimentalUnsignedTypes::class)
     private val mGattCallback: BluetoothGattCallback = object : BluetoothGattCallback() {
 
+        /** The following callbacks are in order, each one execute the next **/
+
         /*-----------------------1º-----------------------*/
 
         @SuppressLint("MissingPermission")
@@ -90,8 +96,8 @@ object Ble {
         }
 
         /*-----------------------2º-----------------------*/
-        /*Nos suscribimos a las notificaciones y escribimos el descriptor*/
 
+        /*Nos suscribimos a las notificaciones y escribimos el descriptor*/
         @SuppressLint("MissingPermission")
         override fun onServicesDiscovered(gatt: BluetoothGatt, status: Int) {
             super.onServicesDiscovered(gatt, status)
@@ -132,67 +138,61 @@ object Ble {
 
         /*-----------------------5ª-----------------------*/
 
-        /* Al recibir la respuesta de la manija lanzamos la request http*/
-
-
-        @SuppressLint("MissingPermission")
         override fun onCharacteristicChanged(
             gatt: BluetoothGatt,
             characteristic: BluetoothGattCharacteristic
         ) {
-            if (characteristic.value[0].toInt() == 85 && characteristic.value[1].toInt() == 48) {
-                val rndNumber = characteristic.value[2].toUByte().toInt()
-                val devicePower = characteristic.value[3].toUByte().toInt()
+            var charArray: Array<Int> = emptyArray()
 
-                Log.i(TAG, "onCharacteristicChanged: rndNumber: $rndNumber, battery: $devicePower")
-
-                WeLock.getToken(devicePower.toString(),rndNumber.toString())
-
-                return
-
-            } else if (characteristic.value[0].toInt() == 85 &&
-                characteristic.value[1].toInt() == 49
-            ) {
-                if (characteristic.value[2].toInt() != 1) Log.i(TAG, "ERROR")
+            for (char in characteristic.value){
+                charArray += char.toUByte().toInt()
             }
 
-            if (characteristic.value[0].toInt() == 85 && characteristic.value[1].toInt() == 66) {
+            readCharacteristics(charArray)
+        }
 
-                val values = arrayOf(mutableListOf<Byte>())
+        @SuppressLint("MissingPermission")
+        private fun readCharacteristics(characteristic: Array<Int>){
 
-                for (res in characteristic.value){
-                    Log.i(TAG, "res: ${res.toUByte()}")
+            var statusResponse = -1
+
+            if (characteristic[0] == 85){
+                when(characteristic[1]){
+                    /** All responses start with 48 except SetCard **/
+                    48 -> {
+                        val rndNumber = characteristic[2]
+                        val devicePower = characteristic[3]
+
+                        Log.i(TAG, "onCharacteristicChanged: rndNumber: $rndNumber, battery: $devicePower")
+
+                        if (isOnlyAsk) {
+                            BatteriesManager.sendResponse(devicePower)
+                            isOnlyAsk = false
+                            return
+                        }
+                        ActionManager.getToken(devicePower.toString(), rndNumber.toString())
+                        return
+                    }
+                    /** SetCard Response **/
+                    49 -> {
+                        if (characteristic[2] != 1) Log.i(TAG, "ERROR")
+                    }
                 }
-
-                var a = 0
-                for (i in 2 until characteristic.value.size-2){
-
-                    if (characteristic.value.size % 8 == 0) a =1
-
-                    values[a].add(characteristic.value[i].toUByte().toByte())
-
-                    //if(i - 2 <= 8 ){
-                    //    values1 += characteristic.value[i]
-                    //}else{
-                    //    values2 += characteristic.value[i]
-                    //}
-                }
-                for (j in values){
-                    Log.i(TAG, "$j")
-                }
-
+                statusResponse = characteristic[2]
+            }else if (characteristic[0] == 165){
+                statusResponse = characteristic[3]
             }
 
-            // Finaliza la accion con el bluetooth
             SocketSingleton.socketInstance!!.isProcessActive = false
-            UtilDevice.sendResponseToServer(
+            Log.i("Status Response", "$statusResponse")
+            ActionManager.sendResponseToServer(
                 Constants.CODE_MSG_OK,
-                characteristic.value[2].toInt(),
-                characteristic.value[3].toInt()
+                statusMOne = statusResponse
             )
             gattTmp.close()
         }
 
+        // TODO: catch lock's errors like motor and wrong response
     }
 
     @SuppressLint("MissingPermission")
@@ -209,12 +209,10 @@ object Ble {
             mCode = code
             writeChar(gattTmp)
         } catch (e: Exception) {
-            // Si hay algun error al obtener respuesta desde WeLock
-            // Desconectamos el gatt y permitimos otra peticion
             Log.e(TAG, e.message.toString())
 
             SocketSingleton.socketInstance!!.isProcessActive = false
-            UtilDevice.sendResponseToServer(status = Constants.CODE_MSG_KO)
+            ActionManager.sendResponseToServer(status = Constants.CODE_MSG_KO)
 
             gattTmp.close()
         }

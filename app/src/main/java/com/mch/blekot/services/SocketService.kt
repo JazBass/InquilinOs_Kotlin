@@ -4,8 +4,7 @@ import android.app.Service
 import android.content.Intent
 import android.os.IBinder
 import android.util.Log
-import com.mch.blekot.services.SocketService
-import com.mch.blekot.services.SocketSingleton
+import com.mch.blekot.io.socket.SocketSingleton
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
 
 class SocketService : Service() {
@@ -21,7 +20,7 @@ class SocketService : Service() {
         Log.d(TAG, "Servicio iniciado...")
 
         //Init es para instanciar el socket en el singleton, solo lo pasamos aqui
-        SocketSingleton.socketInstance!!.init(this)
+        SocketSingleton.socketInstance!!
         return START_NOT_STICKY
     }
 

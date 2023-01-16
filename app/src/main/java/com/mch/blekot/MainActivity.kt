@@ -9,11 +9,10 @@ import android.util.Log
 import android.view.WindowManager
 import androidx.appcompat.app.AppCompatActivity
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
+import com.mch.blekot.io.ble.ActionManager
 import com.mch.blekot.databinding.ActivityMainBinding
-import com.mch.blekot.io.socket.welock.WeLock
 import com.mch.blekot.services.MicroService
 import com.mch.blekot.services.SocketService
-import com.mch.blekot.services.SocketSingleton
 import com.mch.blekot.util.Constants
 
 
@@ -31,19 +30,25 @@ class MainActivity : AppCompatActivity() {
         mBinding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(mBinding.root)
 
-        mBinding.btnLogs.setOnClickListener { WeLock.getRecord() }
+        mBinding.btnLogs.setOnClickListener { ActionManager.getRecord() }
 
         launchSocketService()
 
         //launchMicroService()
 
+        //BatteriesManager.getDevicesBatteries()
+
         window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
     }
 
-    private fun launchMicroService(){
-        val intent = Intent(applicationContext, MicroService::class.java)
-        startService(intent)
+    init {
+        instance = this
     }
+
+//    private fun launchMicroService(){
+//        val intent = Intent(applicationContext, MicroService::class.java)
+//        startService(intent)
+//    }
 
     private fun launchSocketService() {
         val filter = IntentFilter(ACTION_RUN_SERVICE)
@@ -81,6 +86,15 @@ class MainActivity : AppCompatActivity() {
                     Log.d("TAG", "Servicio finalizado escucha desde MainActivity...")
                 }
             }
+        }
+    }
+
+
+    companion object {
+        private var instance: MainActivity? = null
+
+        fun applicationContext() : Context {
+            return instance!!.applicationContext
         }
     }
 

@@ -1,31 +1,18 @@
-package com.mch.blekot.services
+package com.mch.blekot.io.socket
 
-import com.mch.blekot.util.UtilDevice.sendResponseToServer
-import com.mch.blekot.io.socket.welock.WeLock.openLock
-import com.mch.blekot.io.socket.welock.WeLock.setNewCode
-import com.mch.blekot.io.socket.welock.WeLock.setNewCard
-import com.mch.blekot.io.socket.welock.WeLock.syncTime
-import okhttp3.OkHttpClient
 import org.json.JSONArray
 import org.json.JSONObject
-import android.app.NotificationManager
-import android.app.NotificationChannel
-import androidx.core.app.NotificationManagerCompat
-import androidx.core.app.NotificationCompat
-import com.mch.blekot.R
 import android.annotation.SuppressLint
-import android.content.Context
 import android.util.Log
+import com.mch.blekot.io.ble.ActionManager
+import com.mch.blekot.services.SocketService
 import com.mch.blekot.util.Constants
 import com.mch.blekot.util.ProcessDataJson
 import io.socket.client.IO
 import io.socket.client.Socket
-import okhttp3.Request
-import java.io.IOException
 import java.lang.Exception
 import java.net.URI
 import java.util.*
-import kotlin.jvm.Synchronized
 
 class SocketSingleton private constructor() {
     var isProcessActive = false
@@ -33,18 +20,13 @@ class SocketSingleton private constructor() {
     val socket: Socket
     var endTime: String? = null
     var startTime: String? = null
-    private val httpClient = OkHttpClient()
-    private var context: Context? = null
-    fun init(context: Context) {
-        this.context = context.applicationContext
-    }
 
     //Constructor
     init {
         val options = IO.Options()
         options.reconnection = true
         socket = IO.socket(URI.create(Constants.URL_TCP), options)
-        socket.on(Socket.EVENT_CONNECT) { args: Array<Any?>? ->
+        socket.on(Socket.EVENT_CONNECT) {
             println("Conectado!!")
             socket.emit(Constants.ACTION_LOG, Constants.ID, Constants.MESSAGE)
         }
@@ -56,7 +38,7 @@ class SocketSingleton private constructor() {
                 // procesoActivo: FALSE -> Se ejecuta accion nueva
                 if (isProcessActive) {
                     Log.i(TAG, "Hay una peticion pendiente!!")
-                    sendResponseToServer(
+                    ActionManager.sendResponseToServer(
                         Constants.CODE_MSG_PENDANT,
                         Constants.STATUS_LOCK,
                         Constants.STATUS_LOCK
@@ -76,7 +58,7 @@ class SocketSingleton private constructor() {
                 isProcessActive = true
                 when (action) {
 
-                    Constants.ACTION_OPEN_LOCK -> openLock()
+                    Constants.ACTION_OPEN_LOCK -> ActionManager.openLock()
 
                     Constants.ACTION_NEW_CODE -> {
                         val code = Objects.requireNonNull(pDataJson.getValue("code"))
@@ -84,7 +66,7 @@ class SocketSingleton private constructor() {
                         var days = Objects.requireNonNull(pDataJson.getValue("days"))
                             .toString().toInt()
                         days = if (days == 0) Constants.MIN_DAYS_PASSWORD else days
-                        setNewCode(code, days)
+                        ActionManager.setNewCode(code, days)
                     }
 
                     Constants.ACTION_SET_CARD -> {
@@ -92,23 +74,27 @@ class SocketSingleton private constructor() {
                             .toString()
                         val type = Objects.requireNonNull(pDataJson.getValue("type"))
                             .toString()
-                        setNewCard(qr, type)
+                        ActionManager.setNewCard(qr, type)
                     }
 
-                    Constants.ACTION_OPEN_PORTAL -> openPortal()
+                    Constants.ACTION_OPEN_PORTAL -> ActionManager.openPortal()
 
                     Constants.ACTION_SYNC_TIME -> {
                         val newTime = Objects.requireNonNull(pDataJson.getValue("syncTime"))
                             .toString()
-                        syncTime(newTime)
+                        ActionManager.syncTime(newTime)
                     }
 
-                    "tvOn" -> launchNotification()
+                    Constants.ACTION_GET_BATTERY ->{
+                        ActionManager.getDevicesBatteries()
+                    }
+
+                    "tvOn" -> ActionManager.launchNotification()
                 }
             } catch (e: Exception) {
                 isProcessActive = false //Error por JSON
                 e.printStackTrace()
-                sendResponseToServer(
+                ActionManager.sendResponseToServer(
                     Constants.CODE_MSG_KO,
                     Constants.STATUS_LOCK,
                     Constants.STATUS_LOCK
@@ -119,50 +105,8 @@ class SocketSingleton private constructor() {
         socket.connect()
     }
 
-    private fun launchNotification() {
-        val name: CharSequence = "TvNotify"
-        val description = "Tv Notify for IFTTT"
-        val importance = NotificationManager.IMPORTANCE_DEFAULT
-        val channel = NotificationChannel(CHANNEL_ID, name, importance)
-        channel.description = description
-        val notificationManager = NotificationManagerCompat.from(context!!)
-        notificationManager.createNotificationChannel(channel)
-        val builder = NotificationCompat.Builder(context!!, CHANNEL_ID)
-            .setSmallIcon(R.drawable.ico_website)
-            .setContentTitle("TV")
-            .setContentText("TVON")
-            .setPriority(NotificationCompat.PRIORITY_DEFAULT)
-        notificationManager.notify(1, builder.build())
-    }
-
-    private fun openPortal() {
-        try {
-            val request = Request.Builder()
-                .url("http://192.168.1.150/portal/open")
-                .get()
-                .build()
-            val response = httpClient.newCall(request).execute()
-
-            if (response.isSuccessful) {
-                Log.i("Open Portal", "Response: " + response.body()!!.string())
-                sendResponseToServer(
-                    status = Constants.STATUS_ARDUINO_OK
-                )
-            } else throw IOException("Arduino connection fail")
-
-        } catch (e: IOException) {
-            e.printStackTrace()
-            sendResponseToServer(
-                status = Constants.STATUS_ARDUINO_ERROR
-            )
-        }
-        // Si hay un error en la peticion OPEN-PORTAL, se permite realizar otra peticion
-        isProcessActive = false
-    }
-
     companion object {
         private val TAG = SocketService::class.java.simpleName
-        private const val CHANNEL_ID = "TV"
 
         @SuppressLint("StaticFieldLeak")
         private var mInstance: SocketSingleton? = null
