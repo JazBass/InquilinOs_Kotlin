@@ -1,4 +1,4 @@
-# BleKotlin
+# InquilinOs APP
 
 Aplicación para controlar las viviendas.
 
