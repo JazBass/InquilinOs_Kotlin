@@ -4,7 +4,7 @@ import android.app.Service
 import android.content.Intent
 import android.os.IBinder
 import android.util.Log
-import com.mch.blekot.io.socket.SocketSingleton
+import com.mch.blekot.model.socket.SocketSingleton
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
 
 class SocketService : Service() {

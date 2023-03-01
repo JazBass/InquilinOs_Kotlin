@@ -9,11 +9,9 @@ import android.util.Log
 import android.view.WindowManager
 import androidx.appcompat.app.AppCompatActivity
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
-import com.mch.blekot.io.ble.ActionManager
 import com.mch.blekot.databinding.ActivityMainBinding
-import com.mch.blekot.services.MicroService
 import com.mch.blekot.services.SocketService
-import com.mch.blekot.util.Constants
+import com.mch.blekot.common.Constants
 
 
 class MainActivity : AppCompatActivity() {
@@ -29,8 +27,6 @@ class MainActivity : AppCompatActivity() {
 
         mBinding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(mBinding.root)
-
-        mBinding.btnLogs.setOnClickListener { ActionManager.getRecord() }
 
         launchSocketService()
 

@@ -5,12 +5,12 @@ plugins {
 
 android {
     namespace 'com.mch.blekot'
-    compileSdk 32
+    compileSdk 33
 
     defaultConfig {
         applicationId "com.mch.blekot"
         minSdk 26
-        targetSdk 32
+        targetSdk 33
         versionCode 1
         versionName "1.0"
 
@@ -37,6 +37,8 @@ android {
     }
 }
 
+def coroutines_version = "1.6.4"
+
 dependencies {
 
     implementation 'androidx.core:core-ktx:1.7.0'
@@ -53,4 +55,8 @@ dependencies {
     implementation files('libs/okhttp-3.12.12.jar')
     implementation files('libs/okio-1.15.0.jar')
     implementation files('libs/socket.io-client-2.1.0.jar')
+
+    //Coroutines
+    implementation "org.jetbrains.kotlinx:kotlinx-coroutines-android:$coroutines_version"
+
 }
