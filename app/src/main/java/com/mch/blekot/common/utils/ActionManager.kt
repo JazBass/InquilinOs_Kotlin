@@ -10,6 +10,7 @@ import com.mch.blekot.model.ble.Ble
 import okhttp3.OkHttpClient
 import okhttp3.Request
 import java.io.IOException
+import kotlin.math.log
 
 object ActionManager : ActionManagerAux {
 
@@ -27,14 +28,9 @@ object ActionManager : ActionManagerAux {
 
     private val httpClient = OkHttpClient()
 
-    override suspend fun getToken(battery: String, rdmNumber: String) {
-
-        Log.i("Thread: ", Thread.currentThread().name)
-
-        mRndNumber = rdmNumber
-        mDevicePower = battery
-        WeLock.getToken(battery, rdmNumber, mAction)
-    }
+    /**
+     * BLE Functions *
+     * */
 
     override suspend fun openLock() {
         mAction = Constants.OPEN_LOCK
@@ -74,6 +70,23 @@ object ActionManager : ActionManagerAux {
         Ble.connectDevice()
     }
 
+    /**
+     *  WeLock API Functions *
+     * */
+
+    override suspend fun getToken(battery: String, rdmNumber: String) {
+
+        Log.i("Thread: ", Thread.currentThread().name)
+
+        mRndNumber = rdmNumber
+        mDevicePower = battery
+        WeLock.getToken(battery, rdmNumber, mAction)
+    }
+
+    /**
+     * Extras *
+     * */
+
     override suspend fun getDevicesBatteries() {
         BatteriesManager.getDevicesBatteries()
     }
@@ -81,7 +94,7 @@ object ActionManager : ActionManagerAux {
     override suspend fun openPortal() {
         try {
             val request = Request.Builder()
-                .url("http://192.168.1.150/portal/open")
+                .url(Constants.IP_ARDUINO + Constants.PATH_OPEN_PORTAL)
                 .get()
                 .build()
             val response = httpClient.newCall(request).execute()
@@ -102,36 +115,32 @@ object ActionManager : ActionManagerAux {
         SocketSingleton.socketInstance?.isProcessActive = false
     }
 
-    override fun launchNotification() {
-//        val name: CharSequence = "TvNotify"
-//        val description = "Tv Notify for IFTTT"
-//        val importance = NotificationManager.IMPORTANCE_DEFAULT
-//        val channel = NotificationChannel(CHANNEL_ID, name, importance)
-//        channel.description = description
-//        val notificationManager = NotificationManagerCompat.from(MainActivity.applicationContext())
-//        notificationManager.createNotificationChannel(channel)
-//        val builder = NotificationCompat.Builder(MainActivity.applicationContext(), CHANNEL_ID)
-//            .setSmallIcon(R.drawable.ico_website)
-//            .setContentTitle("TV")
-//            .setContentText("TVON")
-//            .setPriority(NotificationCompat.PRIORITY_DEFAULT)
-//        notificationManager.notify(1, builder.build())
-    }
 
     fun setAction(action: Int) {
-        mAction = action}
+        mAction = action
+    }
 
-    fun getDeviceNewPassword():String?{ return mNewPassword }
+    fun getDeviceNewPassword(): String? {
+        return mNewPassword
+    }
 
-    fun getQR():String?{ return mQr }
+    fun getQR(): String? {
+        return mQr
+    }
 
-    fun getType():String?{ return mType }
+    fun getType(): String? {
+        return mType
+    }
 
-    fun getNewTime():String?{ return mNewTime }
+    fun getNewTime(): String? {
+        return mNewTime
+    }
 
-    fun getDays(): Int{ return mDays }
+    fun getDays(): Int {
+        return mDays
+    }
 
-    fun getPostData(devicePower: String, rdmNumber: String):Map<String,String>{
+    fun getPostData(devicePower: String, rdmNumber: String): Map<String, String> {
         return JsonManager.getPostData(
             action = mAction,
             devicePower = devicePower,
@@ -139,9 +148,8 @@ object ActionManager : ActionManagerAux {
         )
     }
 
-
-     /**
-     * Método que envía la respuesta al server
+    /**
+     * Server response method
      *  1 -> OK
      *  0 -> PENDIENTE
      * -1 -> ERROR
@@ -157,7 +165,7 @@ object ActionManager : ActionManagerAux {
         phoneBattery: Int? = null,
         deviceBattery: Int? = null,
         isCharging: Boolean? = null
-    ){
+    ) {
         val responseJson = JsonManager.getServerResponseJson(
             status = status,
             statusMOne = statusMOne,
@@ -176,5 +184,4 @@ object ActionManager : ActionManagerAux {
             responseJson
         )
     }
-
 }

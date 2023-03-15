@@ -13,10 +13,10 @@ object JsonManager {
     private const val PATH_SYNC_TIME = "/API/Device/DeviceSyncTime"
     private const val PATH_READ_RECORD = "/API/Device/UnlockRecord"
 
-    private const val deviceName = Constants.DEVICE_NAME
-    private const val deviceIdNumber = Constants.DEVICE_ID_NUMBER
+    private val deviceName = Constants.DEVICE_NAME ?: ""
+    private val deviceIdNumber = Constants.DEVICE_ID_NUMBER ?: ""
 
-    fun getPostData(action: Int, devicePower: String, rdmNumber: String): Map<String,String>{
+    fun getPostData(action: Int, devicePower: String, rdmNumber: String): Map<String, String> {
 
         Log.i("JsonManager", "action: $action")
 
@@ -100,22 +100,25 @@ object JsonManager {
 
             else -> {
                 Log.e("JsonManager", "Ninguna accion declarada")
-                return mapOf("Error" to "ERROR", )
+                return mapOf("Error" to "ERROR")
             }
 
         }
 
     }
 
-    fun getServerResponseJson(status: Int, statusMOne: Int = Constants.STATUS_LOCK,
-                              statusMTwo: Int = Constants.STATUS_LOCK,
-                              phoneBattery: Int? = null, deviceBattery: Int? = null,
-                              isCharging: Boolean? = null, action: Int): String{
+    fun getServerResponseJson(
+        status: Int, statusMOne: Int = Constants.STATUS_LOCK,
+        statusMTwo: Int = Constants.STATUS_LOCK,
+        phoneBattery: Int? = null, deviceBattery: Int? = null,
+        isCharging: Boolean? = null, action: Int
+    ): String {
 
         val msg: String = when (status) {
             Constants.CODE_MSG_OK -> Constants.MSG_OK
             Constants.CODE_MSG_PENDANT -> Constants.MSG_PENDANT
             Constants.CODE_MSG_PARAMS -> Constants.MSG_PARAMS
+            Constants.CODE_MSG_NULL_POINT -> Constants.MSG_NULL_POINT
             else -> Constants.MSG_KO
         }
 
@@ -156,10 +159,31 @@ object JsonManager {
                      "clientFrom":"${SocketSingleton.socketInstance?.clientFromServer}",
                      "lockBattery": $deviceBattery
                      }""".trimIndent()
-
             }
         }
-
         return responseJson
     }
+
+    fun getCredentialsResponse(
+        status: Int,
+        deviceId: String,
+        deviceName: String,
+        macAddress: String,
+        urlArduino: String
+    ): String {
+        return """
+            { "clientFrom" : "${SocketSingleton.socketInstance?.clientFromServer}",
+             "status" : $status,
+             "deviceId" : "$deviceId",
+             "deviceName" : "$deviceName",
+             "macAddress" : "$macAddress",
+             "urlArduino" : "$urlArduino",
+              "msg" : "Error en las credenciales"}
+    """.trimIndent()
+        
+    }
+
+
+
+
 }

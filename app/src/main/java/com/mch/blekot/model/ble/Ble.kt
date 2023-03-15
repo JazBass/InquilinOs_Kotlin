@@ -239,7 +239,6 @@ object Ble {
 
             characteristicWrite = gatt.getService(SERVICE_UUID).getCharacteristic(WRITE_CHARACTER)
             characteristicWrite!!.value = data
-            //Log.i(TAG, "Sending: ${characteristicWrite!!.value.toHexString()}")
             Log.i(TAG, "Sending: ${HexUtil.formatHexString(characteristicWrite!!.value, true)}")
             characteristicWrite!!.writeType = BluetoothGattCharacteristic.WRITE_TYPE_DEFAULT
             gatt.writeCharacteristic(characteristicWrite)

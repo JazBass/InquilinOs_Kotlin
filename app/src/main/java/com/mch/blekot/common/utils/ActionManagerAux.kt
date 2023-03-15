@@ -18,5 +18,4 @@ interface ActionManagerAux {
 
     suspend fun openPortal()
 
-     fun launchNotification()
 }

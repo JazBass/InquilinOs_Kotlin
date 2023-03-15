@@ -15,12 +15,19 @@ object Constants {
     //const val DEVICE_NAME = "WeLockAWPOR";
     //const val DEVICE_ID_NUMBER = "21471618";
 
+
     /*********************Oficina**********************/
 
-    const val ID = "Oficina"
-    const val MAC_ADDRESS = "CC:37:4D:3B:11:3A"
-    const val DEVICE_NAME = "WeLockGE4CK"
-    const val DEVICE_ID_NUMBER = "21471477"
+    const val ID = "PRUEBA200"
+
+    var MAC_ADDRESS: String? = null
+    var DEVICE_NAME: String? = null
+    var DEVICE_ID_NUMBER: String? = null
+
+    //const val URL_TCP: String = "https://tcpmch.fly.dev/"
+    var IP_ARDUINO = "http://192.168.1.150/"
+
+    const val PATH_OPEN_PORTAL = "portal/open"
 
     /*********************Prueba100********************/
 
@@ -28,8 +35,8 @@ object Constants {
     //const val MAC_ADDRESS = "D6:F5:3B:E4:6D:F5"
     //const val DEVICE_NAME = "WeLockE31J8"
     //const val DEVICE_ID_NUMBER = "21471175"
-    const val URL_TCP = "https://tcpmch.fly.dev/"
-    //const val URL_TCP = "http://192.168.1.104:3002/"
+
+    const val URL_TCP = "http://192.168.0.76:3002/"
 
     /*****************SocketConnection*****************/
 
@@ -60,7 +67,7 @@ object Constants {
     const val MSG_OK = "Se ha procesado exitosamente la peticion"
     const val MSG_PENDANT = "Hay una peticion pendiente!!"
     const val MSG_KO = "Error con el dispositivo Bluetooth!!"
-
+    const val MSG_NULL_POINT = "Faltan enviar parametros"
     const val MSG_PARAMS = "Error, el valor de los parametros son erroneos!"
 
 
@@ -70,6 +77,7 @@ object Constants {
     const val CODE_MSG_PENDANT = 0
     const val CODE_MSG_PARAMS = 2
     const val CODE_MSG_KO = -1
+    const val CODE_MSG_NULL_POINT = -1
 
     const val STATUS_LOCK = -1
     const val STATUS_ARDUINO_OK = 1
@@ -77,6 +85,11 @@ object Constants {
 
     const val SYNC_TIME_OK = 1
     const val SYNC_TIME_ERROR = -1
+
+    const val ERROR_LENGTH = "Error en la cantidad de caracteres"
+    const val ERROR_ONLY_NUMBERS = "El ID debe contener solo numeros"
+    const val ERROR_MAC_ADDRESS = "Mac Address mal escrito"
+    const val ERROR_ARDUINO = "IP del arduino mal escrita"
 
     /*******************Recorder*******************/
 
@@ -87,6 +100,7 @@ object Constants {
     /*************Socket CMD MANAGER**************/
 
     const val ACTION_OPEN_LOCK = "openLock"
+    const val ACTION_CONFIG = "config"
     const val ACTION_NEW_CODE = "newCode"
     const val ACTION_SET_CARD = "setCard"
     const val ACTION_OPEN_PORTAL = "openPortal"

@@ -12,6 +12,7 @@ import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import com.mch.blekot.databinding.ActivityMainBinding
 import com.mch.blekot.services.SocketService
 import com.mch.blekot.common.Constants
+import com.mch.blekot.model.socket.SocketSingleton
 
 
 class MainActivity : AppCompatActivity() {

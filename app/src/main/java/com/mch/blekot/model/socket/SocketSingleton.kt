@@ -8,12 +8,14 @@ import com.mch.blekot.common.utils.ActionManager
 import com.mch.blekot.services.SocketService
 import com.mch.blekot.common.Constants
 import com.mch.blekot.common.ProcessDataJson
+import com.mch.blekot.common.ValidateException
+import com.mch.blekot.common.ValidateUtil
 import io.socket.client.IO
 import io.socket.client.Socket
 import kotlinx.coroutines.*
-import java.lang.Exception
 import java.net.URI
 import java.util.*
+import kotlin.Exception
 
 class SocketSingleton private constructor() {
 
@@ -36,8 +38,6 @@ class SocketSingleton private constructor() {
         socket.on(Constants.ACTION_ADMIN) { args: Array<Any?>? ->
             val dataResponse: JSONArray
             try {
-                // procesoActivo: TRUE -> No se ejecuta ninguna accion
-                // procesoActivo: FALSE -> Se ejecuta accion nueva
                 if (isProcessActive) {
                     Log.i(TAG, "Hay una peticion pendiente!!")
                     ActionManager.sendResponseToServer(
@@ -53,11 +53,32 @@ class SocketSingleton private constructor() {
                 // Obtener dataJSON en un HashMap
                 val pDataJson = ProcessDataJson()
                 pDataJson.getData(dataJson)
+
                 val action = Objects.requireNonNull(pDataJson.getValue("cmd"))
                     .toString()
                 clientFromServer = Objects.requireNonNull(pDataJson.getValue("clientFrom"))
                     .toString()
                 isProcessActive = true
+
+                val macAddress =
+                    Objects.requireNonNull(pDataJson.getValue("macAddress")).toString()
+
+                val deviceName =
+                    Objects.requireNonNull(pDataJson.getValue("deviceName")).toString()
+
+                val deviceId =
+                    Objects.requireNonNull(pDataJson.getValue("deviceId")).toString()
+
+                val ipArduino =
+                    Objects.requireNonNull(pDataJson.getValue("ipArduino")).toString()
+
+                ValidateUtil.setUpCredentials(
+                    macAddress = macAddress,
+                    deviceName = deviceName,
+                    deviceId = deviceId,
+                    ipArduino = ipArduino
+                )
+
                 when (action) {
 
                     Constants.ACTION_OPEN_LOCK -> executeAction { ActionManager.openLock() }
@@ -87,14 +108,27 @@ class SocketSingleton private constructor() {
                         executeAction { ActionManager.syncTime(newTime) }
                     }
 
-                    Constants.ACTION_GET_BATTERY ->{
+                    Constants.ACTION_GET_BATTERY -> {
                         executeAction { ActionManager.getDevicesBatteries() }
                     }
 
-                    "tvOn" -> ActionManager.launchNotification()
                 }
+            } catch (e: ValidateException) {
+                isProcessActive = false
+                socket.emit(
+                    Constants.RESPONSE_SOCKET_BLUETOOTH,
+                    Constants.ID,
+                    ValidateUtil.getResponse()
+                )
+            }catch (e: java.lang.NullPointerException){
+                isProcessActive = false
+                ActionManager.sendResponseToServer(
+                    Constants.CODE_MSG_NULL_POINT,
+                    Constants.STATUS_LOCK,
+                    Constants.STATUS_LOCK
+                )
             } catch (e: Exception) {
-                isProcessActive = false //Error por JSON
+                isProcessActive = false
                 e.printStackTrace()
                 ActionManager.sendResponseToServer(
                     Constants.CODE_MSG_KO,
@@ -107,10 +141,10 @@ class SocketSingleton private constructor() {
         socket.connect()
     }
 
+    //coroutines
     private fun executeAction(block: suspend () -> Unit): Job {
         return MainScope().launch(Dispatchers.IO) {
             block()
-            Log.i("Thread: ", Thread.currentThread().name)
         }
     }
 
