@@ -5,7 +5,7 @@ import android.content.IntentFilter
 import android.os.BatteryManager
 import android.util.Log
 import com.mch.blekot.MainActivity
-import com.mch.blekot.common.utils.ActionManager
+import com.mch.blekot.common.ActionManager
 import com.mch.blekot.model.ble.Ble
 import com.mch.blekot.model.socket.SocketSingleton
 import com.mch.blekot.common.Constants
@@ -46,15 +46,9 @@ object BatteriesManager {
         ActionManager.sendResponseToServer(
             status = Constants.CODE_MSG_OK,
             phoneBattery = phoneBattery,
-            deviceBattery = devicePower,
             isCharging = isCharging
         )
         SocketSingleton.socketInstance!!.isProcessActive = false
         Ble.disconnectGatt()
     }
-
-
-
-
-
 }

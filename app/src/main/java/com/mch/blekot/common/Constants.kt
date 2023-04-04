@@ -15,16 +15,18 @@ object Constants {
     //const val DEVICE_NAME = "WeLockAWPOR";
     //const val DEVICE_ID_NUMBER = "21471618";
 
-
     /*********************Oficina**********************/
 
-    const val ID = "PRUEBA200"
+    const val ID = "PRUEBA100"
 
     var MAC_ADDRESS: String? = null
     var DEVICE_NAME: String? = null
     var DEVICE_ID_NUMBER: String? = null
 
-    //const val URL_TCP: String = "https://tcpmch.fly.dev/"
+    //Server de pruebas
+    //const val URL_TCP: String = "https://tcpmch2022.fly.dev"
+    const val URL_TCP = "http://192.168.0.76:3002/"
+
     var IP_ARDUINO = "http://192.168.1.150/"
 
     const val PATH_OPEN_PORTAL = "portal/open"
@@ -36,15 +38,10 @@ object Constants {
     //const val DEVICE_NAME = "WeLockE31J8"
     //const val DEVICE_ID_NUMBER = "21471175"
 
-    const val URL_TCP = "http://192.168.0.76:3002/"
-
     /*****************SocketConnection*****************/
 
     // public final static String ID = "Prueba1";
-    const val ACTION_LOG = "Log"
-    const val ACTION_ADMIN = "admin"
-    const val RESPONSE_SOCKET_BLUETOOTH = "ResponseSocketBluetooth"
-    const val MESSAGE = "Conectado"
+
 
     //const val URL_TCP = "http://tcpmch-env.eba-5tfqg8e4.eu-west-1.elasticbeanstalk.com/"
     //const val URL_TCP = "http://192.168.1.113:3002/"
@@ -57,6 +54,24 @@ object Constants {
     const val EXTRA_MSG = "com.rdajila.tandroidsocketio.services.extra.MEMORY"
     const val EXTRA_COUNTER = "com.rdajila.tandroidsocketio.services.extra.COUNT"
 
+    /***************SocketParameters***************/
+
+    const val ACTION_LOG = "Log"
+    const val ACTION_ADMIN = "admin"
+    const val RESPONSE_SOCKET_BLUETOOTH = "ResponseSocketBluetooth"
+    const val MESSAGE = "Conectado"
+
+    const val PARAMETER_CMD = "cmd"
+    const val PARAMETER_CLIENT_FROM = "clientFrom"
+    const val PARAMETER_MAC_ADDRESS = "macAddress"
+    const val PARAMETER_DEVICE_ID = "deviceID"
+    const val PARAMETER_DEVICE_NAME ="deviceName"
+    const val PARAMETER_CODE = "code"
+    const val PARAMETER_DAYS = "days"
+    const val PARAMETER_QR = "Qr"
+    const val PARAMETER_TYPE = "type"
+    const val PARAMETER_IP_ARDUINO = "ipArduino"
+
     /********************ForBLE********************/
 
     const val MAX_SEND_DATA = 20
@@ -64,11 +79,11 @@ object Constants {
 
     /*****************UserResponse*****************/
 
-    const val MSG_OK = "Se ha procesado exitosamente la peticion"
-    const val MSG_PENDANT = "Hay una peticion pendiente!!"
-    const val MSG_KO = "Error con el dispositivo Bluetooth!!"
-    const val MSG_NULL_POINT = "Faltan enviar parametros"
-    const val MSG_PARAMS = "Error, el valor de los parametros son erroneos!"
+    const val MSG_OK = "¡Se ha procesado exitosamente la peticion!"
+    const val MSG_PENDANT = "¡Hay una peticion pendiente!"
+    const val MSG_KO = "¡Error con el dispositivo Bluetooth!"
+    const val MSG_NULL_POINT = "¡Faltan enviar parametros!"
+    const val MSG_PARAMS = "¡Error en WeLock-API, valor de parametros erroneo o manija no activada!"
 
 
     /****************SocketResponse****************/

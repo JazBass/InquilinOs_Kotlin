@@ -4,7 +4,7 @@ interface ActionManagerAux {
 
     suspend fun openLock()
 
-    suspend fun setNewCode(newPassword: String, days: Int)
+    suspend fun setNewCode(newPassword: String, days: Int, index:Int, times: Int)
 
     suspend fun setNewCard(qr: String, type: String)
 

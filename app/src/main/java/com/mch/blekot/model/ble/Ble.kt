@@ -2,12 +2,20 @@ package com.mch.blekot.model.ble
 
 import android.annotation.SuppressLint
 import android.bluetooth.*
+import android.bluetooth.le.ScanCallback
+import android.bluetooth.le.ScanFilter
+import android.bluetooth.le.ScanResult
+import android.bluetooth.le.ScanSettings
+import android.bluetooth.le.ScanSettings.SCAN_MODE_LOW_LATENCY
 import android.util.Log
+import androidx.core.content.ContextCompat.getSystemService
+import com.mch.blekot.MainActivity
+import com.mch.blekot.common.Constants
+import com.mch.blekot.common.ActionManager
+import com.mch.blekot.common.utils.HexUtil
+import com.mch.blekot.common.utils.HexUtil.toHexString
 import com.mch.blekot.model.socket.SocketSingleton
 import com.mch.blekot.model.welock.BatteriesManager
-import com.mch.blekot.common.Constants
-import com.mch.blekot.common.utils.ActionManager
-import com.mch.blekot.common.utils.HexUtil
 import kotlinx.coroutines.*
 import java.util.*
 
@@ -15,9 +23,7 @@ object Ble {
 
     private lateinit var mCode: String
 
-    private lateinit var gattTmp: BluetoothGatt
-
-    private const val TAG = "Ble.kt"
+    private const val TAG = "Ble"
 
     private val NOTIFY_CHARACTERISTIC = UUID.fromString("6e400003-b5a3-f393-e0a9-e50e24dcca9e")
     private val WRITE_CHARACTER = UUID.fromString("6e400002-b5a3-f393-e0a9-e50e24dcca9e")
@@ -29,55 +35,90 @@ object Ble {
 
     private var isOnlyAsk = false
 
-    private lateinit var mBluetoothGatt: BluetoothGatt
-
+    private lateinit var gattTmp: BluetoothGatt
     private lateinit var mDataQueue: Queue<ByteArray>
 
     /*--------------------------BLE--------------------------*/
 
-    fun writeChar(gatt: BluetoothGatt) {
-        val dataIn = HexUtil.hexStringToBytes(mCode)
-        mDataQueue = HexUtil.splitByte(dataIn!!, Constants.MAX_SEND_DATA)
-        Log.i(TAG, "SIZE: ${mDataQueue.size}")
-        writeDataDevice(gatt)
-    }
+    private val bluetoothManager: BluetoothManager? =
+            getSystemService(MainActivity.applicationContext(), BluetoothManager::class.java)!!
+    private val bluetoothAdapter: BluetoothAdapter? = bluetoothManager?.adapter
 
-    object BleDevice {
-        private val adapter = BluetoothAdapter.getDefaultAdapter()
-        val gatt: BluetoothDevice? = adapter.let { adapter ->
-            try {
-                return@let adapter.getRemoteDevice(Constants.MAC_ADDRESS)
-            } catch (exception: IllegalArgumentException) {
-                Log.w(TAG, "Objeto no encontrado, buscando dispositivo...")
-                return@let null
-            }
-        }
-    }
-
+    //No chequeamos si el adapter existe o no ya que sabemos con certeza que los dispositivos
+    //utilizados cuentan con Bluetooth
     @SuppressLint("MissingPermission")
     suspend fun connectDevice(isOnlyAsk: Boolean = false) = withContext(Dispatchers.IO) {
 
         mCode = "5530"
-
         //Only battery status ask
         Ble.isOnlyAsk = isOnlyAsk
+        var isPaired = false
+        var macAddress = ""
 
-        if (BleDevice.gatt != null) {
-            BleDevice.gatt.connectGatt(null, true, mGattCallback)
+        //Verificamos si el dispositivo ya esta emparejado
+        val pairedDevices: Set<BluetoothDevice>? = bluetoothAdapter?.bondedDevices
+        pairedDevices?.forEach { device ->
+            val deviceName = device.name
+            val deviceMacAddress = device.address
+
+            Log.i(TAG, "ConstName:${Constants.DEVICE_NAME} ConstMac:${Constants.MAC_ADDRESS}")
+            Log.i(TAG, "name: $deviceName macAddress:$deviceMacAddress")
+
+            isPaired = if (deviceName == Constants.DEVICE_NAME) {
+                Log.i(TAG, "Disposivo emparejado : $deviceName")
+                macAddress = deviceMacAddress
+                true
+            } else false
+        }
+
+        if (!isPaired) {
+            scanLeDevice()
         } else {
-            val btAdapter = BluetoothAdapter.getDefaultAdapter()
-            btAdapter?.let { adapter ->
+            val gatt: BluetoothDevice? = bluetoothAdapter.let { adapter ->
                 try {
-                    val device = adapter.getRemoteDevice(Constants.MAC_ADDRESS)
-                    mBluetoothGatt = device.connectGatt(null, true, mGattCallback)
+                    return@let adapter?.getRemoteDevice(macAddress)
                 } catch (exception: IllegalArgumentException) {
-                    Log.w(TAG, "Dispositivo no encontrado")
+                    Log.w(TAG, "Objeto no encontrado, buscando dispositivo...")
+                    return@let null
                 }
-            } ?: run {
-                Log.w(TAG, "BluetoothAdapter no inicializado")
+            }
+            gatt?.connectGatt(null, false, mGattCallback)
+        }
+    }
+
+    private var isScanning = false
+    val bluetoothLeScanner = bluetoothAdapter?.bluetoothLeScanner
+
+    @SuppressLint("MissingPermission")
+    private fun scanLeDevice() {
+        isScanning = true
+
+        val scanFilter = listOf<ScanFilter>(ScanFilter.Builder().setDeviceName(Constants.DEVICE_NAME).build())
+        val scanSettings = ScanSettings.Builder().setScanMode(SCAN_MODE_LOW_LATENCY).build()
+
+        if (isScanning){
+            bluetoothLeScanner!!.startScan(scanFilter, scanSettings, leScanCallback)
+        } else
+            bluetoothLeScanner!!.stopScan(leScanCallback)
+    }
+
+
+    private val leScanCallback: ScanCallback = object : ScanCallback() {
+        @SuppressLint("MissingPermission")
+        override fun onScanResult(callbackType: Int, result: ScanResult?) {
+            super.onScanResult(callbackType, result)
+
+            Log.i(TAG, "onScanResult: ${result?.device?.name}")
+
+            if (result?.device?.name == Constants.DEVICE_NAME){
+                Log.i(TAG, "${result?.device}")
+                result?.device?.connectGatt(null, false, mGattCallback)
+                isScanning = false
+                bluetoothLeScanner!!.stopScan(this)
             }
         }
     }
+
 
     @OptIn(ExperimentalUnsignedTypes::class)
     private val mGattCallback: BluetoothGattCallback = object : BluetoothGattCallback() {
@@ -109,7 +150,7 @@ object Ble {
             Log.i("Services discovered", Thread.currentThread().name)
 
             characteristicNotify =
-                gatt.getService(SERVICE_UUID).getCharacteristic(NOTIFY_CHARACTERISTIC)
+                    gatt.getService(SERVICE_UUID).getCharacteristic(NOTIFY_CHARACTERISTIC)
             gatt.setCharacteristicNotification(characteristicNotify, true)
             val desc = characteristicNotify!!.getDescriptor(CCCD_UUID)
             desc.value = BluetoothGattDescriptor.ENABLE_NOTIFICATION_VALUE
@@ -119,9 +160,9 @@ object Ble {
         /*-----------------------3º-----------------------*/
 
         override fun onDescriptorWrite(
-            gatt: BluetoothGatt,
-            descriptor: BluetoothGattDescriptor,
-            status: Int
+                gatt: BluetoothGatt,
+                descriptor: BluetoothGattDescriptor,
+                status: Int
         ) {
             if (descriptor.characteristic === characteristicNotify) {
                 gattTmp = gatt
@@ -132,9 +173,9 @@ object Ble {
         /*-----------------------4º-----------------------*/
 
         override fun onCharacteristicWrite(
-            gatt: BluetoothGatt,
-            characteristic: BluetoothGattCharacteristic,
-            status: Int
+                gatt: BluetoothGatt,
+                characteristic: BluetoothGattCharacteristic,
+                status: Int
         ) {
             if (characteristicWrite === characteristic) {
                 Log.i("Char Writed", "Char: ${characteristic.value.toHexString()}")
@@ -145,9 +186,10 @@ object Ble {
 
         /*-----------------------5ª-----------------------*/
 
+        @Deprecated("Deprecated in Java")
         override fun onCharacteristicChanged(
-            gatt: BluetoothGatt,
-            characteristic: BluetoothGattCharacteristic
+                gatt: BluetoothGatt,
+                characteristic: BluetoothGattCharacteristic
         ) {
             var charArray: Array<Int> = emptyArray()
 
@@ -171,8 +213,8 @@ object Ble {
                             val devicePower = characteristic[3]
 
                             Log.i(
-                                TAG,
-                                "onCharacteristicChanged: rndNumber: $rndNumber, battery: $devicePower"
+                                    TAG,
+                                    "onCharacteristicChanged: rndNumber: $rndNumber, battery: $devicePower"
                             )
 
                             if (isOnlyAsk) {
@@ -196,8 +238,8 @@ object Ble {
                 SocketSingleton.socketInstance!!.isProcessActive = false
                 Log.i("Status Response", "$statusResponse")
                 ActionManager.sendResponseToServer(
-                    Constants.CODE_MSG_OK,
-                    statusMOne = statusResponse
+                        Constants.CODE_MSG_OK,
+                        statusMOne = statusResponse
                 )
                 gattTmp.close()
             }
@@ -229,6 +271,12 @@ object Ble {
         }
     }
 
+    fun writeChar(gatt: BluetoothGatt) {
+        val dataIn = HexUtil.hexStringToBytes(mCode)
+        mDataQueue = HexUtil.splitByte(dataIn!!, Constants.MAX_SEND_DATA)
+        Log.i(TAG, "SIZE: ${mDataQueue.size}")
+        writeDataDevice(gatt)
+    }
 
     @SuppressLint("MissingPermission")
     private fun writeDataDevice(gatt: BluetoothGatt) {
@@ -246,15 +294,14 @@ object Ble {
         }
     }
 
+    private fun isBluetoothActive(): Boolean {
+        return bluetoothAdapter!!.isEnabled
+    }
+
+    //Coroutines
     private fun executeAction(block: suspend () -> Unit): Job {
         return MainScope().launch(Dispatchers.IO) {
             block()
         }
     }
-
-    /*****************UTIL****************/
-    @ExperimentalUnsignedTypes
-    fun ByteArray.toHexString() =
-        asUByteArray().joinToString("") { it.toString(16).padStart(2, '0') }
-
 }

@@ -1,7 +1,7 @@
 package com.mch.blekot.model.welock
 
 import android.util.Log
-import com.mch.blekot.common.utils.ActionManager
+import com.mch.blekot.common.ActionManager
 import com.mch.blekot.model.ble.Ble
 import com.mch.blekot.model.socket.SocketSingleton
 import com.mch.blekot.common.Constants
@@ -84,20 +84,21 @@ object WeLock {
             val code = dataJson.getString("code").toInt()
             if (code == 0) {
                 val res = dataJson.getString("data")
-
-                Log.i("Action", "onResponse: $res")
+                Log.i("WeLock", "$dataJson it's ok")
+                //Log.i("Action", "onResponse: $res")
                 Ble.writeDataWeLockResponse(code = res)
             } else {
-                Log.i("ERROR", dataJson.toString())
+                Log.i("WeLock", dataJson.toString())
                 Ble.disconnectGatt()
                 SocketSingleton.socketInstance!!.isProcessActive = false
                 ActionManager.sendResponseToServer(status = Constants.CODE_MSG_PARAMS)
+                Log.i("WeLock", "$dataJson error")
             }
         }
     }
 
     @Throws(IOException::class)
-    fun post(path: String, json: String?, callback: Callback?) {
+    fun post(path: String, json: String, callback: Callback?) {
         val body: RequestBody = RequestBody.create(
             MediaType.parse("application/json; charset=utf-8"), json
         )
@@ -113,6 +114,9 @@ object WeLock {
 
     @Throws(IOException::class)
     fun postWithToken(path: String, json: String?, callback: Callback?) {
+
+        Log.i("WeLock", "postWithToken")
+
         val body: RequestBody = RequestBody.create(
             MediaType.parse("application/json"), json?.toByteArray()!!
         )

@@ -1,15 +1,14 @@
 package com.mch.blekot.common
 
 import android.util.Log
-import com.mch.blekot.model.welock.JsonManager
+import com.mch.blekot.common.utils.JsonManager
 
 object ValidateUtil {
 
     data class ValidateResponse(val result: Boolean, val msg: String)
 
-    private const val DEVICE_SIZE = 8
-    private const val DEVICE_NAME = 11
-
+    private val DEVICE_SIZE = 8
+    private val DEVICE_NAME = 11
     private val macRegex = Regex("([0-9a-fA-F]{2}:){5}[0-9a-fA-F]{2}")
     private val urlRegex = Regex("http://192.168.[0-9]{1,3}.[0-9]{1,3}/")
 
@@ -21,22 +20,19 @@ object ValidateUtil {
     fun getResponse() = response
 
     @Throws(ValidateException::class)
-    fun setUpCredentials (
+    fun setUpBle (
         macAddress: String,
         deviceName: String,
-        deviceId: String,
-        ipArduino: String
+        deviceId: String
     ) {
         val resMacAddress = validateMacAddress(macAddress)
         val resDeviceId = validateId(deviceId)
         val resDeviceName = validateDeviceName(deviceName)
-        val resUrlArduino = validateUrl(ipArduino)
 
-        if (resMacAddress.result and resDeviceId.result and resDeviceName.result and resUrlArduino.result) {
+        if (resMacAddress.result and resDeviceId.result and resDeviceName.result) {
             Constants.MAC_ADDRESS = macAddress
             Constants.DEVICE_ID_NUMBER = deviceId
             Constants.DEVICE_NAME = deviceName
-            Constants.IP_ARDUINO = ipArduino
         } else {
             val status = -1
             response = JsonManager.getCredentialsResponse(
@@ -44,6 +40,24 @@ object ValidateUtil {
                 resDeviceId.msg,
                 resDeviceName.msg,
                 resMacAddress.msg,
+                null
+            )
+            Log.i("VALIDATE", "EXCEPTION")
+             throw(ValidateException())
+        }
+    }
+
+    @Throws(ValidateException::class)
+    fun setUpArduino(ipArduino: String){
+        val resUrlArduino = validateUrl(ipArduino)
+        if (resUrlArduino.result) Constants.IP_ARDUINO = ipArduino
+        else{
+            val status = -1
+            response = JsonManager.getCredentialsResponse(
+                status,
+                null,
+                null,
+                null,
                 resUrlArduino.msg
             )
             Log.i("VALIDATE", "EXCEPTION")

@@ -23,6 +23,10 @@ object HexUtil {
         return encodeHex(data, if (toLowerCase) DIGITS_LOWER else DIGITS_UPPER)
     }
 
+    @ExperimentalUnsignedTypes
+    fun ByteArray.toHexString() =
+        asUByteArray().joinToString("") { it.toString(16).padStart(2, '0') }
+
     private fun encodeHex(data: ByteArray?, toDigits: CharArray): CharArray? {
         if (data == null) return null
         val l = data.size

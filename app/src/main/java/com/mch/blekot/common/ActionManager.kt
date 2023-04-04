@@ -1,16 +1,15 @@
-package com.mch.blekot.common.utils
+package com.mch.blekot.common
 
 import android.util.Log
 import com.mch.blekot.model.welock.WeLock
 import com.mch.blekot.model.welock.BatteriesManager
-import com.mch.blekot.model.welock.JsonManager
 import com.mch.blekot.model.socket.SocketSingleton
-import com.mch.blekot.common.Constants
+import com.mch.blekot.common.utils.ActionManagerAux
+import com.mch.blekot.common.utils.JsonManager
 import com.mch.blekot.model.ble.Ble
 import okhttp3.OkHttpClient
 import okhttp3.Request
 import java.io.IOException
-import kotlin.math.log
 
 object ActionManager : ActionManagerAux {
 
@@ -22,6 +21,8 @@ object ActionManager : ActionManagerAux {
     private var mQr: String? = null
     private var mDays: Int = 1
     private var mNewTime: String? = null
+    private var mIndex: Int = -1
+    private var mTimes: Int = -1
     //private const val CHANNEL_ID = "TV"
 
     private var mAction = -1
@@ -38,13 +39,15 @@ object ActionManager : ActionManagerAux {
         Ble.connectDevice()
     }
 
-    override suspend fun setNewCode(newPassword: String, days: Int) {
+    override suspend fun setNewCode(newPassword: String, days: Int, index: Int, times: Int) {
 
         Log.i("Thread: ", Thread.currentThread().name)
 
         mAction = Constants.NEW_CODE
         mNewPassword = newPassword
         mDays = days
+        mIndex = index
+        mTimes  = times
 
         Ble.connectDevice()
     }
@@ -115,30 +118,24 @@ object ActionManager : ActionManagerAux {
         SocketSingleton.socketInstance?.isProcessActive = false
     }
 
-
     fun setAction(action: Int) {
         mAction = action
     }
 
-    fun getDeviceNewPassword(): String? {
-        return mNewPassword
-    }
+    fun getTimes(): Int = mTimes
 
-    fun getQR(): String? {
-        return mQr
-    }
+    fun getIndex(): Int = mIndex
 
-    fun getType(): String? {
-        return mType
-    }
+    fun getDeviceNewPassword(): String? = mNewPassword
 
-    fun getNewTime(): String? {
-        return mNewTime
-    }
+    fun getQR(): String? = mQr
 
-    fun getDays(): Int {
-        return mDays
-    }
+    fun getType(): String? = mType
+
+    fun getNewTime(): String? = mNewTime
+
+    fun getDays(): Int = mDays
+
 
     fun getPostData(devicePower: String, rdmNumber: String): Map<String, String> {
         return JsonManager.getPostData(
@@ -163,7 +160,6 @@ object ActionManager : ActionManagerAux {
         statusMOne: Int = Constants.STATUS_LOCK,
         statusMTwo: Int = Constants.STATUS_LOCK,
         phoneBattery: Int? = null,
-        deviceBattery: Int? = null,
         isCharging: Boolean? = null
     ) {
         val responseJson = JsonManager.getServerResponseJson(

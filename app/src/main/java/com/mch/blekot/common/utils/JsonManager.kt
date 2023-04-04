@@ -1,17 +1,21 @@
-package com.mch.blekot.model.welock
+package com.mch.blekot.common.utils
 
+import android.annotation.SuppressLint
 import android.util.Log
-import com.mch.blekot.common.utils.ActionManager
-import com.mch.blekot.model.socket.SocketSingleton
+import com.mch.blekot.common.ActionManager
 import com.mch.blekot.common.Constants
+import com.mch.blekot.model.socket.SocketSingleton
+import java.text.SimpleDateFormat
+
+import java.util.*
 
 object JsonManager {
 
     private const val PATH_CARD = "/API/Device/DeviceCardCommand"
-    private const val PATH_CODE = "/API/Device/DeviceSetTemporaryPassword"
     private const val PATH_OPEN = "/API/Device/DeviceUnLockCommand"
     private const val PATH_SYNC_TIME = "/API/Device/DeviceSyncTime"
     private const val PATH_READ_RECORD = "/API/Device/UnlockRecord"
+    private const val PATH_CODE = "/API/Device/DeviceSetTemporaryPassword"
 
     private val deviceName = Constants.DEVICE_NAME ?: ""
     private val deviceIdNumber = Constants.DEVICE_ID_NUMBER ?: ""
@@ -46,13 +50,13 @@ object JsonManager {
 
                 val json = """{
                     appID: "WELOCK2202161033", 
-                    deviceNumber: "$deviceIdNumber", 
+                    deviceNumber: "$deviceIdNumber",  
                     deviceBleName: "$deviceName", 
                     deviceRandomFactor: "$rdmNumber", 
                     password: ${ActionManager.getDeviceNewPassword()}, 
-                    index: ${Constants.CODE_INDEX}, 
-                    user: ${Constants.CODE_USER}, 
-                    times: ${Constants.CODE_TIMES}, 
+                    index: ${ActionManager.getIndex()}, 
+                    user: ${Constants.CODE_USER} , 
+                    times: ${ActionManager.getTimes()},
                     startTimestamp: $startDate, 
                     endTimestamp: $endDate}
                 """.trimIndent()
@@ -102,17 +106,18 @@ object JsonManager {
                 Log.e("JsonManager", "Ninguna accion declarada")
                 return mapOf("Error" to "ERROR")
             }
-
         }
-
     }
 
     fun getServerResponseJson(
-        status: Int, statusMOne: Int = Constants.STATUS_LOCK,
-        statusMTwo: Int = Constants.STATUS_LOCK,
-        phoneBattery: Int? = null, deviceBattery: Int? = null,
-        isCharging: Boolean? = null, action: Int
+            status: Int, statusMOne: Int = Constants.STATUS_LOCK,
+            statusMTwo: Int = Constants.STATUS_LOCK,
+            phoneBattery: Int? = null, deviceBattery: Int? = null,
+            isCharging: Boolean? = null, action: Int
     ): String {
+
+        val time = getTime()
+        Log.i("date", time)
 
         val msg: String = when (status) {
             Constants.CODE_MSG_OK -> Constants.MSG_OK
@@ -135,7 +140,8 @@ object JsonManager {
                     "clientFrom":"${SocketSingleton.socketInstance?.clientFromServer}",
                     "startTime":"${SocketSingleton.socketInstance?.startTime}",
                     "endTime":"${SocketSingleton.socketInstance?.endTime}",
-                    "lockBattery": $deviceBattery
+                    "lockBattery": $deviceBattery,
+                    "date" : "${getTime()}"
                     }""".trimIndent()
             }
 
@@ -145,45 +151,63 @@ object JsonManager {
                      "clientFrom":"${SocketSingleton.socketInstance?.clientFromServer}",
                      "phoneBattery": $phoneBattery,
                      "isCharging": $isCharging,
-                     "lockBattery": $deviceBattery
+                     "lockBattery": $deviceBattery,
+                     "date" : "${getTime()}"
                      }""".trimIndent()
             }
 
             else -> {
-
                 responseJson = """{
                      "status":$status,
                      "statusMOne":$statusMOne,
                      "statusMTwo":$statusMTwo,
                      "msg":"$msg",
                      "clientFrom":"${SocketSingleton.socketInstance?.clientFromServer}",
-                     "lockBattery": $deviceBattery
+                     "lockBattery": $deviceBattery,
+                     "date" : "${getTime()}"
                      }""".trimIndent()
             }
         }
         return responseJson
     }
 
+
+    @SuppressLint("SimpleDateFormat")
     fun getCredentialsResponse(
-        status: Int,
-        deviceId: String,
-        deviceName: String,
-        macAddress: String,
-        urlArduino: String
+            status: Int,
+            deviceId: String?,
+            deviceName: String?,
+            macAddress: String?,
+            urlArduino: String?
     ): String {
-        return """
+        if (urlArduino == null) {
+            return """
             { "clientFrom" : "${SocketSingleton.socketInstance?.clientFromServer}",
              "status" : $status,
              "deviceId" : "$deviceId",
              "deviceName" : "$deviceName",
              "macAddress" : "$macAddress",
-             "urlArduino" : "$urlArduino",
-              "msg" : "Error en las credenciales"}
+              "msg" : "Error en las credenciales",
+              "date" : "${getTime()}"}
     """.trimIndent()
-        
+        } else {
+            return """
+            { "clientFrom" : "${SocketSingleton.socketInstance?.clientFromServer}",
+             "status" : $status,
+             "urlArduino" : "$urlArduino"
+              "msg" : "Error en las credenciales",
+              "date" : "${getTime()}"}
+    """.trimIndent()
+        }
     }
 
+    @SuppressLint("SimpleDateFormat")
+    private fun getTime(): String {
 
+        val cal = Calendar.getInstance()
+        val dateFormat = SimpleDateFormat("dd/MM/yyyy HH:mm:ss")
 
+        return dateFormat.format(cal.time)
+    }
 
 }
