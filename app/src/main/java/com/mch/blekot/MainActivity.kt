@@ -1,19 +1,19 @@
 package com.mch.blekot
 
-import android.content.BroadcastReceiver
-import android.content.Context
-import android.content.Intent
-import android.content.IntentFilter
-import android.os.Bundle
 import android.util.Log
+import android.os.Bundle
+import android.content.Intent
+import android.content.Context
 import android.view.WindowManager
-import androidx.appcompat.app.AppCompatActivity
-import androidx.localbroadcastmanager.content.LocalBroadcastManager
-import com.mch.blekot.databinding.ActivityMainBinding
-import com.mch.blekot.services.SocketService
+import android.content.IntentFilter
+import android.Manifest.permission.*
 import com.mch.blekot.common.Constants
-import com.mch.blekot.model.socket.SocketSingleton
-
+import android.content.BroadcastReceiver
+import com.mch.blekot.services.SocketService
+import androidx.appcompat.app.AppCompatActivity
+import com.vmadalin.easypermissions.EasyPermissions
+import com.mch.blekot.databinding.ActivityMainBinding
+import androidx.localbroadcastmanager.content.LocalBroadcastManager
 
 class MainActivity : AppCompatActivity() {
 
@@ -31,11 +31,38 @@ class MainActivity : AppCompatActivity() {
 
         launchSocketService()
 
-        //launchMicroService()
-
-        //BatteriesManager.getDevicesBatteries()
-
         window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
+
+        methodRequiresTwoPermission()
+    }
+
+    override fun onRequestPermissionsResult(
+        requestCode: Int,
+        permissions: Array<out String>,
+        grantResults: IntArray
+    ) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+
+        EasyPermissions.onRequestPermissionsResult(requestCode, permissions, grantResults, this)
+    }
+
+
+    private fun methodRequiresTwoPermission() {
+        if (!EasyPermissions.hasPermissions(
+                this,
+                ACCESS_FINE_LOCATION,
+                RECORD_AUDIO,
+                WRITE_EXTERNAL_STORAGE
+            )
+        ) {
+            val CODE_REQUEST_PERMISSIONS = 1
+            EasyPermissions.requestPermissions(
+                host = this,
+                rationale = getString(R.string.ACCEPT_PERMISIONS),
+                requestCode = CODE_REQUEST_PERMISSIONS,
+                perms = arrayOf(ACCESS_FINE_LOCATION, RECORD_AUDIO, WRITE_EXTERNAL_STORAGE)
+            )
+        }
     }
 
     init {
@@ -90,7 +117,7 @@ class MainActivity : AppCompatActivity() {
     companion object {
         private var instance: MainActivity? = null
 
-        fun applicationContext() : Context {
+        fun applicationContext(): Context {
             return instance!!.applicationContext
         }
     }

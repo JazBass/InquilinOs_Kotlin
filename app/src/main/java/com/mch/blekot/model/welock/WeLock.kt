@@ -1,14 +1,13 @@
 package com.mch.blekot.model.welock
 
-import android.util.Log
-import com.mch.blekot.common.ActionManager
-import com.mch.blekot.model.ble.Ble
-import com.mch.blekot.model.socket.SocketSingleton
-import com.mch.blekot.common.Constants
 import okhttp3.*
+import java.util.*
+import android.util.Log
 import org.json.JSONObject
 import java.io.IOException
-import java.util.*
+import com.mch.blekot.model.ble.Ble
+import com.mch.blekot.common.Constants
+import com.mch.blekot.common.ActionManager
 
 object WeLock {
 
@@ -32,7 +31,6 @@ object WeLock {
         if (action == Constants.TIME_SYNCHRONIZED) {
             Ble.disconnectGatt()
             ActionManager.sendResponseToServer(Constants.SYNC_TIME_OK)
-            SocketSingleton.socketInstance!!.isProcessActive = false
             return
         }
 
@@ -71,7 +69,7 @@ object WeLock {
         }
     }
 
-    /*Callback donde recibimos el codigo que le enviaremos a la manija*/
+    /*Callback donde recibimos el código que le enviaremos a la manija*/
     private var actionCallback: Callback = object : Callback {
 
         override fun onFailure(p0: Call, p1: IOException) {
@@ -85,12 +83,10 @@ object WeLock {
             if (code == 0) {
                 val res = dataJson.getString("data")
                 Log.i("WeLock", "$dataJson it's ok")
-                //Log.i("Action", "onResponse: $res")
                 Ble.writeDataWeLockResponse(code = res)
             } else {
                 Log.i("WeLock", dataJson.toString())
                 Ble.disconnectGatt()
-                SocketSingleton.socketInstance!!.isProcessActive = false
                 ActionManager.sendResponseToServer(status = Constants.CODE_MSG_PARAMS)
                 Log.i("WeLock", "$dataJson error")
             }

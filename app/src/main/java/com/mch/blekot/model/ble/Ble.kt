@@ -1,39 +1,36 @@
 package com.mch.blekot.model.ble
 
-import android.annotation.SuppressLint
+import java.util.*
+import android.util.Log
 import android.bluetooth.*
-import android.bluetooth.le.ScanCallback
+import kotlinx.coroutines.*
+import com.mch.blekot.MainActivity
 import android.bluetooth.le.ScanFilter
 import android.bluetooth.le.ScanResult
-import android.bluetooth.le.ScanSettings
-import android.bluetooth.le.ScanSettings.SCAN_MODE_LOW_LATENCY
-import android.util.Log
-import androidx.core.content.ContextCompat.getSystemService
-import com.mch.blekot.MainActivity
+import android.annotation.SuppressLint
 import com.mch.blekot.common.Constants
+import android.bluetooth.le.ScanCallback
+import android.bluetooth.le.ScanSettings
 import com.mch.blekot.common.ActionManager
 import com.mch.blekot.common.utils.HexUtil
-import com.mch.blekot.common.utils.HexUtil.toHexString
-import com.mch.blekot.model.socket.SocketSingleton
 import com.mch.blekot.model.welock.BatteriesManager
-import kotlinx.coroutines.*
-import java.util.*
+import com.mch.blekot.common.utils.HexUtil.toHexString
+import androidx.core.content.ContextCompat.getSystemService
+import android.bluetooth.le.ScanSettings.SCAN_MODE_LOW_LATENCY
 
 object Ble {
 
+    private const val TAG = "Ble"
+    private var isOnlyAsk = false
     private lateinit var mCode: String
 
-    private const val TAG = "Ble"
-
-    private val NOTIFY_CHARACTERISTIC = UUID.fromString("6e400003-b5a3-f393-e0a9-e50e24dcca9e")
-    private val WRITE_CHARACTER = UUID.fromString("6e400002-b5a3-f393-e0a9-e50e24dcca9e")
-    private val SERVICE_UUID = UUID.fromString("6e400001-b5a3-f393-e0a9-e50e24dcca9e")
-    private val CCCD_UUID = UUID.fromString("00002902-0000-1000-8000-00805f9b34fb")
-
-    private var characteristicNotify: BluetoothGattCharacteristic? = null
     private var characteristicWrite: BluetoothGattCharacteristic? = null
+    private var characteristicNotify: BluetoothGattCharacteristic? = null
 
-    private var isOnlyAsk = false
+    private val CCCD_UUID = UUID.fromString("00002902-0000-1000-8000-00805f9b34fb")
+    private val SERVICE_UUID = UUID.fromString("6e400001-b5a3-f393-e0a9-e50e24dcca9e")
+    private val WRITE_CHARACTER = UUID.fromString("6e400002-b5a3-f393-e0a9-e50e24dcca9e")
+    private val NOTIFY_CHARACTERISTIC = UUID.fromString("6e400003-b5a3-f393-e0a9-e50e24dcca9e")
 
     private lateinit var gattTmp: BluetoothGatt
     private lateinit var mDataQueue: Queue<ByteArray>
@@ -41,16 +38,25 @@ object Ble {
     /*--------------------------BLE--------------------------*/
 
     private val bluetoothManager: BluetoothManager? =
-            getSystemService(MainActivity.applicationContext(), BluetoothManager::class.java)!!
+        getSystemService(MainActivity.applicationContext(), BluetoothManager::class.java)!!
     private val bluetoothAdapter: BluetoothAdapter? = bluetoothManager?.adapter
 
     //No chequeamos si el adapter existe o no ya que sabemos con certeza que los dispositivos
     //utilizados cuentan con Bluetooth
+
     @SuppressLint("MissingPermission")
     suspend fun connectDevice(isOnlyAsk: Boolean = false) = withContext(Dispatchers.IO) {
 
+        if(!isBluetoothEnabled()){
+
+            ActionManager.sendResponseToServer(Constants.STATUS_BLE_DISCONNECT)
+
+            return@withContext
+        }
+
         mCode = "5530"
-        //Only battery status ask
+
+        //Si tan solo consultamos la bateria
         Ble.isOnlyAsk = isOnlyAsk
         var isPaired = false
         var macAddress = ""
@@ -93,10 +99,11 @@ object Ble {
     private fun scanLeDevice() {
         isScanning = true
 
-        val scanFilter = listOf<ScanFilter>(ScanFilter.Builder().setDeviceName(Constants.DEVICE_NAME).build())
+        val scanFilter =
+            listOf<ScanFilter>(ScanFilter.Builder().setDeviceName(Constants.DEVICE_NAME).build())
         val scanSettings = ScanSettings.Builder().setScanMode(SCAN_MODE_LOW_LATENCY).build()
 
-        if (isScanning){
+        if (isScanning) {
             bluetoothLeScanner!!.startScan(scanFilter, scanSettings, leScanCallback)
         } else
             bluetoothLeScanner!!.stopScan(leScanCallback)
@@ -110,7 +117,7 @@ object Ble {
 
             Log.i(TAG, "onScanResult: ${result?.device?.name}")
 
-            if (result?.device?.name == Constants.DEVICE_NAME){
+            if (result?.device?.name == Constants.DEVICE_NAME) {
                 Log.i(TAG, "${result?.device}")
                 result?.device?.connectGatt(null, false, mGattCallback)
                 isScanning = false
@@ -123,7 +130,7 @@ object Ble {
     @OptIn(ExperimentalUnsignedTypes::class)
     private val mGattCallback: BluetoothGattCallback = object : BluetoothGattCallback() {
 
-        /** The following callbacks are in order, each one execute the next **/
+        /** The following callbacks are in order, each fun execute the next one  **/
 
         /*-----------------------1º-----------------------*/
 
@@ -150,7 +157,7 @@ object Ble {
             Log.i("Services discovered", Thread.currentThread().name)
 
             characteristicNotify =
-                    gatt.getService(SERVICE_UUID).getCharacteristic(NOTIFY_CHARACTERISTIC)
+                gatt.getService(SERVICE_UUID).getCharacteristic(NOTIFY_CHARACTERISTIC)
             gatt.setCharacteristicNotification(characteristicNotify, true)
             val desc = characteristicNotify!!.getDescriptor(CCCD_UUID)
             desc.value = BluetoothGattDescriptor.ENABLE_NOTIFICATION_VALUE
@@ -160,9 +167,9 @@ object Ble {
         /*-----------------------3º-----------------------*/
 
         override fun onDescriptorWrite(
-                gatt: BluetoothGatt,
-                descriptor: BluetoothGattDescriptor,
-                status: Int
+            gatt: BluetoothGatt,
+            descriptor: BluetoothGattDescriptor,
+            status: Int
         ) {
             if (descriptor.characteristic === characteristicNotify) {
                 gattTmp = gatt
@@ -173,9 +180,9 @@ object Ble {
         /*-----------------------4º-----------------------*/
 
         override fun onCharacteristicWrite(
-                gatt: BluetoothGatt,
-                characteristic: BluetoothGattCharacteristic,
-                status: Int
+            gatt: BluetoothGatt,
+            characteristic: BluetoothGattCharacteristic,
+            status: Int
         ) {
             if (characteristicWrite === characteristic) {
                 Log.i("Char Writed", "Char: ${characteristic.value.toHexString()}")
@@ -188,8 +195,8 @@ object Ble {
 
         @Deprecated("Deprecated in Java")
         override fun onCharacteristicChanged(
-                gatt: BluetoothGatt,
-                characteristic: BluetoothGattCharacteristic
+            gatt: BluetoothGatt,
+            characteristic: BluetoothGattCharacteristic
         ) {
             var charArray: Array<Int> = emptyArray()
 
@@ -212,10 +219,7 @@ object Ble {
                             val rndNumber = characteristic[2]
                             val devicePower = characteristic[3]
 
-                            Log.i(
-                                    TAG,
-                                    "onCharacteristicChanged: rndNumber: $rndNumber, battery: $devicePower"
-                            )
+                            Log.i(TAG,"rndNumber: $rndNumber, battery: $devicePower")
 
                             if (isOnlyAsk) {
                                 BatteriesManager.sendResponse(devicePower)
@@ -235,11 +239,10 @@ object Ble {
                     statusResponse = characteristic[3]
                 }
 
-                SocketSingleton.socketInstance!!.isProcessActive = false
                 Log.i("Status Response", "$statusResponse")
                 ActionManager.sendResponseToServer(
-                        Constants.CODE_MSG_OK,
-                        statusMOne = statusResponse
+                    Constants.CODE_MSG_OK,
+                    statusMOne = statusResponse
                 )
                 gattTmp.close()
             }
@@ -264,7 +267,6 @@ object Ble {
         } catch (e: Exception) {
             Log.e(TAG, e.message.toString())
 
-            SocketSingleton.socketInstance!!.isProcessActive = false
             ActionManager.sendResponseToServer(status = Constants.CODE_MSG_KO)
 
             gattTmp.close()
@@ -294,7 +296,7 @@ object Ble {
         }
     }
 
-    private fun isBluetoothActive(): Boolean {
+    private fun isBluetoothEnabled(): Boolean {
         return bluetoothAdapter!!.isEnabled
     }
 

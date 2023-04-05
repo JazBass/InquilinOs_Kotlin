@@ -1,21 +1,21 @@
 package com.mch.blekot.model.socket
 
-import org.json.JSONArray
-import org.json.JSONObject
-import android.annotation.SuppressLint
+import java.util.*
+import java.net.URI
+import kotlin.Exception
 import android.util.Log
+import org.json.JSONArray
+import io.socket.client.IO
+import org.json.JSONObject
+import kotlinx.coroutines.*
+import io.socket.client.Socket
+import com.mch.blekot.common.Constants
+import android.annotation.SuppressLint
+import com.mch.blekot.common.ValidateUtil
 import com.mch.blekot.common.ActionManager
 import com.mch.blekot.services.SocketService
-import com.mch.blekot.common.Constants
 import com.mch.blekot.common.ProcessDataJson
 import com.mch.blekot.common.ValidateException
-import com.mch.blekot.common.ValidateUtil
-import io.socket.client.IO
-import io.socket.client.Socket
-import kotlinx.coroutines.*
-import java.net.URI
-import java.util.*
-import kotlin.Exception
 
 class SocketSingleton private constructor() {
 
@@ -34,7 +34,11 @@ class SocketSingleton private constructor() {
             println("Conectado!!")
             socket.emit(Constants.ACTION_LOG, Constants.ID, Constants.MESSAGE)
         }
+
         socket.on(Socket.EVENT_CONNECT_ERROR) { args: Array<Any> -> println("connect_error: " + args[0]) }
+
+        /** Aqui recibimos las ordenes y las controlamos **/
+
         socket.on(Constants.ACTION_ADMIN) { args: Array<Any?>? ->
             val dataResponse: JSONArray
             try {
@@ -61,9 +65,9 @@ class SocketSingleton private constructor() {
                 isProcessActive = true
 
                 /**
-                 * Las acciones que incluyan funciones bluetooth validaran en primer lugar
-                 * que los parametros (datos de la manija) esten correctos y en caso de que
-                 * alguno este mal lanzara un error y devolvera un mensaje al socket
+                 * Las acciones que incluyan funciones bluetooth validarán en primer lugar
+                 * que los parametros (credenciales de la manija) estén correctos y en caso de que
+                 * alguno este mal lanzará un error y devolverá un mensaje al socket con el error
 
                  * Mismo procedimiento para la funcion del arduino que valida la url
                  * */
@@ -178,7 +182,6 @@ class SocketSingleton private constructor() {
 
                 }
             } catch (e: ValidateException) {
-                isProcessActive = false
                 socket.emit(
                     Constants.RESPONSE_SOCKET_BLUETOOTH,
                     Constants.ID,
@@ -186,14 +189,12 @@ class SocketSingleton private constructor() {
                 )
             } catch (e: java.lang.NullPointerException) {
                 Log.i(TAG, "error: ${e.printStackTrace()}")
-                isProcessActive = false
                 ActionManager.sendResponseToServer(
                     Constants.CODE_MSG_NULL_POINT,
                     Constants.STATUS_LOCK,
                     Constants.STATUS_LOCK
                 )
             } catch (e: Exception) {
-                isProcessActive = false
                 e.printStackTrace()
                 ActionManager.sendResponseToServer(
                     Constants.CODE_MSG_KO,
@@ -204,6 +205,15 @@ class SocketSingleton private constructor() {
         }
         socket.on(Socket.EVENT_DISCONNECT) { args: Array<Any> -> println("disconnect due to: " + args[0]) }
         socket.connect()
+    }
+
+    fun emitResponse(msg: String){
+        socket.emit(
+            Constants.RESPONSE_SOCKET_BLUETOOTH,
+            Constants.ID,
+            msg
+        )
+        isProcessActive = false
     }
 
     //coroutines

@@ -1,31 +1,31 @@
 package com.mch.blekot.common
 
+import okhttp3.Request
 import android.util.Log
+import java.io.IOException
+import okhttp3.OkHttpClient
+import com.mch.blekot.model.ble.Ble
 import com.mch.blekot.model.welock.WeLock
-import com.mch.blekot.model.welock.BatteriesManager
+import com.mch.blekot.common.utils.JsonManager
 import com.mch.blekot.model.socket.SocketSingleton
 import com.mch.blekot.common.utils.ActionManagerAux
-import com.mch.blekot.common.utils.JsonManager
-import com.mch.blekot.model.ble.Ble
-import okhttp3.OkHttpClient
-import okhttp3.Request
-import java.io.IOException
+import com.mch.blekot.model.welock.BatteriesManager
 
 object ActionManager : ActionManagerAux {
 
+    private var mAction = -1
     private var mRndNumber: String? = null
     private var mDevicePower: String? = null
 
-    private var mNewPassword: String? = null
-    private var mType: String? = null
-    private var mQr: String? = null
     private var mDays: Int = 1
-    private var mNewTime: String? = null
     private var mIndex: Int = -1
     private var mTimes: Int = -1
-    //private const val CHANNEL_ID = "TV"
+    private var mQr: String? = null
+    private var mType: String? = null
+    private var mNewTime: String? = null
+    private var mNewPassword: String? = null
 
-    private var mAction = -1
+    //private const val CHANNEL_ID = "TV"
 
     private val httpClient = OkHttpClient()
 
@@ -73,9 +73,7 @@ object ActionManager : ActionManagerAux {
         Ble.connectDevice()
     }
 
-    /**
-     *  WeLock API Functions *
-     * */
+    /** WeLock API Functions **/
 
     override suspend fun getToken(battery: String, rdmNumber: String) {
 
@@ -86,9 +84,7 @@ object ActionManager : ActionManagerAux {
         WeLock.getToken(battery, rdmNumber, mAction)
     }
 
-    /**
-     * Extras *
-     * */
+    /** Extras **/
 
     override suspend fun getDevicesBatteries() {
         BatteriesManager.getDevicesBatteries()
@@ -115,7 +111,6 @@ object ActionManager : ActionManagerAux {
                 status = Constants.STATUS_ARDUINO_ERROR
             )
         }
-        SocketSingleton.socketInstance?.isProcessActive = false
     }
 
     fun setAction(action: Int) {
@@ -174,9 +169,7 @@ object ActionManager : ActionManagerAux {
 
         Log.i("ResponseJson", "$responseJson ")
 
-        SocketSingleton.socketInstance?.socket?.emit(
-            Constants.RESPONSE_SOCKET_BLUETOOTH,
-            Constants.ID,
+        SocketSingleton.socketInstance?.emitResponse(
             responseJson
         )
     }

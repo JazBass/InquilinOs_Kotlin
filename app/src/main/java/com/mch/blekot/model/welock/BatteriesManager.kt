@@ -1,14 +1,13 @@
 package com.mch.blekot.model.welock
 
-import android.content.Intent
-import android.content.IntentFilter
-import android.os.BatteryManager
 import android.util.Log
+import android.content.Intent
+import android.os.BatteryManager
 import com.mch.blekot.MainActivity
-import com.mch.blekot.common.ActionManager
 import com.mch.blekot.model.ble.Ble
-import com.mch.blekot.model.socket.SocketSingleton
+import android.content.IntentFilter
 import com.mch.blekot.common.Constants
+import com.mch.blekot.common.ActionManager
 
 object BatteriesManager {
 
@@ -48,7 +47,6 @@ object BatteriesManager {
             phoneBattery = phoneBattery,
             isCharging = isCharging
         )
-        SocketSingleton.socketInstance!!.isProcessActive = false
         Ble.disconnectGatt()
     }
 }

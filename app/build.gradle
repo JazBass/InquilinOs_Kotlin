@@ -50,6 +50,9 @@ dependencies {
     androidTestImplementation 'androidx.test.ext:junit:1.1.5'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.5.1'
 
+    //Easy permissions
+    implementation 'com.vmadalin:easypermissions-ktx:1.0.0'
+
     //Socket IO
     implementation files('libs/engine.io-client-2.1.0.jar')
     implementation files('libs/okhttp-3.12.12.jar')

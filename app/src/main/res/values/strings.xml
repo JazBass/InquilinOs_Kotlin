@@ -1,4 +1,5 @@
 <resources>
     <string name="app_name">InquilinOs</string>
+    <string name="ACCEPT_PERMISIONS">Aceptar los siguientes permisos para un correcto funcionamiento</string>
 
 </resources>
