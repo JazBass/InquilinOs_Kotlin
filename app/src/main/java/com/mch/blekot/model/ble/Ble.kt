@@ -48,7 +48,6 @@ object Ble {
     suspend fun connectDevice(isOnlyAsk: Boolean = false) = withContext(Dispatchers.IO) {
 
         if(!isBluetoothEnabled()){
-
             ActionManager.sendResponseToServer(Constants.STATUS_BLE_DISCONNECT)
 
             return@withContext

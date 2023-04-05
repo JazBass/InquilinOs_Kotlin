@@ -179,7 +179,6 @@ class SocketSingleton private constructor() {
 
                         executeAction { ActionManager.getDevicesBatteries() }
                     }
-
                 }
             } catch (e: ValidateException) {
                 socket.emit(
