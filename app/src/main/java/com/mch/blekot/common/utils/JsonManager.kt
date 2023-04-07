@@ -40,7 +40,7 @@ object JsonManager {
 
             Constants.NEW_CODE -> {
 
-                //28800 = 8h -> Diferencia con China
+                //28800 = 8h -> Diferencia con China (bug de la API de Welock)
                 //7200 = 2h -> Para asegurarse que el codigo este funcional
                 val startDate: Int = ((System.currentTimeMillis() / 1000) - 28800 - 7200).toInt()
                 val endDate: Int = startDate + (86400 * ActionManager.getDays())

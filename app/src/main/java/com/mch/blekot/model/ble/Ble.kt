@@ -35,13 +35,11 @@ object Ble {
     private lateinit var gattTmp: BluetoothGatt
     private lateinit var mDataQueue: Queue<ByteArray>
 
-    /*--------------------------BLE--------------------------*/
-
     private val bluetoothManager: BluetoothManager? =
         getSystemService(MainActivity.applicationContext(), BluetoothManager::class.java)!!
     private val bluetoothAdapter: BluetoothAdapter? = bluetoothManager?.adapter
 
-    //No chequeamos si el adapter existe o no ya que sabemos con certeza que los dispositivos
+    //No chequeamos si el adapter existe ya que sabemos con certeza que los dispositivos
     //utilizados cuentan con Bluetooth
 
     @SuppressLint("MissingPermission")
@@ -108,7 +106,6 @@ object Ble {
             bluetoothLeScanner!!.stopScan(leScanCallback)
     }
 
-
     private val leScanCallback: ScanCallback = object : ScanCallback() {
         @SuppressLint("MissingPermission")
         override fun onScanResult(callbackType: Int, result: ScanResult?) {
@@ -124,7 +121,6 @@ object Ble {
             }
         }
     }
-
 
     @OptIn(ExperimentalUnsignedTypes::class)
     private val mGattCallback: BluetoothGattCallback = object : BluetoothGattCallback() {
@@ -272,7 +268,7 @@ object Ble {
         }
     }
 
-    fun writeChar(gatt: BluetoothGatt) {
+    private fun writeChar(gatt: BluetoothGatt) {
         val dataIn = HexUtil.hexStringToBytes(mCode)
         mDataQueue = HexUtil.splitByte(dataIn!!, Constants.MAX_SEND_DATA)
         Log.i(TAG, "SIZE: ${mDataQueue.size}")
