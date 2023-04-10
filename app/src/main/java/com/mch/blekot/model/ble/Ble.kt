@@ -13,7 +13,6 @@ import android.bluetooth.le.ScanCallback
 import android.bluetooth.le.ScanSettings
 import com.mch.blekot.common.ActionManager
 import com.mch.blekot.common.utils.HexUtil
-import com.mch.blekot.model.welock.BatteriesManager
 import com.mch.blekot.common.utils.HexUtil.toHexString
 import androidx.core.content.ContextCompat.getSystemService
 import android.bluetooth.le.ScanSettings.SCAN_MODE_LOW_LATENCY
@@ -53,8 +52,6 @@ object Ble {
 
         mCode = "5530"
 
-        //Si tan solo consultamos la bateria
-        Ble.isOnlyAsk = isOnlyAsk
         var isPaired = false
         var macAddress = ""
 
@@ -216,11 +213,6 @@ object Ble {
 
                             Log.i(TAG,"rndNumber: $rndNumber, battery: $devicePower")
 
-                            if (isOnlyAsk) {
-                                BatteriesManager.sendResponse(devicePower)
-                                isOnlyAsk = false
-                                return@executeAction
-                            }
                             ActionManager.getToken(devicePower.toString(), rndNumber.toString())
                             return@executeAction
                         }

@@ -14,8 +14,6 @@ interface ActionManagerAux {
 
     suspend fun getToken(battery: String, rdmNumber: String)
 
-    suspend fun  getDevicesBatteries()
-
     suspend fun openPortal()
 
 }

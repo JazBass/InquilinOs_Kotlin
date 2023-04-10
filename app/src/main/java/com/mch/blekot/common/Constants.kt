@@ -2,6 +2,8 @@ package com.mch.blekot.common
 
 object Constants {
 
+
+
     /***********************CAS43***********************/
     //const val ID = "CAS43";
     //const val MAC_ADDRESS = "E0:D2:1A:65:67:F4";
@@ -14,6 +16,7 @@ object Constants {
     //const val MAC_ADDRESS = "C7:12:48:82:08:2F";
     //const val DEVICE_NAME = "WeLockAWPOR";
     //const val DEVICE_ID_NUMBER = "21471618";
+
 
     /*********************Oficina**********************/
 
@@ -63,6 +66,9 @@ object Constants {
     const val PARAMETER_QR = "Qr"
     const val PARAMETER_TYPE = "type"
     const val PARAMETER_IP_ARDUINO = "ipArduino"
+    const val PARAMETER_INDEX = "index"
+    const val PARAMETER_TIMES = "times"
+    const val PARAMETER_SYNC_TIME = "syncTime"
 
     /********************BLE********************/
 
@@ -108,13 +114,10 @@ object Constants {
     /*************Socket CMD MANAGER**************/
 
     const val ACTION_OPEN_LOCK = "openLock"
-    const val ACTION_CONFIG = "config"
     const val ACTION_NEW_CODE = "newCode"
     const val ACTION_SET_CARD = "setCard"
     const val ACTION_OPEN_PORTAL = "openPortal"
     const val ACTION_SYNC_TIME = "syncTime"
-    const val ACTION_GET_BATTERY = "getBattery"
-    const val ACTION_TIME_SYNCHRONIZED = "timeSynchronized"
 
     /*****************ACTION MANAGER*****************/
 

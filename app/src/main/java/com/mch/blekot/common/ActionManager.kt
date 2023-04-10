@@ -9,7 +9,6 @@ import com.mch.blekot.model.welock.WeLock
 import com.mch.blekot.common.utils.JsonManager
 import com.mch.blekot.model.socket.SocketSingleton
 import com.mch.blekot.common.utils.ActionManagerAux
-import com.mch.blekot.model.welock.BatteriesManager
 
 object ActionManager : ActionManagerAux {
 
@@ -85,10 +84,6 @@ object ActionManager : ActionManagerAux {
     }
 
     /** Extras **/
-
-    override suspend fun getDevicesBatteries() {
-        BatteriesManager.getDevicesBatteries()
-    }
 
     override suspend fun openPortal() {
         try {
