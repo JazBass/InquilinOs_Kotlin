@@ -7,7 +7,7 @@ import org.json.JSONObject
 import java.io.IOException
 import com.mch.blekot.model.ble.Ble
 import com.mch.blekot.common.Constants
-import com.mch.blekot.common.ActionManager
+import com.mch.blekot.model.ActionManager
 
 object WeLock {
 
@@ -23,7 +23,7 @@ object WeLock {
     private lateinit var mDevicePower: String
 
 
-    /*Pedimos la token*/
+     /*Pedimos la token*/
     fun getToken(battery: String, rdmNumber: String, action: Int) {
 
         Log.i("Thread: ", Thread.currentThread().name)
@@ -74,6 +74,7 @@ object WeLock {
 
         override fun onFailure(p0: Call, p1: IOException) {
             Log.i("Action Callback", "FAIL")
+            p1.printStackTrace()
         }
 
         override fun onResponse(p0: Call, response: Response) {
@@ -82,10 +83,10 @@ object WeLock {
             val code = dataJson.getString("code").toInt()
             if (code == 0) {
                 val res = dataJson.getString("data")
-                Log.i("WeLock", "$dataJson it's ok")
+                Log.i("WeLock", "$dataJson OK")
                 Ble.writeDataWeLockResponse(code = res)
             } else {
-                Log.i("WeLock", dataJson.toString())
+                Log.i("WeLock", "$dataJson Fail")
                 Ble.disconnectGatt()
                 ActionManager.sendResponseToServer(status = Constants.CODE_MSG_PARAMS)
                 Log.i("WeLock", "$dataJson error")
@@ -110,8 +111,6 @@ object WeLock {
 
     @Throws(IOException::class)
     fun postWithToken(path: String, json: String?, callback: Callback?) {
-
-        Log.i("WeLock", "postWithToken")
 
         val body: RequestBody = RequestBody.create(
             MediaType.parse("application/json"), json?.toByteArray()!!

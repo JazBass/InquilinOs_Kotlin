@@ -1,9 +1,9 @@
-package com.mch.blekot.common.utils
+package com.mch.blekot.common
 
 import android.annotation.SuppressLint
 import android.util.Log
-import com.mch.blekot.common.ActionManager
-import com.mch.blekot.common.Constants
+import com.mch.blekot.model.ActionManager
+import com.mch.blekot.model.DeviceData
 import com.mch.blekot.model.socket.SocketSingleton
 import java.text.SimpleDateFormat
 
@@ -17,8 +17,8 @@ object JsonManager {
     private const val PATH_READ_RECORD = "/API/Device/UnlockRecord"
     private const val PATH_CODE = "/API/Device/DeviceSetTemporaryPassword"
 
-    private val deviceName = Constants.DEVICE_NAME ?: ""
-    private val deviceIdNumber = Constants.DEVICE_ID_NUMBER ?: ""
+    private val deviceName = DeviceData.DEVICE_NAME ?: ""
+    private val deviceIdNumber = DeviceData.DEVICE_ID_NUMBER ?: ""
 
     fun getPostData(action: Int, devicePower: String, rdmNumber: String): Map<String, String> {
 
@@ -47,6 +47,11 @@ object JsonManager {
 
                 SocketSingleton.socketInstance?.startTime = startDate.toString()
                 SocketSingleton.socketInstance?.endTime = endDate.toString()
+
+                /**
+                 * Los valores de index y times los recibimos por socket.
+                 * En distintos index podemos almacenar distintos códigos.
+                 * */
 
                 val json = """{
                     appID: "WELOCK2202161033", 

@@ -11,11 +11,12 @@ import android.annotation.SuppressLint
 import com.mch.blekot.common.Constants
 import android.bluetooth.le.ScanCallback
 import android.bluetooth.le.ScanSettings
-import com.mch.blekot.common.ActionManager
-import com.mch.blekot.common.utils.HexUtil
-import com.mch.blekot.common.utils.HexUtil.toHexString
+import com.mch.blekot.model.ActionManager
 import androidx.core.content.ContextCompat.getSystemService
 import android.bluetooth.le.ScanSettings.SCAN_MODE_LOW_LATENCY
+import com.mch.blekot.common.HexUtil
+import com.mch.blekot.common.HexUtil.toHexString
+import com.mch.blekot.model.DeviceData
 
 object Ble {
 
@@ -61,10 +62,7 @@ object Ble {
             val deviceName = device.name
             val deviceMacAddress = device.address
 
-            Log.i(TAG, "ConstName:${Constants.DEVICE_NAME} ConstMac:${Constants.MAC_ADDRESS}")
-            Log.i(TAG, "name: $deviceName macAddress:$deviceMacAddress")
-
-            isPaired = if (deviceName == Constants.DEVICE_NAME) {
+            isPaired = if (deviceName == DeviceData.DEVICE_NAME) {
                 Log.i(TAG, "Disposivo emparejado : $deviceName")
                 macAddress = deviceMacAddress
                 true
@@ -94,7 +92,7 @@ object Ble {
         isScanning = true
 
         val scanFilter =
-            listOf<ScanFilter>(ScanFilter.Builder().setDeviceName(Constants.DEVICE_NAME).build())
+            listOf<ScanFilter>(ScanFilter.Builder().setDeviceName(DeviceData.DEVICE_NAME).build())
         val scanSettings = ScanSettings.Builder().setScanMode(SCAN_MODE_LOW_LATENCY).build()
 
         if (isScanning) {
@@ -110,7 +108,7 @@ object Ble {
 
             Log.i(TAG, "onScanResult: ${result?.device?.name}")
 
-            if (result?.device?.name == Constants.DEVICE_NAME) {
+            if (result?.device?.name == DeviceData.DEVICE_NAME) {
                 Log.i(TAG, "${result?.device}")
                 result?.device?.connectGatt(null, false, mGattCallback)
                 isScanning = false

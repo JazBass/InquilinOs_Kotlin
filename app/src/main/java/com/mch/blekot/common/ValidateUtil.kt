@@ -1,7 +1,7 @@
 package com.mch.blekot.common
 
 import android.util.Log
-import com.mch.blekot.common.utils.JsonManager
+import com.mch.blekot.model.DeviceData
 
 object ValidateUtil {
 
@@ -30,9 +30,9 @@ object ValidateUtil {
         val resDeviceName = validateDeviceName(deviceName)
 
         if (resMacAddress.result and resDeviceId.result and resDeviceName.result) {
-            Constants.MAC_ADDRESS = macAddress
-            Constants.DEVICE_ID_NUMBER = deviceId
-            Constants.DEVICE_NAME = deviceName
+           DeviceData.MAC_ADDRESS = macAddress
+           DeviceData.DEVICE_ID_NUMBER = deviceId
+           DeviceData.DEVICE_NAME = deviceName
         } else {
             val status = -1
             response = JsonManager.getCredentialsResponse(
@@ -50,7 +50,7 @@ object ValidateUtil {
     @Throws(ValidateException::class)
     fun setUpArduino(ipArduino: String){
         val resUrlArduino = validateUrl(ipArduino)
-        if (resUrlArduino.result) Constants.IP_ARDUINO = ipArduino
+        if (resUrlArduino.result) DeviceData.IP_ARDUINO = ipArduino
         else{
             val status = -1
             response = JsonManager.getCredentialsResponse(

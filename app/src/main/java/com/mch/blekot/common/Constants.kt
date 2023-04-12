@@ -2,36 +2,16 @@ package com.mch.blekot.common
 
 object Constants {
 
-
-
-    /***********************CAS43***********************/
-    //const val ID = "CAS43";
-    //const val MAC_ADDRESS = "E0:D2:1A:65:67:F4";
-    //const val DEVICE_NAME = "WeLockKX2PV";
-    //const val DEVICE_ID_NUMBER = "21470403";
-
-    /************************CRM************************/
-
-    //const val ID = "CRM";
-    //const val MAC_ADDRESS = "C7:12:48:82:08:2F";
-    //const val DEVICE_NAME = "WeLockAWPOR";
-    //const val DEVICE_ID_NUMBER = "21471618";
-
-
-    /*********************Oficina**********************/
+    /*********************Pruebas**********************/
 
     const val ID = "PRUEBA100"
 
-    var MAC_ADDRESS: String? = null
-    var DEVICE_NAME: String? = null
-    var DEVICE_ID_NUMBER: String? = null
-    var IP_ARDUINO = "http://192.168.1.150/"
 
     //Server de pruebas
-    //const val URL_TCP: String = "https://tcpmch2022.fly.dev"
+    const val URL_TCP: String = "https://tcpmch2022.fly.dev"
 
     //Localhost Javier :)
-    const val URL_TCP = "http://192.168.0.76:3002/"
+    //const val URL_TCP = "http://192.168.0.76:3002/"
 
     const val PATH_OPEN_PORTAL = "portal/open"
 
@@ -59,7 +39,7 @@ object Constants {
     const val PARAMETER_CMD = "cmd"
     const val PARAMETER_CLIENT_FROM = "clientFrom"
     const val PARAMETER_MAC_ADDRESS = "macAddress"
-    const val PARAMETER_DEVICE_ID = "deviceID"
+    const val PARAMETER_DEVICE_ID = "deviceId"
     const val PARAMETER_DEVICE_NAME ="deviceName"
     const val PARAMETER_CODE = "code"
     const val PARAMETER_DAYS = "days"

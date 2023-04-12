@@ -1,14 +1,14 @@
-package com.mch.blekot.common
+package com.mch.blekot.model
 
 import okhttp3.Request
 import android.util.Log
+import com.mch.blekot.common.Constants
 import java.io.IOException
 import okhttp3.OkHttpClient
 import com.mch.blekot.model.ble.Ble
 import com.mch.blekot.model.welock.WeLock
-import com.mch.blekot.common.utils.JsonManager
+import com.mch.blekot.common.JsonManager
 import com.mch.blekot.model.socket.SocketSingleton
-import com.mch.blekot.common.utils.ActionManagerAux
 
 object ActionManager : ActionManagerAux {
 
@@ -88,7 +88,7 @@ object ActionManager : ActionManagerAux {
     override suspend fun openPortal() {
         try {
             val request = Request.Builder()
-                .url(Constants.IP_ARDUINO + Constants.PATH_OPEN_PORTAL)
+                .url(DeviceData.IP_ARDUINO + Constants.PATH_OPEN_PORTAL)
                 .get()
                 .build()
             val response = httpClient.newCall(request).execute()

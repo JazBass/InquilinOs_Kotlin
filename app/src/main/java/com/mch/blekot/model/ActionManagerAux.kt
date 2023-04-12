@@ -1,4 +1,4 @@
-package com.mch.blekot.common.utils
+package com.mch.blekot.model
 
 interface ActionManagerAux {
 

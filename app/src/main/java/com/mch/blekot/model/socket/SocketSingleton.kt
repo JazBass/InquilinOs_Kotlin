@@ -12,7 +12,7 @@ import io.socket.client.Socket
 import com.mch.blekot.common.Constants
 import android.annotation.SuppressLint
 import com.mch.blekot.common.ValidateUtil
-import com.mch.blekot.common.ActionManager
+import com.mch.blekot.model.ActionManager
 import com.mch.blekot.services.SocketService
 import com.mch.blekot.common.ProcessDataJson
 import com.mch.blekot.common.ValidateException
