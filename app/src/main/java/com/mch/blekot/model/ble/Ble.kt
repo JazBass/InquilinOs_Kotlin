@@ -11,7 +11,7 @@ import android.annotation.SuppressLint
 import com.mch.blekot.common.Constants
 import android.bluetooth.le.ScanCallback
 import android.bluetooth.le.ScanSettings
-import com.mch.blekot.model.ActionManager
+import com.mch.blekot.model.Interactor
 import androidx.core.content.ContextCompat.getSystemService
 import android.bluetooth.le.ScanSettings.SCAN_MODE_LOW_LATENCY
 import com.mch.blekot.common.HexUtil
@@ -46,7 +46,7 @@ object Ble {
     suspend fun connectDevice(isOnlyAsk: Boolean = false) = withContext(Dispatchers.IO) {
 
         if(!isBluetoothEnabled()){
-            ActionManager.sendResponseToServer(Constants.STATUS_BLE_DISCONNECT)
+            Interactor.sendResponseToServer(Constants.STATUS_BLE_DISCONNECT)
 
             return@withContext
         }
@@ -211,7 +211,7 @@ object Ble {
 
                             Log.i(TAG,"rndNumber: $rndNumber, battery: $devicePower")
 
-                            ActionManager.getToken(devicePower.toString(), rndNumber.toString())
+                            Interactor.getToken(devicePower.toString(), rndNumber.toString())
                             return@executeAction
                         }
                         /** SetCard Response **/
@@ -225,7 +225,7 @@ object Ble {
                 }
 
                 Log.i("Status Response", "$statusResponse")
-                ActionManager.sendResponseToServer(
+                Interactor.sendResponseToServer(
                     Constants.CODE_MSG_OK,
                     statusMOne = statusResponse
                 )
@@ -252,7 +252,7 @@ object Ble {
         } catch (e: Exception) {
             Log.e(TAG, e.message.toString())
 
-            ActionManager.sendResponseToServer(status = Constants.CODE_MSG_KO)
+            Interactor.sendResponseToServer(status = Constants.CODE_MSG_KO)
 
             gattTmp.close()
         }

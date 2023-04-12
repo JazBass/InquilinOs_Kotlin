@@ -12,7 +12,7 @@ import io.socket.client.Socket
 import com.mch.blekot.common.Constants
 import android.annotation.SuppressLint
 import com.mch.blekot.common.ValidateUtil
-import com.mch.blekot.model.ActionManager
+import com.mch.blekot.model.Interactor
 import com.mch.blekot.services.SocketService
 import com.mch.blekot.common.ProcessDataJson
 import com.mch.blekot.common.ValidateException
@@ -44,7 +44,7 @@ class SocketSingleton private constructor() {
             try {
                 if (isProcessActive) {
                     Log.i(TAG, "Hay una peticion pendiente!!")
-                    ActionManager.sendResponseToServer(
+                    Interactor.sendResponseToServer(
                         Constants.CODE_MSG_PENDANT,
                         Constants.STATUS_LOCK,
                         Constants.STATUS_LOCK
@@ -87,7 +87,7 @@ class SocketSingleton private constructor() {
 
                         ValidateUtil.setUpBle(macAddress, deviceName, deviceId)
 
-                        ActionManager.openLock()
+                        Interactor.openLock()
                     }
 
                     Constants.ACTION_NEW_CODE -> {
@@ -114,7 +114,7 @@ class SocketSingleton private constructor() {
                         val times =
                             Objects.requireNonNull(pDataJson.getValue(Constants.PARAMETER_TIMES)).toString().toInt()
 
-                        executeAction { ActionManager.setNewCode(code, days, index, times) }
+                        executeAction { Interactor.setNewCode(code, days, index, times) }
                     }
 
                     Constants.ACTION_SET_CARD -> {
@@ -134,7 +134,7 @@ class SocketSingleton private constructor() {
                             .toString()
                         val type = Objects.requireNonNull(pDataJson.getValue(Constants.PARAMETER_TYPE))
                             .toString()
-                        executeAction { ActionManager.setNewCard(qr, type) }
+                        executeAction { Interactor.setNewCard(qr, type) }
                     }
 
                     Constants.ACTION_OPEN_PORTAL -> executeAction {
@@ -143,7 +143,7 @@ class SocketSingleton private constructor() {
 
                         ValidateUtil.setUpArduino(ipArduino)
 
-                        ActionManager.openPortal()
+                        Interactor.openPortal()
                     }
 
                     Constants.ACTION_SYNC_TIME -> {
@@ -161,7 +161,7 @@ class SocketSingleton private constructor() {
 
                         val newTime = Objects.requireNonNull(pDataJson.getValue(Constants.PARAMETER_SYNC_TIME))
                             .toString()
-                        executeAction { ActionManager.syncTime(newTime) }
+                        executeAction { Interactor.syncTime(newTime) }
                     }
 
                 }
@@ -173,14 +173,14 @@ class SocketSingleton private constructor() {
                 )
             } catch (e: java.lang.NullPointerException) {
                 Log.i(TAG, "error: ${e.printStackTrace()}")
-                ActionManager.sendResponseToServer(
+                Interactor.sendResponseToServer(
                     Constants.CODE_MSG_NULL_POINT,
                     Constants.STATUS_LOCK,
                     Constants.STATUS_LOCK
                 )
             } catch (e: Exception) {
                 e.printStackTrace()
-                ActionManager.sendResponseToServer(
+                Interactor.sendResponseToServer(
                     Constants.CODE_MSG_KO,
                     Constants.STATUS_LOCK,
                     Constants.STATUS_LOCK

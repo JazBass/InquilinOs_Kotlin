@@ -7,7 +7,7 @@ import org.json.JSONObject
 import java.io.IOException
 import com.mch.blekot.model.ble.Ble
 import com.mch.blekot.common.Constants
-import com.mch.blekot.model.ActionManager
+import com.mch.blekot.model.Interactor
 
 object WeLock {
 
@@ -30,7 +30,7 @@ object WeLock {
 
         if (action == Constants.TIME_SYNCHRONIZED) {
             Ble.disconnectGatt()
-            ActionManager.sendResponseToServer(Constants.SYNC_TIME_OK)
+            Interactor.sendResponseToServer(Constants.SYNC_TIME_OK)
             return
         }
 
@@ -57,7 +57,7 @@ object WeLock {
             Log.i("Token", "onResponse: $mToken")
 
             //Pedimos el path y el Json que se gestionan en la clase JsonManager
-            val data = ActionManager.getPostData(mDevicePower, mRndNumber)
+            val data = Interactor.getPostData(mDevicePower, mRndNumber)
             val json = data["json"]
             val path = data["path"]
 
@@ -88,7 +88,7 @@ object WeLock {
             } else {
                 Log.i("WeLock", "$dataJson Fail")
                 Ble.disconnectGatt()
-                ActionManager.sendResponseToServer(status = Constants.CODE_MSG_PARAMS)
+                Interactor.sendResponseToServer(status = Constants.CODE_MSG_PARAMS)
                 Log.i("WeLock", "$dataJson error")
             }
         }

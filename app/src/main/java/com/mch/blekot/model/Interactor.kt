@@ -10,7 +10,7 @@ import com.mch.blekot.model.welock.WeLock
 import com.mch.blekot.common.JsonManager
 import com.mch.blekot.model.socket.SocketSingleton
 
-object ActionManager : ActionManagerAux {
+object Interactor : ActionManagerAux {
 
     private var mAction = -1
     private var mRndNumber: String? = null
@@ -23,8 +23,6 @@ object ActionManager : ActionManagerAux {
     private var mType: String? = null
     private var mNewTime: String? = null
     private var mNewPassword: String? = null
-
-    //private const val CHANNEL_ID = "TV"
 
     private val httpClient = OkHttpClient()
 
@@ -142,8 +140,6 @@ object ActionManager : ActionManagerAux {
      * -1 -> ERROR
      * @param status
      **/
-
-    // TODO: Record and battery response are not ok
 
     fun sendResponseToServer(
         status: Int,

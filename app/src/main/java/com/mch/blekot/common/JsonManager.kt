@@ -2,7 +2,7 @@ package com.mch.blekot.common
 
 import android.annotation.SuppressLint
 import android.util.Log
-import com.mch.blekot.model.ActionManager
+import com.mch.blekot.model.Interactor
 import com.mch.blekot.model.DeviceData
 import com.mch.blekot.model.socket.SocketSingleton
 import java.text.SimpleDateFormat
@@ -43,7 +43,7 @@ object JsonManager {
                 //28800 = 8h -> Diferencia con China (bug de la API de Welock)
                 //7200 = 2h -> Para asegurarse que el codigo este funcional
                 val startDate: Int = ((System.currentTimeMillis() / 1000) - 28800 - 7200).toInt()
-                val endDate: Int = startDate + (86400 * ActionManager.getDays())
+                val endDate: Int = startDate + (86400 * Interactor.getDays())
 
                 SocketSingleton.socketInstance?.startTime = startDate.toString()
                 SocketSingleton.socketInstance?.endTime = endDate.toString()
@@ -58,10 +58,10 @@ object JsonManager {
                     deviceNumber: "$deviceIdNumber",  
                     deviceBleName: "$deviceName", 
                     deviceRandomFactor: "$rdmNumber", 
-                    password: ${ActionManager.getDeviceNewPassword()}, 
-                    index: ${ActionManager.getIndex()}, 
+                    password: ${Interactor.getDeviceNewPassword()}, 
+                    index: ${Interactor.getIndex()}, 
                     user: ${Constants.CODE_USER} , 
-                    times: ${ActionManager.getTimes()},
+                    times: ${Interactor.getTimes()},
                     startTimestamp: $startDate, 
                     endTimestamp: $endDate}
                 """.trimIndent()
@@ -76,8 +76,8 @@ object JsonManager {
                     deviceNumber: "$deviceIdNumber",
                     deviceBleName: "$deviceName",
                     deviceRandomFactor: "$rdmNumber",
-                    cardQr: "${ActionManager.getQR()}",
-                    type: "${ActionManager.getType()}"}""".trimIndent()
+                    cardQr: "${Interactor.getQR()}",
+                    type: "${Interactor.getType()}"}""".trimIndent()
 
                 return mapOf("json" to json, "path" to PATH_CARD)
             }
@@ -87,10 +87,10 @@ object JsonManager {
                     appID: "WELOCK2202161033",
                     deviceNumber: "$deviceIdNumber",
                     deviceBleName: "$deviceName",
-                    timestamp: ${ActionManager.getNewTime()},
+                    timestamp: ${Interactor.getNewTime()},
                     deviceRandomFactor: "$rdmNumber"}""".trimIndent()
 
-                ActionManager.setAction(Constants.SYNC_TIME_OK)
+                Interactor.setAction(Constants.SYNC_TIME_OK)
 
                 return mapOf("json" to json, "path" to PATH_SYNC_TIME)
             }
