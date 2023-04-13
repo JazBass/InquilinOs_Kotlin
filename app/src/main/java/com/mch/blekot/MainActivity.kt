@@ -1,19 +1,22 @@
 package com.mch.blekot
 
-import android.util.Log
-import android.os.Bundle
-import android.content.Intent
-import android.content.Context
-import android.view.WindowManager
-import android.content.IntentFilter
 import android.Manifest.permission.*
-import com.mch.blekot.common.Constants
 import android.content.BroadcastReceiver
-import com.mch.blekot.services.SocketService
+import android.content.Context
+import android.content.Intent
+import android.content.IntentFilter
+import android.os.Bundle
+import android.util.Log
+import android.view.View
+import android.view.WindowManager
 import androidx.appcompat.app.AppCompatActivity
-import com.vmadalin.easypermissions.EasyPermissions
-import com.mch.blekot.databinding.ActivityMainBinding
+import androidx.fragment.app.FragmentTransaction.TRANSIT_FRAGMENT_OPEN
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
+import androidx.transition.Visibility
+import com.mch.blekot.common.Constants
+import com.mch.blekot.databinding.ActivityMainBinding
+import com.mch.blekot.services.SocketService
+import com.vmadalin.easypermissions.EasyPermissions
 
 class MainActivity : AppCompatActivity() {
 
@@ -34,6 +37,34 @@ class MainActivity : AppCompatActivity() {
         window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
 
         methodRequiresTwoPermission()
+
+        mBinding.fab.setOnClickListener { launchInfoFragment() }
+        mBinding.cancelFab.setOnClickListener { onBackPressed() }
+    }
+
+    private val fragment = InfoFragment()
+
+    private fun launchInfoFragment() {
+
+        val fragmentManager = supportFragmentManager
+        val fragmentTransaction = fragmentManager.beginTransaction()
+        with(fragmentTransaction) {
+            add(R.id.containerMain, fragment, "currentFragment")
+            addToBackStack(null)
+            setTransition(TRANSIT_FRAGMENT_OPEN)
+            commit()
+        }
+        mBinding.fab.visibility = View.GONE
+        mBinding.cancelFab.visibility = View.VISIBLE
+    }
+
+    @Deprecated("Deprecated in Java")
+    override fun onBackPressed() {
+        super.onBackPressed()
+        with(mBinding){
+            cancelFab.visibility = View.GONE
+            fab.visibility = View.VISIBLE
+        }
     }
 
     override fun onRequestPermissionsResult(
