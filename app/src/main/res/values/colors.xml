@@ -6,5 +6,6 @@
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
     <color name="orangeMC">#F18420</color>
-    <!--In honor to my first programmer friend.-->
+    <color name="connected_green">#2a8947</color>
+    <color name="disconnected_red">#9c1003</color>
 </resources>

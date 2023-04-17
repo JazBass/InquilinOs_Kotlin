@@ -1,7 +1,9 @@
 <resources>
     <string name="app_name">InquilinOs</string>
-    <string name="ACCEPT_PERMISIONS">Aceptar los siguientes permisos para un correcto funcionamiento</string>
+    <string name="ACCEPT_PERMISSIONS">Aceptar los siguientes permisos para un correcto funcionamiento</string>
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="CONNECTED">CONECTADO</string>
+    <string name="DISCONNECTED">DESCONECTADO</string>
 
 </resources>

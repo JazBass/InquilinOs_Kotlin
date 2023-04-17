@@ -1,10 +1,11 @@
 package com.mch.blekot
 
+import android.graphics.Color
 import android.os.Bundle
-import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.fragment.app.Fragment
 import com.mch.blekot.common.Constants
 import com.mch.blekot.databinding.FragmentInfoBinding
 import com.mch.blekot.model.socket.SocketSingleton
@@ -25,7 +26,12 @@ class InfoFragment : Fragment(R.layout.fragment_info) {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         mBinding.IDName.text = Constants.ID
-        mBinding.isConnected.text = if (SocketSingleton.socketInstance!!.isConnected) "CONECTADO a ${Constants.URL_TCP}" else "DESCONECTADO"
+        if (SocketSingleton.socketInstance!!.isConnected){
+            mBinding.isConnected.text = getString(R.string.CONNECTED)
+            mBinding.isConnected.setTextColor(resources.getColor(R.color.connected_green))
+        } else{
+            mBinding.isConnected.text = getString(R.string.DISCONNECTED)
+            mBinding.isConnected.setTextColor(resources.getColor(R.color.disconnected_red))
+        }
     }
-
 }

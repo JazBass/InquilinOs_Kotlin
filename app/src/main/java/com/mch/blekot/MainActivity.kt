@@ -89,7 +89,7 @@ class MainActivity : AppCompatActivity() {
             val CODE_REQUEST_PERMISSIONS = 1
             EasyPermissions.requestPermissions(
                 host = this,
-                rationale = getString(R.string.ACCEPT_PERMISIONS),
+                rationale = getString(R.string.ACCEPT_PERMISSIONS),
                 requestCode = CODE_REQUEST_PERMISSIONS,
                 perms = arrayOf(ACCESS_FINE_LOCATION, RECORD_AUDIO, WRITE_EXTERNAL_STORAGE)
             )
