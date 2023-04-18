@@ -114,8 +114,8 @@ object Ble {
             Log.i(TAG, "onScanResult: ${result?.device?.name}")
 
             if (result?.device?.name == DeviceData.DEVICE_NAME) {
-                Log.i(TAG, "${result.device}")
-                result.device?.connectGatt(null, false, mGattCallback)
+                Log.i(TAG, "${result?.device}")
+                result?.device?.connectGatt(null, false, mGattCallback)
                 isScanning = false
                 bluetoothLeScanner!!.stopScan(this)
             }

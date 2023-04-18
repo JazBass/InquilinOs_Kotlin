@@ -22,7 +22,6 @@ object WeLock {
     private lateinit var mRndNumber: String
     private lateinit var mDevicePower: String
 
-
      /*Pedimos la token*/
     fun getToken(battery: String, rdmNumber: String, action: Int) {
 
