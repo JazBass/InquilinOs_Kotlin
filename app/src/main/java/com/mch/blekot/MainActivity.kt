@@ -15,8 +15,13 @@ import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import androidx.transition.Visibility
 import com.mch.blekot.common.Constants
 import com.mch.blekot.databinding.ActivityMainBinding
+import com.mch.blekot.model.Interactor
+import com.mch.blekot.model.ble.Ble
+import com.mch.blekot.model.socket.SocketSingleton
 import com.mch.blekot.services.SocketService
 import com.vmadalin.easypermissions.EasyPermissions
+import kotlinx.coroutines.MainScope
+import kotlinx.coroutines.launch
 
 class MainActivity : AppCompatActivity() {
 
@@ -40,6 +45,10 @@ class MainActivity : AppCompatActivity() {
 
         mBinding.fab.setOnClickListener { launchInfoFragment() }
         mBinding.cancelFab.setOnClickListener { onBackPressed() }
+
+        mBinding.btnLaunchScan.setOnClickListener {
+            MainScope().launch { Interactor.openLock() }
+        }
     }
 
     private val fragment = InfoFragment()

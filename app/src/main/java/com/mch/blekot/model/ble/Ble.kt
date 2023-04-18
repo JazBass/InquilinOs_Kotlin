@@ -5,23 +5,22 @@ import android.util.Log
 import android.bluetooth.*
 import kotlinx.coroutines.*
 import com.mch.blekot.MainActivity
+import com.mch.blekot.common.HexUtil
+import com.mch.blekot.model.DeviceData
 import android.bluetooth.le.ScanFilter
 import android.bluetooth.le.ScanResult
 import android.annotation.SuppressLint
+import com.mch.blekot.model.Interactor
 import com.mch.blekot.common.Constants
 import android.bluetooth.le.ScanCallback
 import android.bluetooth.le.ScanSettings
-import com.mch.blekot.model.Interactor
+import com.mch.blekot.common.HexUtil.toHexString
 import androidx.core.content.ContextCompat.getSystemService
 import android.bluetooth.le.ScanSettings.SCAN_MODE_LOW_LATENCY
-import com.mch.blekot.common.HexUtil
-import com.mch.blekot.common.HexUtil.toHexString
-import com.mch.blekot.model.DeviceData
 
 object Ble {
 
     private const val TAG = "Ble"
-    private var isOnlyAsk = false
     private lateinit var mCode: String
 
     private var characteristicWrite: BluetoothGattCharacteristic? = null
@@ -43,9 +42,9 @@ object Ble {
     //utilizados cuentan con Bluetooth
 
     @SuppressLint("MissingPermission")
-    suspend fun connectDevice(isOnlyAsk: Boolean = false) = withContext(Dispatchers.IO) {
+    suspend fun connectDevice() = withContext(Dispatchers.IO) {
 
-        if(!isBluetoothEnabled()){
+        if (!isBluetoothEnabled()) {
             Interactor.sendResponseToServer(Constants.STATUS_BLE_DISCONNECT)
 
             return@withContext
@@ -56,7 +55,7 @@ object Ble {
         var isPaired = false
         var macAddress = ""
 
-        //Verificamos si el dispositivo ya esta emparejado
+        //Verificamos si el dispositivo ya esta emparejado para evitar el scaneo
         val pairedDevices: Set<BluetoothDevice>? = bluetoothAdapter?.bondedDevices
         pairedDevices?.forEach { device ->
             val deviceName = device.name
@@ -88,17 +87,23 @@ object Ble {
     val bluetoothLeScanner = bluetoothAdapter?.bluetoothLeScanner
 
     @SuppressLint("MissingPermission")
-    private fun scanLeDevice() {
+    private suspend fun scanLeDevice() {
         isScanning = true
 
         val scanFilter =
             listOf<ScanFilter>(ScanFilter.Builder().setDeviceName(DeviceData.DEVICE_NAME).build())
         val scanSettings = ScanSettings.Builder().setScanMode(SCAN_MODE_LOW_LATENCY).build()
 
-        if (isScanning) {
-            bluetoothLeScanner!!.startScan(scanFilter, scanSettings, leScanCallback)
-        } else
-            bluetoothLeScanner!!.stopScan(leScanCallback)
+        bluetoothLeScanner!!.startScan(scanFilter, scanSettings, leScanCallback)
+        delay(30000)//30 seconds
+        if (isScanning){
+            Log.i(TAG, "disconnect")
+            bluetoothLeScanner.stopScan(leScanCallback)
+            Interactor.sendResponseToServer(
+                status = Constants.CODE_TIMEOUT
+            )
+        }
+
     }
 
     private val leScanCallback: ScanCallback = object : ScanCallback() {
@@ -109,8 +114,8 @@ object Ble {
             Log.i(TAG, "onScanResult: ${result?.device?.name}")
 
             if (result?.device?.name == DeviceData.DEVICE_NAME) {
-                Log.i(TAG, "${result?.device}")
-                result?.device?.connectGatt(null, false, mGattCallback)
+                Log.i(TAG, "${result.device}")
+                result.device?.connectGatt(null, false, mGattCallback)
                 isScanning = false
                 bluetoothLeScanner!!.stopScan(this)
             }
@@ -209,7 +214,7 @@ object Ble {
                             val rndNumber = characteristic[2]
                             val devicePower = characteristic[3]
 
-                            Log.i(TAG,"rndNumber: $rndNumber, battery: $devicePower")
+                            Log.i(TAG, "rndNumber: $rndNumber, battery: $devicePower")
 
                             Interactor.getToken(devicePower.toString(), rndNumber.toString())
                             return@executeAction

@@ -16,6 +16,7 @@ import com.mch.blekot.model.Interactor
 import com.mch.blekot.services.SocketService
 import com.mch.blekot.common.ProcessDataJson
 import com.mch.blekot.common.ValidateException
+import com.mch.blekot.model.ble.Ble
 
 class SocketSingleton private constructor() {
 
@@ -230,6 +231,11 @@ class SocketSingleton private constructor() {
         return MainScope().launch(Dispatchers.IO) {
             try {
                 block()
+                delay(180000)
+                if (isProcessActive){
+                    Interactor.sendResponseToServer(Constants.CODE_TIMEOUT)
+                    Ble.disconnectGatt()
+                }
             } catch (_: Exception) {
             }
         }
