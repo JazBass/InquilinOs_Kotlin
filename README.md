@@ -9,46 +9,46 @@
 
 ### Parámetros
     
-    Recibe un solo objeto json y todos los valores en string
-    Los parámetros que debe recibir el móvil son los siguientes, entre comillas la clave:
-    
-    En todas las peticiones:
+Recibe un solo objeto json y todos los valores en string
+Los parámetros que debe recibir el móvil son los siguientes, entre comillas la clave:
+
+En todas las peticiones:
 
     - identificador que nos asigna el TCP  = "clientFrom"  
     - La acción a realizar = "cmd" pueden ser:
 
-> "openLock"
-> "newCode"
-> "setCard"
-> "syncTime"
-> "openPortal"
+    > "openLock"
+    > "newCode"
+    > "setCard"
+    > "syncTime"
+    > "openPortal"
 
-    Para en el caso de open portal además:
+Para en el caso de open portal además:
 
     * La IP del arduino = "ipArduino"
 
-    Para acciones con la manija:
+Para acciones con la manija:
 
     * Mac address de la manija = "macAddress"
     * ID de la manija = "deviceId"
     * Bluetooth name de la manija ="deviceName"
 
-    Y además para new code
+Y además para new code
 
     * Dias de duración = "days"
     * El nuevo código = "code"
     * Index donde se almacenará = "index"
     * cantidad de veces que se podrá usar  = "times"
 
-    Y para set card
+Y para set card
  
     * El QR de la llave = "qr"
     * El tipo de acción = "type" siento 1 para agregar y 2 para eliminar
 
 ### Respuestas
 
-    Al finalizar una funcion, en caso de éxito el valor de status será 1, en caso de error los valores 
-    pueden ser:
+Al finalizar una funcion, en caso de éxito el valor de status será 1, en caso de error los valores 
+pueden ser:
 
      0 --> Hay una petición pendiente
     -1 --> Error no especificado
