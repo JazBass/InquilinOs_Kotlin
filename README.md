@@ -16,35 +16,35 @@
 
     - identificador que nos asigna el TCP  = "clientFrom"  
     - La acción a realizar = "cmd" pueden ser:
-```
+
     - "openLock"
     - "newCode"
     - "setCard"
     - "syncTime"
     - "openPortal"
-```
+
     Para en el caso de open portal además:
-```
+
     * La IP del arduino = "ipArduino"
-```
+
     Para acciones con la manija:
-```
+
     * Mac address de la manija = "macAddress"
     * ID de la manija = "deviceId"
     * Bluetooth name de la manija ="deviceName"
-```
+
     Y además para new code
-```
+
     * Dias de duración = "days"
     * El nuevo código = "code"
     * Index donde se almacenará = "index"
     * cantidad de veces que se podrá usar  = "times"
-```
+
     Y para set card
-```  
+ 
     * El QR de la llave = "qr"
     * El tipo de acción = "type" siento 1 para agregar y 2 para eliminar
-```  
+
 ### Respuestas:
 
     Al finalizar una funcion, en caso de éxito el valor de status será 1, en caso de error los valores 
