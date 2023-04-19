@@ -2,12 +2,12 @@
 
 ## Aplicación para controlar las viviendas.
 
-### Importante: 
+### Importante
 
     Antes de instalar configurar en com.mch.blekot.common.Constants:
     * 'const val ID' con el nombre del piso al que irá para la conexion por socket, debe coincidir con el código del piso en BBDD
 
-### Parámetros:
+### Parámetros
     
     Recibe un solo objeto json y todos los valores en string
     Los parámetros que debe recibir el móvil son los siguientes, entre comillas la clave:
@@ -17,11 +17,11 @@
     - identificador que nos asigna el TCP  = "clientFrom"  
     - La acción a realizar = "cmd" pueden ser:
 
-    > "openLock"
-    > "newCode"
-    > "setCard"
-    > "syncTime"
-    > "openPortal"
+> "openLock"
+> "newCode"
+> "setCard"
+> "syncTime"
+> "openPortal"
 
     Para en el caso de open portal además:
 
@@ -45,7 +45,7 @@
     * El QR de la llave = "qr"
     * El tipo de acción = "type" siento 1 para agregar y 2 para eliminar
 
-### Respuestas:
+### Respuestas
 
     Al finalizar una funcion, en caso de éxito el valor de status será 1, en caso de error los valores 
     pueden ser:
@@ -59,7 +59,7 @@
     -6 --> Se ha agotado el tiempo para procesar una petición
     -7 --> Error en la respuesta de WeLock-API, puede que los parametros sean erroneos o que manija no esté activada
 
-### Tiempos de espera:
+### Tiempos de espera
 
     Cada petición tiene un máximo de 3 minutos para ser gestionada, en caso de superar este tiempo 
     se cancelará la función y se avisará al TCP
