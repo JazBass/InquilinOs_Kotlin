@@ -61,11 +61,12 @@ pueden ser:
 ```
 ### Tiempos de espera
 ```
-Cada petición tiene un máximo de 3 minutos para ser gestionada, en caso de superar este tiempo se cancelará la función y se avisará al TCP
+Cada petición tiene un máximo de 3 minutos para ser gestionada, en caso de superar este tiempo se cancelará la 
+función y se avisará al TCP
 
-El escaneo tiene un máximo de duración de 30 segundos, por lo general no tarda más de 1 segundo 
-en encontrar el móvil, por lo que si este error se repite reiteradas veces es probable que haya 
-un problema con la manija ya que el móvil no está localizándola.
+El escaneo tiene un máximo de duración de 30 segundos, por lo general no tarda más de 1 segundo en encontrar el 
+móvil, por lo que si este error se repite reiteradas veces es probable que haya un problema con la manija ya que
+ el móvil no está localizándola.
 ```
 
 
