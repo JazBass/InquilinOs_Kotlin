@@ -131,6 +131,7 @@ object JsonManager {
             Constants.CODE_MSG_NULL_POINT -> Constants.MSG_NULL_POINT
             Constants.CODE_MSG_BLE_OFF -> Constants.MSG_BLE_OFF
             Constants.CODE_TIMEOUT -> Constants.MSG_TIMEOUT
+            Constants.CODE_TIMEOUT_SCAN -> Constants.MSG_TIMEOUT_SCAN
             else -> Constants.MSG_KO
         }
 

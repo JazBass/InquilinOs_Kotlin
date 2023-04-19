@@ -59,13 +59,14 @@ object Constants {
     /****************SocketResponse****************/
 
     const val CODE_MSG_OK = 1
-    const val CODE_MSG_KO = -1
-    const val CODE_TIMEOUT = -4
-    const val CODE_MSG_PARAMS = 2
-    const val CODE_MSG_PENDANT = 0
-    const val CODE_MSG_BLE_OFF = -3
-    const val CODE_MSG_NULL_POINT = -2
 
+    const val CODE_MSG_PENDANT = 0
+    const val CODE_MSG_KO = -1
+    const val CODE_MSG_NULL_POINT = -2
+    const val CODE_MSG_BLE_OFF = -3
+    const val CODE_TIMEOUT_SCAN = -4
+    const val CODE_TIMEOUT = -5
+    const val CODE_MSG_PARAMS = -6
 
     const val MSG_PENDANT = "Hay una peticion pendiente"
     const val MSG_KO = "Error con el dispositivo Bluetooth"
@@ -73,7 +74,8 @@ object Constants {
     const val MSG_NULL_POINT = "Faltan enviar parametros al móvil"
     const val MSG_BLE_OFF = "El bluetooth del móvil no se encuentra activado"
     const val MSG_PARAMS = "Error en WeLock-API, parametros erroneos o manija no activada"
-    const val MSG_TIMEOUT = "Tiempo de scaneo agotado, vuela a intertalo"
+    const val MSG_TIMEOUT_SCAN = "Tiempo de scaneo agotado, vuela a intertalo"
+    const val MSG_TIMEOUT = "Tiempo de espera agotado"
 
     const val ERROR_ARDUINO = "IP del arduino mal escrita"
     const val ERROR_MAC_ADDRESS = "Mac Address mal escrito"

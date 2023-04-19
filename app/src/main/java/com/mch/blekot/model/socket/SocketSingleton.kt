@@ -20,7 +20,7 @@ import com.mch.blekot.model.ble.Ble
 
 class SocketSingleton private constructor() {
 
-    var isProcessActive = false
+    private var isProcessActive = false
     var clientFromServer = ""
     val socket: Socket
     var endTime: String? = null
@@ -231,7 +231,7 @@ class SocketSingleton private constructor() {
         return MainScope().launch(Dispatchers.IO) {
             try {
                 block()
-                delay(180000)
+                delay(180000)//3 minutos
                 if (isProcessActive){
                     Interactor.sendResponseToServer(Constants.CODE_TIMEOUT)
                     Ble.disconnectGatt()
@@ -241,6 +241,7 @@ class SocketSingleton private constructor() {
         }
     }
 
+    //Instancia singleton
     companion object {
         private val TAG = SocketService::class.java.simpleName
 

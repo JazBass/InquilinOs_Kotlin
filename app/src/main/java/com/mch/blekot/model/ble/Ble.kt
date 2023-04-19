@@ -100,7 +100,7 @@ object Ble {
             Log.i(TAG, "disconnect")
             bluetoothLeScanner.stopScan(leScanCallback)
             Interactor.sendResponseToServer(
-                status = Constants.CODE_TIMEOUT
+                status = Constants.CODE_TIMEOUT_SCAN
             )
         }
 
