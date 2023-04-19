@@ -17,11 +17,11 @@
     - identificador que nos asigna el TCP  = "clientFrom"  
     - La acción a realizar = "cmd" pueden ser:
 
-    - "openLock"
-    - "newCode"
-    - "setCard"
-    - "syncTime"
-    - "openPortal"
+    > "openLock"
+    > "newCode"
+    > "setCard"
+    > "syncTime"
+    > "openPortal"
 
     Para en el caso de open portal además:
 
