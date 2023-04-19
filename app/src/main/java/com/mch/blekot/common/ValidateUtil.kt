@@ -34,7 +34,7 @@ object ValidateUtil {
            DeviceData.DEVICE_ID_NUMBER = deviceId
            DeviceData.DEVICE_NAME = deviceName
         } else {
-            val status = -1
+            val status = Constants.STATUS_FAIL_VALIDATION
             response = JsonManager.getCredentialsResponse(
                 status,
                 resDeviceId.msg,

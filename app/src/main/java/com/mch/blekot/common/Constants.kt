@@ -36,19 +36,19 @@ object Constants {
     const val RESPONSE_SOCKET_BLUETOOTH = "ResponseSocketBluetooth"
     const val MESSAGE = "Conectado"
 
-    const val PARAMETER_CMD = "cmd"
-    const val PARAMETER_CLIENT_FROM = "clientFrom"
-    const val PARAMETER_MAC_ADDRESS = "macAddress"
-    const val PARAMETER_DEVICE_ID = "deviceId"
-    const val PARAMETER_DEVICE_NAME ="deviceName"
-    const val PARAMETER_CODE = "code"
-    const val PARAMETER_DAYS = "days"
     const val PARAMETER_QR = "Qr"
-    const val PARAMETER_TYPE = "type"
-    const val PARAMETER_IP_ARDUINO = "ipArduino"
+    const val PARAMETER_CMD = "cmd"
+    const val PARAMETER_DAYS = "days"
+    const val PARAMETER_CODE = "code"
     const val PARAMETER_INDEX = "index"
     const val PARAMETER_TIMES = "times"
+    const val PARAMETER_TYPE = "type"
     const val PARAMETER_SYNC_TIME = "syncTime"
+    const val PARAMETER_DEVICE_ID = "deviceId"
+    const val PARAMETER_IP_ARDUINO = "ipArduino"
+    const val PARAMETER_DEVICE_NAME ="deviceName"
+    const val PARAMETER_MAC_ADDRESS = "macAddress"
+    const val PARAMETER_CLIENT_FROM = "clientFrom"
 
     /********************BLE********************/
 
@@ -63,10 +63,11 @@ object Constants {
     const val CODE_MSG_PENDANT = 0
     const val CODE_MSG_KO = -1
     const val CODE_MSG_NULL_POINT = -2
-    const val CODE_MSG_BLE_OFF = -3
-    const val CODE_TIMEOUT_SCAN = -4
-    const val CODE_TIMEOUT = -5
-    const val CODE_MSG_PARAMS = -6
+    const val STATUS_FAIL_VALIDATION = -3
+    const val CODE_MSG_BLE_OFF = -4
+    const val CODE_TIMEOUT_SCAN = -5
+    const val CODE_TIMEOUT = -6
+    const val CODE_MSG_PARAMS = -7
 
     const val MSG_PENDANT = "Hay una peticion pendiente"
     const val MSG_KO = "Error con el dispositivo Bluetooth"
