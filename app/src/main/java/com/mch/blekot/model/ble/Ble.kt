@@ -33,6 +33,7 @@ object Ble {
 
     private lateinit var gattTmp: BluetoothGatt
     private lateinit var mDataQueue: Queue<ByteArray>
+    private var mIsSyncTime = false
 
     private val bluetoothManager: BluetoothManager? =
         getSystemService(MainActivity.applicationContext(), BluetoothManager::class.java)!!
@@ -42,7 +43,8 @@ object Ble {
     //utilizados cuentan con Bluetooth
 
     @SuppressLint("MissingPermission")
-    suspend fun connectDevice() = withContext(Dispatchers.IO) {
+    suspend fun connectDevice(isSyncTime: Boolean = false) = withContext(Dispatchers.IO) {
+        mIsSyncTime = isSyncTime
 
         if (!isBluetoothEnabled()) {
             Interactor.sendResponseToServer(Constants.STATUS_BLE_DISCONNECT)

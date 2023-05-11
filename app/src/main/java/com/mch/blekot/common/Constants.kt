@@ -4,7 +4,7 @@ object Constants {
 
     /*********************Pruebas**********************/
 
-    const val ID = "RS2"
+    const val ID = "Prueba100"
 
 
     //Server de pruebas

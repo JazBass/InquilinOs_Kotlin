@@ -60,8 +60,9 @@ object Interactor : ActionManagerAux {
     override suspend fun syncTime(newTime: String) {
         mAction = Constants.SYNC_TIME
         mNewTime = newTime
-
-        Ble.connectDevice()
+        // true ya que la manija devuelve valores distintos
+        //TODO: Explicar mejor
+        Ble.connectDevice(true)
     }
 
     override suspend fun getRecord() {
