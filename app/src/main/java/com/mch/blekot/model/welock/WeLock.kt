@@ -36,6 +36,7 @@ object WeLock {
         mRndNumber = rdmNumber
         mDevicePower = battery
 
+         Log.i("TokenA", "1")
         post(
             PATH_TOKEN,
             """{appID: "WELOCK2202161033", secret: "349910dfcdfac75df0fd1cf2cbb02adb"}""",
@@ -65,6 +66,7 @@ object WeLock {
                 json,
                 actionCallback
             )
+            Log.i("Json", path + json!!)
         }
     }
 

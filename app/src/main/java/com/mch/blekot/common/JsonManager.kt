@@ -132,6 +132,7 @@ object JsonManager {
             Constants.CODE_MSG_BLE_OFF -> Constants.MSG_BLE_OFF
             Constants.CODE_TIMEOUT -> Constants.MSG_TIMEOUT
             Constants.CODE_TIMEOUT_SCAN -> Constants.MSG_TIMEOUT_SCAN
+            Constants.STATUS_ARDUINO_ERROR -> Constants.MSG_ARDUINO_ERROR
             else -> Constants.MSG_KO
         }
 

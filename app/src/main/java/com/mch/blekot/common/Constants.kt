@@ -4,7 +4,7 @@ object Constants {
 
     /*********************Pruebas**********************/
 
-    const val ID = "Prueba100"
+    const val ID = "Oficina"
 
 
     //Server de pruebas
@@ -68,15 +68,17 @@ object Constants {
     const val CODE_TIMEOUT_SCAN = -5
     const val CODE_TIMEOUT = -6
     const val CODE_MSG_PARAMS = -7
+    const val STATUS_ARDUINO_ERROR = -8
 
     const val MSG_PENDANT = "Hay una peticion pendiente"
-    const val MSG_KO = "Error con el dispositivo Bluetooth"
+    const val MSG_KO = "Error con el dispositivo móvil"
     const val MSG_OK = "Se ha procesado exitosamente la peticion"
     const val MSG_NULL_POINT = "Faltan enviar parametros al móvil"
     const val MSG_BLE_OFF = "El bluetooth del móvil no se encuentra activado"
     const val MSG_PARAMS = "Error en WeLock-API, parametros erroneos o manija no activada"
     const val MSG_TIMEOUT_SCAN = "Tiempo de scaneo agotado, vuela a intertalo"
     const val MSG_TIMEOUT = "Tiempo de espera agotado"
+    const val MSG_ARDUINO_ERROR = "Error al conectar con arduino"
 
     const val ERROR_ARDUINO = "IP del arduino mal escrita"
     const val ERROR_MAC_ADDRESS = "Mac Address mal escrito"
@@ -85,7 +87,6 @@ object Constants {
 
     const val STATUS_LOCK = -1
     const val STATUS_ARDUINO_OK = 1
-    const val STATUS_ARDUINO_ERROR = -1
     const val STATUS_BLE_DISCONNECT = -1
 
     const val SYNC_TIME_OK = 1

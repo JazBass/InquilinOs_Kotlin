@@ -99,7 +99,7 @@ object Ble {
         bluetoothLeScanner!!.startScan(scanFilter, scanSettings, leScanCallback)
         delay(30000)//30 seconds
         if (isScanning){
-            Log.i(TAG, "disconnect")
+            Log.i(TAG, "Scan OUT")
             bluetoothLeScanner.stopScan(leScanCallback)
             Interactor.sendResponseToServer(
                 status = Constants.CODE_TIMEOUT_SCAN
@@ -133,7 +133,6 @@ object Ble {
 
         @SuppressLint("MissingPermission")
         override fun onConnectionStateChange(gatt: BluetoothGatt, status: Int, newState: Int) {
-            Log.i("ConnectionStateChange", Thread.currentThread().name)
 
             super.onConnectionStateChange(gatt, status, newState)
             if (newState == BluetoothProfile.STATE_CONNECTED) {
@@ -217,7 +216,6 @@ object Ble {
                             val devicePower = characteristic[3]
 
                             Log.i(TAG, "rndNumber: $rndNumber, battery: $devicePower")
-
                             Interactor.getToken(devicePower.toString(), rndNumber.toString())
                             return@executeAction
                         }

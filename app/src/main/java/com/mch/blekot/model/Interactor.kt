@@ -74,9 +74,6 @@ object Interactor : ActionManagerAux {
     /** WeLock API Functions **/
 
     override suspend fun getToken(battery: String, rdmNumber: String) {
-
-        Log.i("Thread: ", Thread.currentThread().name)
-
         mRndNumber = rdmNumber
         mDevicePower = battery
         WeLock.getToken(battery, rdmNumber, mAction)
