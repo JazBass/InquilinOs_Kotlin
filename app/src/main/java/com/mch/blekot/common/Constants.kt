@@ -5,6 +5,7 @@ object Constants {
     /*********************Pruebas**********************/
 
     const val ID = "Oficina"
+    const val DEVICE_ID_KEY = "DEVICE_ID"
 
 
     //Server de pruebas
