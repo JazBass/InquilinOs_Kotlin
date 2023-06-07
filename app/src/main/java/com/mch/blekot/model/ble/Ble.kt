@@ -39,16 +39,12 @@ object Ble {
         getSystemService(MainActivity.applicationContext(), BluetoothManager::class.java)!!
     private val bluetoothAdapter: BluetoothAdapter? = bluetoothManager?.adapter
 
-    //No chequeamos si el adapter existe ya que sabemos con certeza que los dispositivos
-    //utilizados cuentan con Bluetooth
-
     @SuppressLint("MissingPermission")
     suspend fun connectDevice(isSyncTime: Boolean = false) = withContext(Dispatchers.IO) {
         mIsSyncTime = isSyncTime
 
         if (!isBluetoothEnabled()) {
             Interactor.sendResponseToServer(Constants.STATUS_BLE_DISCONNECT)
-
             return@withContext
         }
 
@@ -92,12 +88,15 @@ object Ble {
     private suspend fun scanLeDevice() {
         isScanning = true
 
-        val scanFilter =
-            listOf<ScanFilter>(ScanFilter.Builder().setDeviceName(DeviceData.DEVICE_NAME).build())
+        val scanFilter = listOf<ScanFilter>(ScanFilter.Builder().setDeviceName(DeviceData.DEVICE_NAME).build())
         val scanSettings = ScanSettings.Builder().setScanMode(SCAN_MODE_LOW_LATENCY).build()
 
+        Log.i("DeviceName: ", "${DeviceData.DEVICE_NAME}")
+
         bluetoothLeScanner!!.startScan(scanFilter, scanSettings, leScanCallback)
+        Log.i(TAG, "Scanning...")
         delay(30000)//30 seconds
+
         if (isScanning){
             Log.i(TAG, "Scan OUT")
             bluetoothLeScanner.stopScan(leScanCallback)
@@ -105,7 +104,6 @@ object Ble {
                 status = Constants.CODE_TIMEOUT_SCAN
             )
         }
-
     }
 
     private val leScanCallback: ScanCallback = object : ScanCallback() {
@@ -116,7 +114,7 @@ object Ble {
             Log.i(TAG, "onScanResult: ${result?.device?.name}")
 
             if (result?.device?.name == DeviceData.DEVICE_NAME) {
-                Log.i(TAG, "${result?.device}")
+                Log.i("Device found", "${result?.device}")
                 result?.device?.connectGatt(null, false, mGattCallback)
                 isScanning = false
                 bluetoothLeScanner!!.stopScan(this)

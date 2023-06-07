@@ -61,7 +61,6 @@ object Interactor : ActionManagerAux {
         mAction = Constants.SYNC_TIME
         mNewTime = newTime
         // true ya que la manija devuelve valores distintos
-        //TODO: Explicar mejor
         Ble.connectDevice(true)
     }
 

@@ -4,9 +4,8 @@ object Constants {
 
     /*********************Pruebas**********************/
 
-    const val ID = "Oficina"
+    var ID = ""
     const val DEVICE_ID_KEY = "DEVICE_ID"
-
 
     //Server de pruebas
     const val URL_TCP: String = "https://tcpmch.fly.dev"

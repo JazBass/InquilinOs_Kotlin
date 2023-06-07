@@ -6,6 +6,7 @@ import android.os.Bundle
 import kotlinx.coroutines.Job
 import android.content.Intent
 import android.content.Context
+import android.widget.EditText
 import kotlinx.coroutines.launch
 import android.view.WindowManager
 import android.content.IntentFilter
@@ -16,18 +17,16 @@ import kotlinx.coroutines.Dispatchers
 import com.mch.blekot.model.Interactor
 import com.mch.blekot.common.Constants
 import android.content.BroadcastReceiver
-import android.widget.EditText
 import androidx.appcompat.app.AlertDialog
 import com.mch.blekot.services.SocketService
+import androidx.datastore.preferences.core.edit
 import androidx.appcompat.app.AppCompatActivity
 import com.vmadalin.easypermissions.EasyPermissions
 import com.mch.blekot.databinding.ActivityMainBinding
-import androidx.datastore.preferences.core.edit
-import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
+import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import androidx.fragment.app.FragmentTransaction.TRANSIT_FRAGMENT_OPEN
-import com.google.android.material.dialog.MaterialAlertDialogBuilder
 
 class MainActivity : AppCompatActivity() {
 
@@ -37,10 +36,8 @@ class MainActivity : AppCompatActivity() {
     private lateinit var mBinding: ActivityMainBinding
 
     //Singleton
-    val Context.dataStore by preferencesDataStore(name = "DEVICE_ID")
-
-    override
-    fun onCreate(savedInstanceState: Bundle?) {
+    private val Context.dataStore by preferencesDataStore(name = "DEVICE_ID")
+    override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         mBinding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(mBinding.root)
@@ -58,13 +55,12 @@ class MainActivity : AppCompatActivity() {
     private fun askForDeviceID() {
         executeAction{
             if(!readDeviceID().isNullOrEmpty()){
+                Constants.ID = readDeviceID().toString()
                 launchSocketService()
             }else{
-
                 launchAlertDialog()
             }
         }
-
     }
 
     private fun launchAlertDialog() {
@@ -97,7 +93,11 @@ class MainActivity : AppCompatActivity() {
             preferences[deviceIdKey] = id
         }
         readDeviceID().also {
-            Log.i("DeviceID", it.toString())
+            if (!it.isNullOrEmpty()){
+                Constants.ID = it
+                Log.i("DeviceID", it)
+                launchSocketService()
+            }
         }
     }
 
@@ -205,7 +205,7 @@ class MainActivity : AppCompatActivity() {
 
     //Coroutines
     private fun executeAction(block: suspend () -> Unit): Job {
-        return MainScope().launch(Dispatchers.IO) {
+        return MainScope().launch(Dispatchers.Main) {
             block()
         }
     }
