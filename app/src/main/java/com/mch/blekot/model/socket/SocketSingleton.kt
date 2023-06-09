@@ -236,7 +236,7 @@ class SocketSingleton private constructor() {
                 delay(180000)//3 minutos
                 if (isProcessActive){
                     Interactor.sendResponseToServer(Constants.CODE_TIMEOUT)
-                    Ble.disconnectGatt() 
+                    Ble.disconnectGatt()
                 }
             } catch (_: Exception) {
             }
