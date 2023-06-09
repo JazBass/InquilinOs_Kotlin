@@ -66,6 +66,7 @@ class SocketSingleton private constructor() {
                 clientFromServer =
                     Objects.requireNonNull(pDataJson.getValue(Constants.PARAMETER_CLIENT_FROM))
                         .toString()
+
                 isProcessActive = true
 
                 /**
@@ -181,7 +182,6 @@ class SocketSingleton private constructor() {
                         val deviceId =
                             Objects.requireNonNull(pDataJson.getValue(Constants.PARAMETER_DEVICE_ID))
                                 .toString()
-
                         ValidateUtil.setUpBle(macAddress, deviceName, deviceId)
 
                         val newTime =
