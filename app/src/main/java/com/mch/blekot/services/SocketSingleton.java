@@ -12,9 +12,9 @@ import androidx.core.app.NotificationManagerCompat;
 
 import com.mch.blekot.R;
 import com.mch.blekot.io.socket.welock.WeLock;
+import com.mch.blekot.model.Interactor;
 import com.mch.blekot.util.Constants;
-import com.mch.blekot.util.ProcessDataJson;
-import com.mch.blekot.util.UtilDevice;
+import com.mch.blekot.common.ProcessDataJson;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -92,7 +92,7 @@ public class SocketSingleton {
                 // procesoActivo: FALSE -> Se ejecuta accion nueva
                 if ( this.isProcessActive) {
                     Log.i(TAG, "Hay una peticion pendiente!!");
-                    UtilDevice.sendResponseToServer(Constants.CODE_MSG_PENDANT, Constants.STATUS_LOCK, Constants.STATUS_LOCK);
+                    Interactor.sendResponseToServer(Constants.CODE_MSG_PENDANT, Constants.STATUS_LOCK, Constants.STATUS_LOCK);
                     return;
                 }
 
@@ -150,7 +150,7 @@ public class SocketSingleton {
             } catch (Exception e) {
                 this.isProcessActive = false; //Error por JSON
                 e.printStackTrace();
-                UtilDevice.sendResponseToServer(Constants.CODE_MSG_KO, Constants.STATUS_LOCK, Constants.STATUS_LOCK);
+                Interactor.sendResponseToServer(Constants.CODE_MSG_KO, Constants.STATUS_LOCK, Constants.STATUS_LOCK);
             }// Error X-Desconocido
 
         });
@@ -158,29 +158,6 @@ public class SocketSingleton {
         socket.on(Socket.EVENT_DISCONNECT, args -> System.out.println("disconnect due to: " + args[0]));
 
         socket.connect();
-    }
-
-    private void launchNotification() {
-
-        CharSequence name = "TvNotify";
-        String description = "Tv Notify for IFTTT";
-        int importance = NotificationManager.IMPORTANCE_DEFAULT;
-        NotificationChannel channel = new NotificationChannel(CHANNEL_ID, name, importance);
-        channel.setDescription(description);
-
-        NotificationManagerCompat notificationManager = NotificationManagerCompat.from(context);
-        notificationManager.createNotificationChannel(channel);
-
-
-        NotificationCompat.Builder builder = new NotificationCompat.Builder(context, CHANNEL_ID)
-                .setSmallIcon(R.drawable.ico_website)
-                .setContentTitle("TV")
-                .setContentText("TVON")
-                .setPriority(NotificationCompat.PRIORITY_DEFAULT);
-
-
-        notificationManager.notify(1, builder.build());
-
     }
 
     public static synchronized SocketSingleton getSocketInstance() {
@@ -208,7 +185,7 @@ public class SocketSingleton {
             if (response.isSuccessful()) {
                 Log.i("Open Portal", "Response: " + response.body().string());
 
-                UtilDevice.sendResponseToServer(
+                Interactor.sendResponseToServer(
                         Constants.STATUS_ARDUINO_OK,
                         null,
                         null
@@ -217,7 +194,7 @@ public class SocketSingleton {
             }else throw new IOException("Arduino connection fail");
         } catch (IOException e) {
             e.printStackTrace();
-            UtilDevice.sendResponseToServer(
+            Interactor.sendResponseToServer(
                     Constants.STATUS_ARDUINO_ERROR,
                     null,
                     null
