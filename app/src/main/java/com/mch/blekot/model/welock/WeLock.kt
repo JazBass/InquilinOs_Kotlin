@@ -25,8 +25,6 @@ object WeLock {
      /*Pedimos la token*/
     fun getToken(battery: String, rdmNumber: String, action: Int) {
 
-        Log.i("Thread: ", Thread.currentThread().name)
-
         if (action == Constants.TIME_SYNCHRONIZED) {
             Ble.disconnectGatt()
             Interactor.sendResponseToServer(Constants.SYNC_TIME_OK)

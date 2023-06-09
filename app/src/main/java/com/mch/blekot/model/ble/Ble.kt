@@ -22,7 +22,6 @@ object Ble {
 
     private const val TAG = "Ble"
     private lateinit var mCode: String
-
     private var characteristicWrite: BluetoothGattCharacteristic? = null
     private var characteristicNotify: BluetoothGattCharacteristic? = null
 
@@ -31,9 +30,9 @@ object Ble {
     private val WRITE_CHARACTER = UUID.fromString("6e400002-b5a3-f393-e0a9-e50e24dcca9e")
     private val NOTIFY_CHARACTERISTIC = UUID.fromString("6e400003-b5a3-f393-e0a9-e50e24dcca9e")
 
+    private var mIsSyncTime = false
     private lateinit var gattTmp: BluetoothGatt
     private lateinit var mDataQueue: Queue<ByteArray>
-    private var mIsSyncTime = false
 
     private val bluetoothManager: BluetoothManager? =
         getSystemService(MainActivity.applicationContext(), BluetoothManager::class.java)!!
@@ -235,8 +234,6 @@ object Ble {
                 gattTmp.close()
             }
         }
-
-        // TODO: catch lock's errors like motor and wrong response
     }
 
     @SuppressLint("MissingPermission")

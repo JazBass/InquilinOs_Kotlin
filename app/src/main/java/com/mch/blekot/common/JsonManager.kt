@@ -60,7 +60,7 @@ object JsonManager {
                     deviceRandomFactor: "$rdmNumber", 
                     password: ${Interactor.getDeviceNewPassword()}, 
                     index: ${Interactor.getIndex()}, 
-                    user: ${Constants.CODE_USER} , 
+                    user: ${Constants.CODE_USER}, 
                     times: ${Interactor.getTimes()},
                     startTimestamp: $startDate, 
                     endTimestamp: $endDate}
@@ -122,16 +122,15 @@ object JsonManager {
     ): String {
 
         val time = getTime()
-        Log.i("date", time)
 
         val msg: String = when (status) {
             Constants.CODE_MSG_OK -> Constants.MSG_OK
-            Constants.CODE_MSG_PENDANT -> Constants.MSG_PENDANT
-            Constants.CODE_MSG_PARAMS -> Constants.MSG_PARAMS
-            Constants.CODE_MSG_NULL_POINT -> Constants.MSG_NULL_POINT
-            Constants.CODE_MSG_BLE_OFF -> Constants.MSG_BLE_OFF
             Constants.CODE_TIMEOUT -> Constants.MSG_TIMEOUT
-            Constants.CODE_TIMEOUT_SCAN -> Constants.MSG_TIMEOUT_SCAN
+            Constants.CODE_MSG_PARAMS -> Constants.MSG_PARAMS
+            Constants.CODE_MSG_BLE_OFF -> Constants.MSG_BLE_OFF
+            Constants.CODE_MSG_PENDANT -> Constants.MSG_PENDANT
+                                    Constants.CODE_TIMEOUT_SCAN -> Constants.MSG_TIMEOUT_SCAN
+            Constants.CODE_MSG_NULL_POINT -> Constants.MSG_NULL_POINT
             Constants.STATUS_ARDUINO_ERROR -> Constants.MSG_ARDUINO_ERROR
             else -> Constants.MSG_KO
         }

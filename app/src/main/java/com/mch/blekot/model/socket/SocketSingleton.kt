@@ -20,12 +20,12 @@ import com.mch.blekot.model.ble.Ble
 
 class SocketSingleton private constructor() {
 
-    private var isProcessActive = false
-    var clientFromServer = ""
     val socket: Socket
+    var clientFromServer = ""
     var endTime: String? = null
     var startTime: String? = null
     var isConnected: Boolean = false
+    private var isProcessActive = false
 
     //Constructor
     init {
@@ -116,14 +116,17 @@ class SocketSingleton private constructor() {
                         val code =
                             Objects.requireNonNull(pDataJson.getValue(Constants.PARAMETER_CODE))
                                 .toString()
+
                         var days =
                             Objects.requireNonNull(pDataJson.getValue(Constants.PARAMETER_DAYS))
                                 .toString().toInt()
+
                         days = if (days == 0) Constants.MIN_DAYS_PASSWORD else days
 
                         val index =
                             Objects.requireNonNull(pDataJson.getValue(Constants.PARAMETER_INDEX))
                                 .toString().toInt()
+
                         val times =
                             Objects.requireNonNull(pDataJson.getValue(Constants.PARAMETER_TIMES))
                                 .toString().toInt()
@@ -186,7 +189,6 @@ class SocketSingleton private constructor() {
                                 .toString()
                         executeAction { Interactor.syncTime(newTime) }
                     }
-
                 }
             } catch (e: ValidateException) {
                 socket.emit(
@@ -234,7 +236,7 @@ class SocketSingleton private constructor() {
                 delay(180000)//3 minutos
                 if (isProcessActive){
                     Interactor.sendResponseToServer(Constants.CODE_TIMEOUT)
-                    Ble.disconnectGatt()
+                    Ble.disconnectGatt() 
                 }
             } catch (_: Exception) {
             }

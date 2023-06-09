@@ -30,10 +30,9 @@ import androidx.fragment.app.FragmentTransaction.TRANSIT_FRAGMENT_OPEN
 
 class MainActivity : AppCompatActivity() {
 
+    private lateinit var mBinding: ActivityMainBinding
     private val ACTION_RUN_SERVICE = "com.mch.blekot.services.action.RUN_SERVICE"
     private val ACTION_MEMORY_EXIT = "com.mch.blekot.services.action.MEMORY_EXIT"
-
-    private lateinit var mBinding: ActivityMainBinding
 
     //Singleton
     private val Context.dataStore by preferencesDataStore(name = "DEVICE_ID")
@@ -48,7 +47,6 @@ class MainActivity : AppCompatActivity() {
         methodRequiresTwoPermission()
         //onCLickListeners
         setUpListeners()
-
         askForDeviceID()
     }
 
@@ -85,7 +83,7 @@ class MainActivity : AppCompatActivity() {
                 MainScope().launch { Interactor.openLock() }
             }
         }
-    }
+    } 
 
     private suspend fun saveDeviceID(id: String){
         val deviceIdKey = stringPreferencesKey(Constants.DEVICE_ID_KEY)

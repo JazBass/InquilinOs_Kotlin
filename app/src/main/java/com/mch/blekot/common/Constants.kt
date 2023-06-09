@@ -32,17 +32,17 @@ object Constants {
     /***************SocketParameters***************/
 
     const val ACTION_LOG = "Log"
+    const val MESSAGE = "Conectado"
     const val ACTION_ADMIN = "admin"
     const val RESPONSE_SOCKET_BLUETOOTH = "ResponseSocketBluetooth"
-    const val MESSAGE = "Conectado"
 
     const val PARAMETER_QR = "Qr"
     const val PARAMETER_CMD = "cmd"
+    const val PARAMETER_TYPE = "type"
     const val PARAMETER_DAYS = "days"
     const val PARAMETER_CODE = "code"
     const val PARAMETER_INDEX = "index"
     const val PARAMETER_TIMES = "times"
-    const val PARAMETER_TYPE = "type"
     const val PARAMETER_SYNC_TIME = "syncTime"
     const val PARAMETER_DEVICE_ID = "deviceId"
     const val PARAMETER_IP_ARDUINO = "ipArduino"
