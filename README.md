@@ -158,7 +158,7 @@ A --> |res|TCP
 ```
 Y así queridos amigos de MCH me despido.
 
-[JazBass](C:\Users\HP\Documents\AndroidStudioProjects\BleKot\app\src\main\res\drawable-v24\jazbass.jpeg)
+[JazBass](https://github.com/ATICMCH/BleKotlin/blob/1bbdccd803a76f4acb9cac2fd16ff48178edc4a6/app/src/main/res/drawable-v24/jazbass.jpeg)
 
 
 
