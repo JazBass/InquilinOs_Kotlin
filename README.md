@@ -156,7 +156,9 @@ I --> |res|F
 B -->|res|A
 A --> |res|TCP
 ```
+Y así queridos amigos de MCH me despido.
 
+[JazBass](C:\Users\HP\Documents\AndroidStudioProjects\BleKot\app\src\main\res\drawable-v24\jazbass.jpeg)
 
 
 
