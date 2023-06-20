@@ -158,7 +158,7 @@ A --> |res|TCP
 ```
 Y así queridos amigos de MCH me despido.
 
-[JazBass](https://github.com/ATICMCH/BleKotlin/blob/master/app/src/main/res/drawable-v24/jazbass.jpeg)
+[JazBass](https://github.com/ATICMCH/BleKotlin/blob/master/app/src/main/res/drawable-v24/jazbass.png)
 
 
 
