@@ -1,6 +1,6 @@
 package com.mch.blekot.model
 
-interface ActionManagerAux {
+interface InteractorAux {
 
     suspend fun openLock()
 

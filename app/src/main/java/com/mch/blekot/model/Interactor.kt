@@ -10,7 +10,7 @@ import com.mch.blekot.model.welock.WeLock
 import com.mch.blekot.common.JsonManager
 import com.mch.blekot.model.socket.SocketSingleton
 
-object Interactor : ActionManagerAux {
+object Interactor : InteractorAux {
 
     private var mAction = -1
     private var mRndNumber: String? = null
